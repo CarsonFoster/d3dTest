@@ -1,7 +1,8 @@
-#include <Windows.h>
-#include "WindowClass.h"
 #include "Window.h"
+#include "WindowClass.h"
 #include "WindowFactory.h"
+#include <optional>
+#include <Windows.h>
 
 LRESULT WndProc(Window* pWindow, HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
@@ -41,14 +42,9 @@ int CALLBACK WinMain(
 	// Show window
 	w.showWindow();
 
-	// Message pump
-	MSG msg;
 	while (true) {
-		if (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) { // if there is a message
-			if (msg.message == WM_QUIT) return msg.wParam; // return exit code
-			TranslateMessage(&msg);
-			DispatchMessageW(&msg);
-		}
+		std::optional<int> exitCode{ w.processMessagesOnQueue() };
+		if (exitCode) return *exitCode; // if the exitCode isn't empty, return its value
 	}
 
 	return 0;

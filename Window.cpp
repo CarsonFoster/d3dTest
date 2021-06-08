@@ -1,4 +1,5 @@
 #include "Window.h"
+#include <optional>
 #include <Windows.h>
 
 Window::WindowInitializationStruct::WindowInitializationStruct(DWORD eStyle, LPCWSTR aClassName, LPCWSTR aWindowName,
@@ -90,4 +91,17 @@ Window::ClientWindowProc Window::getClientWindowProc() const noexcept {
 
 void Window::showWindow(int showCommand) {
 	ShowWindow(hWnd, showCommand);
+}
+
+std::optional<int> Window::processMessagesOnQueue() {
+	MSG msg;
+	while (PeekMessageW(&msg, hWnd, 0, 0, PM_REMOVE)) {
+		switch (msg.message) {
+		case WM_QUIT:
+			return msg.wParam; // return exit code
+		}
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	return {};
 }

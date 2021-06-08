@@ -1,6 +1,7 @@
 #ifndef CWF_WINDOW_H
 #define CWF_WINDOW_H
 
+#include <optional>
 #include <Windows.h>
 
 class WindowFactory;
@@ -51,6 +52,7 @@ public:
 	ClientWindowProc getClientWindowProc() const noexcept;
 
 	void showWindow(int showCommand = SW_SHOW);
+	std::optional<int> processMessagesOnQueue();
 
 	friend class WindowFactory;
 };
