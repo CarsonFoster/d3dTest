@@ -42,8 +42,9 @@ int CALLBACK WinMain(
 	// Show window
 	w.showWindow();
 
+	std::optional<int> exitCode{};
 	while (true) {
-		std::optional<int> exitCode{ w.processMessagesOnQueue() };
+		exitCode = w.processMessagesOnQueue();
 		if (exitCode) return *exitCode; // if the exitCode isn't empty, return its value
 	}
 

@@ -1,5 +1,7 @@
 #include "Window.h"
+#include <iostream>
 #include <optional>
+#include <string>
 #include <Windows.h>
 
 Window::WindowInitializationStruct::WindowInitializationStruct(DWORD eStyle, LPCWSTR aClassName, LPCWSTR aWindowName,
@@ -95,7 +97,7 @@ void Window::showWindow(int showCommand) {
 
 std::optional<int> Window::processMessagesOnQueue() {
 	MSG msg;
-	while (PeekMessageW(&msg, hWnd, 0, 0, PM_REMOVE)) {
+	while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) { // uses nullptr here to receive all messages from current thread
 		switch (msg.message) {
 		case WM_QUIT:
 			return msg.wParam; // return exit code

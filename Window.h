@@ -49,10 +49,10 @@ public:
 	Window(const Window& o) = delete;
 	Window& operator=(const Window& o) = delete;
 
-	ClientWindowProc getClientWindowProc() const noexcept;
+	static std::optional<int> processMessagesOnQueue();
 
+	ClientWindowProc getClientWindowProc() const noexcept;
 	void showWindow(int showCommand = SW_SHOW);
-	std::optional<int> processMessagesOnQueue();
 
 	friend class WindowFactory;
 };
