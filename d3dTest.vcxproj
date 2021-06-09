@@ -153,14 +153,14 @@
     <ClCompile Include="CwfException.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WindowClass.cpp" />
-    <ClCompile Include="WindowFactory.cpp" />
+    <ClCompile Include="WindowBuilder.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CwfException.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WindowClass.h" />
-    <ClInclude Include="WindowFactory.h" />
+    <ClInclude Include="WindowBuilder.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

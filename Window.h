@@ -8,7 +8,7 @@
 
 #define WM_THROW (WM_USER + 0)
 
-class WindowFactory;
+class WindowBuilder;
 
 class Window {
 public:
@@ -61,7 +61,7 @@ public:
 	void createExceptionMessageBox(CwfException e);
 	void createExceptionMessageBox(std::exception e);
 
-	friend class WindowFactory;
+	friend class WindowBuilder;
 };
 
 #endif

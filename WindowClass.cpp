@@ -24,9 +24,11 @@ LRESULT CALLBACK WindowClass::SetupWindowProc(HWND hWnd, UINT msg, WPARAM wParam
 			} else {
 				PostMessageW(hWnd, WM_THROW, __LINE__, reinterpret_cast<LONG_PTR>(__FILE__)); // alert main thread
 			}
-		} else {
+		}/* else {
+			DWORD errorCode{ GetLastError() };
 			PostMessageW(hWnd, WM_THROW, __LINE__, reinterpret_cast<LONG_PTR>(__FILE__)); // alert main thread
-		}
+		}*/
+		// TODO: determine if I really need the above block of code or not
 	}
 
 }

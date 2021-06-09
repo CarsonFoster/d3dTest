@@ -24,7 +24,7 @@
     <ClCompile Include="Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WindowFactory.cpp">
+    <ClCompile Include="WindowBuilder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CwfException.cpp">
@@ -38,7 +38,7 @@
     <ClInclude Include="Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WindowFactory.h">
+    <ClInclude Include="WindowBuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CwfException.h">

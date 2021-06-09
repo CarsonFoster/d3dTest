@@ -1,6 +1,6 @@
 #include "Window.h"
 #include "WindowClass.h"
-#include "WindowFactory.h"
+#include "WindowBuilder.h"
 #include <optional>
 #include <Windows.h>
 
@@ -28,7 +28,7 @@ int CALLBACK WinMain(
 
 	// Create window instance
 	Window w{
-		WindowFactory{ hInstance, wc.getClassName(), pWindowName, WndProc }
+		WindowBuilder{ hInstance, wc.getClassName(), pWindowName, WndProc }
 		.addWindowStyle(WS_MINIMIZEBOX)
 		.setClientSize(960, 540)
 		.build()
@@ -44,7 +44,18 @@ int CALLBACK WinMain(
 
 	std::optional<int> exitCode{};
 	while (true) {
-		exitCode = w.processMessagesOnQueue();
+		try {
+			exitCode = w.processMessagesOnQueue();
+		} catch (const CwfException& e) {
+			w.createExceptionMessageBox(e);
+			break;
+		} catch (const std::exception& e) {
+			w.createExceptionMessageBox(e);
+			break;
+		} catch (...) {
+			w.createExceptionMessageBox(CWF_EXCEPTION(CwfException::CwfExceptionType::OTHER, L"Unknown exception occurred."));
+			break;
+		}
 		if (exitCode) return *exitCode; // if the exitCode isn't empty, return its value
 	}
 
