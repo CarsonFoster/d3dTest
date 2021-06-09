@@ -106,7 +106,7 @@ std::optional<int> Window::processMessagesOnQueue() {
 		case WM_THROW:
 			CwfException e{ CwfException::CwfExceptionType::WINDOWS, L"Windows failure in window proc callback function",
 				reinterpret_cast<const char*>(msg.lParam), static_cast<int>(msg.wParam) };
-			throw &e;
+			throw e;
 		}
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);

@@ -20,10 +20,6 @@ public:
 	CwfException(CwfExceptionType t, const wchar_t* message, const char* filename, int lineNumber) noexcept;
 	~CwfException() = default;
 
-	// no copy init/assign
-	CwfException(const CwfException& o) = delete;
-	CwfException& operator=(const CwfException& o) = delete;
-
 	static std::wstring getStandardExceptionString(std::exception e) noexcept;
 
 	int getLine() const noexcept;
