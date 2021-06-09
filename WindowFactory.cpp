@@ -1,6 +1,7 @@
-#include <Windows.h>
-#include "WindowFactory.h"
+#include "CwfException.h"
 #include "Window.h"
+#include "WindowFactory.h"
+#include <Windows.h>
 
 WindowFactory::WindowFactory(HINSTANCE aHInstance, LPCWSTR aClassName, 
 							 LPCWSTR aWindowName, Window::ClientWindowProc windowProc) noexcept
@@ -59,7 +60,7 @@ void WindowFactory::adjustRect() {
 	r.bottom = r.top + clientHeight;
 	bool hasMenu = (windowStyle & (WS_SYSMENU | WS_CAPTION));
 	if (!AdjustWindowRectEx(&r, windowStyle, hasMenu, extendedStyle)) { // if it returns zero, there has been an error
-		// TODO: handle failure of AdjustWindowRectEx
+		throw CWF_EXCEPTION(CwfException::CwfExceptionType::WINDOWS, L"AdjustWindowRectEx call failed");
 	}
 	windowWidth = r.right - r.left;
 	windowHeight = r.bottom - r.top;

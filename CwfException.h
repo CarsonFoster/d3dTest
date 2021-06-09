@@ -4,6 +4,8 @@
 #include <exception>
 #include <string>
 
+#define CWF_EXCEPTION(type, message) CwfException{ type, message, __FILE__, __LINE__ }
+
 class CwfException {
 public:
 	enum class CwfExceptionType {
