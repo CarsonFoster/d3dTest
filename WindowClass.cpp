@@ -1,3 +1,4 @@
+#include "Window.h"
 #include "WindowClass.h"
 #include <Windows.h>
 
@@ -9,7 +10,7 @@ LRESULT CALLBACK WindowClass::SetupWindowProc(HWND hWnd, UINT msg, WPARAM wParam
 		SetLastError(0); // have to clear last error to get accurate checking for SetWindowLongPtrW
 		if (!SetWindowLongPtrW(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWindow))) { // if return is 0
 			if (GetLastError()) { // if return is nonzero
-				// TODO: handle failure of SetWindowLongPtrW
+				PostMessageW(hWnd, WM_THROW, __LINE__, reinterpret_cast<LONG_PTR>(__FILE__)); // alert main thread
 			} else { // no error otherwise
 				return pWindow->getClientWindowProc()(pWindow, hWnd, msg, wParam, lParam);
 			}
@@ -21,11 +22,10 @@ LRESULT CALLBACK WindowClass::SetupWindowProc(HWND hWnd, UINT msg, WPARAM wParam
 			if (windowProc) {
 				return windowProc(pWindow, hWnd, msg, wParam, lParam);
 			} else {
-				// TODO: handle failure to get window proc
-				int x{ 0 };
+				PostMessageW(hWnd, WM_THROW, __LINE__, reinterpret_cast<LONG_PTR>(__FILE__)); // alert main thread
 			}
 		} else {
-			// TODO: handle failure to get Window pointer
+			PostMessageW(hWnd, WM_THROW, __LINE__, reinterpret_cast<LONG_PTR>(__FILE__)); // alert main thread
 		}
 	}
 

@@ -6,6 +6,8 @@
 #include <optional>
 #include <Windows.h>
 
+#define WM_THROW (WM_USER + 0)
+
 class WindowFactory;
 
 class Window {
