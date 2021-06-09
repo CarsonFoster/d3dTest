@@ -1,4 +1,6 @@
+#include "CwfException.h"
 #include "Window.h"
+#include <exception>
 #include <iostream>
 #include <optional>
 #include <string>
@@ -106,4 +108,12 @@ std::optional<int> Window::processMessagesOnQueue() {
 		DispatchMessage(&msg);
 	}
 	return {};
+}
+
+void Window::createExceptionMessageBox(CwfException e) {
+	MessageBoxW(hWnd, e.getExceptionString().c_str(), exceptionCaption, MB_ICONERROR);
+}
+
+void Window::createExceptionMessageBox(std::exception e) {
+	MessageBoxW(hWnd, CwfException::getStandardExceptionString(e).c_str(), exceptionCaption, MB_ICONERROR);
 }

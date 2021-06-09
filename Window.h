@@ -1,6 +1,8 @@
 #ifndef CWF_WINDOW_H
 #define CWF_WINDOW_H
 
+#include "CwfException.h"
+#include <exception>
 #include <optional>
 #include <Windows.h>
 
@@ -10,6 +12,7 @@ class Window {
 public:
 	using ClientWindowProc = LRESULT(*)(Window*, HWND, UINT, WPARAM, LPARAM);
 private:
+	static constexpr const wchar_t* exceptionCaption = L"Exception in Program";
 	HWND hWnd;
 	ClientWindowProc clientWindowProc;
 
@@ -53,6 +56,8 @@ public:
 
 	ClientWindowProc getClientWindowProc() const noexcept;
 	void showWindow(int showCommand = SW_SHOW);
+	void createExceptionMessageBox(CwfException e);
+	void createExceptionMessageBox(std::exception e);
 
 	friend class WindowFactory;
 };

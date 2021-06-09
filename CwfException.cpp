@@ -1,12 +1,13 @@
 #include "CwfException.h"
 #include <exception>
 #include <sstream>
+#include <string>
 
-const wchar_t* CwfException::getStandardExceptionString(std::exception e) noexcept {
+std::wstring CwfException::getStandardExceptionString(std::exception e) noexcept {
 	std::wostringstream builder{};
 	builder << "[Type] Standard Exception\n"
 		<< "[Message] " << e.what();
-	return builder.str().c_str();
+	return builder.str(); // should be moved
 }
 
 CwfException::CwfException(CwfExceptionType t, const wchar_t* message, const char* filename, int lineNumber) noexcept
@@ -43,11 +44,11 @@ const wchar_t* CwfException::getMessage() const noexcept {
 	return msg;
 }
 
-const wchar_t* CwfException::getExceptionString() const noexcept {
+std::wstring CwfException::getExceptionString() const noexcept {
 	std::wostringstream builder{};
 	builder << "[Type] " << getTypeAsString() << "\n"
 		<< "[File] " << file << "\n"
 		<< "[Line] " << line << "\n"
 		<< "[Message] " << msg;
-	return builder.str().c_str();
+	return builder.str(); // should be moved
 }
