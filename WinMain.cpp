@@ -27,6 +27,7 @@ int CALLBACK WinMain(
 	wc.registerClass();
 
 	// Create window instance
+	// TODO: figure out how to do error handling with this
 	Window w{
 		WindowBuilder{ hInstance, wc.getClassName(), pWindowName, WndProc }
 		.addWindowStyle(WS_MINIMIZEBOX)
