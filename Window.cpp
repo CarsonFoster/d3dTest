@@ -68,7 +68,7 @@ Window::WindowInitializationStruct& Window::WindowInitializationStruct::operator
 	return *this;
 }
 
-Window::Window(Window::WindowInitializationStruct wis) : clientWindowProc{ wis.windowProc }, hWnd{ 0 } {
+Window::Window(Window::WindowInitializationStruct wis) : clientWindowProc{ wis.windowProc }, hWnd{ 0 }, kbd{} {
 	hWnd = CreateWindowExW(wis.extendedStyle, wis.className, wis.windowName, wis.windowStyle, wis.x, wis.y,
 		wis.windowWidth, wis.windowHeight, wis.hParent, wis.hMenu, wis.hInstance, this);
 }
@@ -107,6 +107,22 @@ std::optional<int> Window::processMessagesOnQueue() {
 			CwfException e{ CwfException::CwfExceptionType::WINDOWS, L"Windows failure in window proc callback function.",
 				reinterpret_cast<const char*>(msg.lParam), static_cast<int>(msg.wParam) };
 			throw e;
+		case WM_KILLFOCUS:
+			kbd.clearKeyStates(); // don't want to keep phantom key presses when we lose focus
+			break;
+		case WM_KEYDOWN:
+			if (!(msg.lParam & 0x40000000) // the previous key state is 0
+				|| kbd.isAutorepeatEnabled()) { // or autorepeat is enabled
+				
+				kbd.keyPressed(static_cast<unsigned char>(msg.wParam));
+			}
+			break;
+		case WM_KEYUP:
+			kbd.keyReleased(static_cast<unsigned char>(msg.wParam));
+			break;
+		case WM_CHAR:
+			kbd.characterTyped(static_cast<unsigned char>(msg.wParam));	
+			break;
 		}
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);

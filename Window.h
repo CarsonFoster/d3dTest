@@ -2,6 +2,7 @@
 #define CWF_WINDOW_H
 
 #include "CwfException.h"
+#include "Keyboard.h"
 #include <exception>
 #include <optional>
 #include <Windows.h>
@@ -44,6 +45,8 @@ private:
 		WindowInitializationStruct& operator=(const WindowInitializationStruct& o) = delete;
 	};
 public:
+	Keyboard kbd;
+
 	// NOTE: Remember to keep move semantics up to date as more stuff is added to 
 	// NOTE: move semantics are currently disabled, as the pointer to the window in GetWindowLongPtrW() is invalidated
 	// 	     when the window is moved
@@ -54,7 +57,7 @@ public:
 	Window(const Window& o) = delete;
 	Window& operator=(const Window& o) = delete;
 
-	static std::optional<int> processMessagesOnQueue();
+	std::optional<int> processMessagesOnQueue();
 
 	ClientWindowProc getClientWindowProc() const noexcept;
 	void showWindow(int showCommand = SW_SHOW);

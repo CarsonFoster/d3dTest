@@ -32,7 +32,7 @@ private:
 	
 	std::bitset<VIRTUAL_KEYS> keyStates;
 	std::queue<Event> keyEvents;
-	std::queue<char> characterBuffer;
+	std::queue<unsigned char> characterBuffer;
 	bool autorepeat;
 public:
 	Keyboard();
@@ -48,7 +48,7 @@ public:
 	void clearEventQueue();
 
 	bool isCharQueueEmpty() const noexcept;
-	std::optional<char> pollCharQueue();
+	std::optional<unsigned char> pollCharQueue();
 	void clearCharQueue();
 
 	void enableAutorepeat() noexcept;
@@ -60,7 +60,7 @@ private:
 	inline void manageCharQueueSize();
 	void keyPressed(unsigned char key);
 	void keyReleased(unsigned char key);
-	void characterTyped(char character);
+	void characterTyped(unsigned char character);
 	void clearKeyStates();
 };
 

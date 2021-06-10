@@ -33,9 +33,9 @@ bool Keyboard::isCharQueueEmpty() const noexcept {
 	return characterBuffer.empty();
 }
 
-std::optional<char> Keyboard::pollCharQueue() {
+std::optional<unsigned char> Keyboard::pollCharQueue() {
 	if (!characterBuffer.empty()) {
-		char c = characterBuffer.front();
+		unsigned char c = characterBuffer.front();
 		characterBuffer.pop();
 		return c;
 	} else return {};
@@ -45,10 +45,9 @@ void Keyboard::clearCharQueue() {
 	// although the underlying std::deque does have a clear()
 	// operation, it's the same complexity to just reassign,
 	// and now we can keep std::queue and abstract away the implementation
-	characterBuffer = std::queue<char>{};
+	characterBuffer = std::queue<unsigned char>{};
 }
 
-// TODO: actually do something with the autorepeat value
 void Keyboard::enableAutorepeat() noexcept {
 	autorepeat = true;
 }
@@ -93,8 +92,8 @@ void Keyboard::keyReleased(unsigned char key) {
 	}
 }
 
-void Keyboard::characterTyped(char character) {
-	// TODO: do I need some sort of argument checking here?
+void Keyboard::characterTyped(unsigned char character) {
+	// no arg checking, only available to Window
 	manageCharQueueSize();
 	characterBuffer.push(character);
 }
