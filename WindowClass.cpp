@@ -18,6 +18,9 @@ LRESULT CALLBACK WindowClass::SetupWindowProc(HWND hWnd, UINT msg, WPARAM wParam
 	} else {
 		Window* const pWindow = reinterpret_cast<Window*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
 		if (pWindow) {
+			if (msg == WM_KILLFOCUS) { // WM_KILLFOCUS bypasses message queue, can only handle it here
+				pWindow->kbd.clearKeyStates();
+			}
 			Window::ClientWindowProc windowProc = pWindow->getClientWindowProc();
 			if (windowProc) {
 				return windowProc(pWindow, hWnd, msg, wParam, lParam);

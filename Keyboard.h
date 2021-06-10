@@ -43,6 +43,7 @@ public:
 	Keyboard& operator=(const Keyboard& o) = delete;
 
 	bool isKeyPressed(unsigned char key);
+	void clearKeyStates();
 	bool isEventQueueEmpty() const noexcept;
 	std::optional<Event> pollEventQueue();
 	void clearEventQueue();
@@ -61,7 +62,6 @@ private:
 	void keyPressed(unsigned char key);
 	void keyReleased(unsigned char key);
 	void characterTyped(unsigned char character);
-	void clearKeyStates();
 };
 
 

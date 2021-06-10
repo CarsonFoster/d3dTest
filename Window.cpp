@@ -104,12 +104,8 @@ std::optional<int> Window::processMessagesOnQueue() {
 		case WM_QUIT:
 			return msg.wParam; // return exit code
 		case WM_THROW:
-			CwfException e{ CwfException::CwfExceptionType::WINDOWS, L"Windows failure in window proc callback function.",
+			throw CwfException{ CwfException::CwfExceptionType::WINDOWS, L"Windows failure in window proc callback function.",
 				reinterpret_cast<const char*>(msg.lParam), static_cast<int>(msg.wParam) };
-			throw e;
-		case WM_KILLFOCUS:
-			kbd.clearKeyStates(); // don't want to keep phantom key presses when we lose focus
-			break;
 		case WM_SYSKEYDOWN: // for F10 and Alt; we do the same thing as regular though
 			[[fallthrough]];
 		case WM_KEYDOWN:
