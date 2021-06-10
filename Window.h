@@ -58,11 +58,13 @@ public:
 	Window& operator=(const Window& o) = delete;
 
 	std::optional<int> processMessagesOnQueue();
-
-	ClientWindowProc getClientWindowProc() const noexcept;
 	void showWindow(int showCommand = SW_SHOW);
 	void createExceptionMessageBox(CwfException e);
 	void createExceptionMessageBox(std::exception e);
+	ClientWindowProc getClientWindowProc() const noexcept;
+	
+	static void createExceptionMessageBoxStatic(CwfException e);
+	static void createExceptionMessageBoxStatic(std::exception e);
 
 	friend class WindowBuilder;
 };

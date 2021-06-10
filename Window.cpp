@@ -110,6 +110,8 @@ std::optional<int> Window::processMessagesOnQueue() {
 		case WM_KILLFOCUS:
 			kbd.clearKeyStates(); // don't want to keep phantom key presses when we lose focus
 			break;
+		case WM_SYSKEYDOWN: // for F10 and Alt; we do the same thing as regular though
+			[[fallthrough]];
 		case WM_KEYDOWN:
 			if (!(msg.lParam & 0x40000000) // the previous key state is 0
 				|| kbd.isAutorepeatEnabled()) { // or autorepeat is enabled
@@ -117,6 +119,8 @@ std::optional<int> Window::processMessagesOnQueue() {
 				kbd.keyPressed(static_cast<unsigned char>(msg.wParam));
 			}
 			break;
+		case WM_SYSKEYUP:
+			[[fallthrough]];
 		case WM_KEYUP:
 			kbd.keyReleased(static_cast<unsigned char>(msg.wParam));
 			break;
@@ -136,4 +140,12 @@ void Window::createExceptionMessageBox(CwfException e) {
 
 void Window::createExceptionMessageBox(std::exception e) {
 	MessageBoxW(hWnd, CwfException::getStandardExceptionString(e).c_str(), exceptionCaption, MB_ICONERROR);
+}
+
+void Window::createExceptionMessageBoxStatic(CwfException e) {
+	MessageBoxW(nullptr, e.getExceptionString().c_str(), exceptionCaption, MB_ICONERROR);
+}
+
+void Window::createExceptionMessageBoxStatic(std::exception e) {
+	MessageBoxW(nullptr, CwfException::getStandardExceptionString(e).c_str(), exceptionCaption, MB_ICONERROR);
 }
