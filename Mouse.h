@@ -14,7 +14,9 @@ public:
 	class Event {
 	public:
 		enum class Type {
-			PRESSED, RELEASED, DOUBLECLICK, MOVE, SCROLL, OTHER
+			PRESSED, RELEASED, DOUBLECLICK, MOVE, 
+			SCROLL_UP, SCROLL_DOWN, ENTER_CLIENT,
+			LEAVE_CLIENT, OTHER
 		};
 		enum class Button {
 			LEFT, MIDDLE, RIGHT, OTHER
@@ -35,10 +37,10 @@ public:
 	};
 private:
 	static constexpr unsigned int MAX_QUEUE_SIZE = 16u;
-	bool isLeftPressed;
-	bool isMiddlePressed;
-	bool isRightPressed;
-	bool isInWindow;
+	bool leftPressed;
+	bool middlePressed;
+	bool rightPressed;
+	bool inWindow;
 	int x;
 	int y;
 	int wheelDeltaAccumulator;
@@ -61,6 +63,7 @@ public:
 
 	std::optional<Event> pollEventQueue();
 	bool isEventQueueEmpty() const noexcept;
+	void clearEventQueue();
 
 private:
 	inline void manageQueueSize();
@@ -68,7 +71,9 @@ private:
 	void buttonReleased(Event::Button b, int x, int y);
 	void buttonDoubleClicked(Event::Button b, int x, int y);
 	void scrolled(WPARAM packedDelta, int x, int y);
-	void moved(int x, int y);
+	void moved(int aX, int aY);
+	void entered(int x, int y);
+	void left(int x, int y);
 };
 
 #endif
