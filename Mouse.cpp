@@ -6,7 +6,7 @@
 #include <Windows.h>
 
 Mouse::Mouse() noexcept : leftPressed{ false }, middlePressed{ false }, 
-	rightPressed{ false }, inWindow{ false }, x{ 0 }, y{ 0 }, 
+	rightPressed{ false }, /*inWindow{false},*/ x{0}, y{0},
 	wheelDeltaAccumulator{ 0 }, eventQueue{} {}
 
 int Mouse::getX() const noexcept {
@@ -33,9 +33,9 @@ bool Mouse::isRightPressed() const noexcept {
 	return rightPressed;
 }
 
-bool Mouse::isInWindow() const noexcept {
+/*bool Mouse::isInWindow() const noexcept {
 	return inWindow;
-}
+}*/
 
 std::optional<Mouse::Event> Mouse::pollEventQueue() {
 	if (!eventQueue.empty()) {
@@ -54,6 +54,13 @@ void Mouse::clearEventQueue() {
 	// same complexity as std::deque::clear(),
 	// but don't have to expose the std::deque
 	eventQueue = std::queue<Event>{};
+}
+
+void Mouse::clearButtonStates() noexcept {
+	leftPressed = false;
+	rightPressed = false;
+	middlePressed = false;
+	wheelDeltaAccumulator = 0;
 }
 
 inline void Mouse::manageQueueSize() {
@@ -138,7 +145,7 @@ void Mouse::moved(int aX, int aY) {
 		x, y);
 }
 
-void Mouse::entered(int x, int y) {
+/*void Mouse::entered(int x, int y) {
 	inWindow = true;
 	manageQueueSize();
 	eventQueue.emplace(Event::Type::ENTER_CLIENT,
@@ -150,4 +157,4 @@ void Mouse::left(int x, int y) {
 	manageQueueSize();
 	eventQueue.emplace(Event::Type::LEAVE_CLIENT,
 		Event::Button::OTHER, x, y);
-}
+}*/

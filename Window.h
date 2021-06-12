@@ -66,6 +66,7 @@ public:
 	void createExceptionMessageBox(CwfException e);
 	void createExceptionMessageBox(std::exception e);
 	ClientWindowProc getClientWindowProc() const noexcept;
+	bool setTitle(LPCWSTR title) noexcept;
 	HWND getHWND() const noexcept;
 	
 	static void createExceptionMessageBoxStatic(CwfException e);

@@ -165,12 +165,13 @@ std::optional<int> Window::processMessagesOnQueue() {
 		case WM_MOUSEMOVE:
 			int x = GET_X_LPARAM(msg.lParam);
 			int y = GET_Y_LPARAM(msg.lParam);
+			/*
 			// if mouse was in window, and now outside the window -> left
 			if (mouse.isInWindow() && (x < 0 || x > windowWidth || y < 0 || y > windowHeight))
 				mouse.left(x, y);
 			// otherwise, cursor must be in window now; if mouse wasn't in window -> entered
 			else if (!mouse.isInWindow())
-				mouse.entered(x, y);
+				mouse.entered(x, y);*/
 			mouse.moved(x, y);
 			break;
 		}
@@ -190,6 +191,10 @@ void Window::createExceptionMessageBox(std::exception e) {
 
 HWND Window::getHWND() const noexcept {
 	return hWnd;
+}
+
+bool Window::setTitle(LPCWSTR title) noexcept {
+	return SetWindowTextW(hWnd, title);
 }
 
 void Window::createExceptionMessageBoxStatic(CwfException e) {

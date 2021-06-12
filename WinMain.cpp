@@ -2,6 +2,7 @@
 #include "WindowClass.h"
 #include "WindowBuilder.h"
 #include <optional>
+#include <sstream>
 #include <Windows.h>
 
 LRESULT WndProc(Window* pWindow, HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -45,9 +46,16 @@ int CALLBACK WinMain(
 		w.showWindow();
 
 		std::optional<int> exitCode{};
+		bool inWindow = false;
 		while (true) {
 			try {
 				exitCode = w.processMessagesOnQueue();
+				while (!w.mouse.isEventQueueEmpty()) {
+					std::optional<Mouse::Event> e = w.mouse.pollEventQueue();
+					if (e) {
+						Mouse::Event::Type t{ e->getType() };
+					}
+				}
 			}
 			catch (const CwfException& e) {
 				w.createExceptionMessageBox(e);
