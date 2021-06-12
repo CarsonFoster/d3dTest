@@ -5,6 +5,7 @@
 #include <optional>
 #include <string>
 #include <Windows.h>
+#include <windowsx.h>
 
 Window::WindowInitializationStruct::WindowInitializationStruct(DWORD eStyle, LPCWSTR aClassName, LPCWSTR aWindowName,
 	DWORD style, int aX, int aY, int width, int height, HWND parent, HMENU menu,
@@ -68,7 +69,10 @@ Window::WindowInitializationStruct& Window::WindowInitializationStruct::operator
 	return *this;
 }
 
-Window::Window(Window::WindowInitializationStruct wis) : clientWindowProc{ wis.windowProc }, hWnd{ 0 }, kbd{} {
+Window::Window(Window::WindowInitializationStruct wis) 
+	: clientWindowProc{ wis.windowProc }, hWnd{ 0 }, kbd{}, mouse{},
+	windowWidth{ wis.windowWidth }, windowHeight{ wis.windowHeight } {
+	
 	hWnd = CreateWindowExW(wis.extendedStyle, wis.className, wis.windowName, wis.windowStyle, wis.x, wis.y,
 		wis.windowWidth, wis.windowHeight, wis.hParent, wis.hMenu, wis.hInstance, this);
 }
@@ -101,11 +105,14 @@ std::optional<int> Window::processMessagesOnQueue() {
 	MSG msg;
 	while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) { // uses nullptr here to receive all messages from current thread
 		switch (msg.message) {
+		// other messages
 		case WM_QUIT:
 			return msg.wParam; // return exit code
 		case WM_THROW:
 			throw CwfException{ CwfException::CwfExceptionType::WINDOWS, L"Windows failure in window proc callback function.",
 				reinterpret_cast<const char*>(msg.lParam), static_cast<int>(msg.wParam) };
+		
+		// keyboard messages
 		case WM_SYSKEYDOWN: // for F10 and Alt; we do the same thing as regular though
 			[[fallthrough]];
 		case WM_KEYDOWN:
@@ -123,6 +130,49 @@ std::optional<int> Window::processMessagesOnQueue() {
 		case WM_CHAR:
 			kbd.characterTyped(static_cast<unsigned char>(msg.wParam));	
 			break;
+
+		// mouse messages
+		case WM_LBUTTONDOWN:
+			mouse.buttonPressed(Mouse::Event::Button::LEFT, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
+			break;
+		case WM_MBUTTONDOWN:
+			mouse.buttonPressed(Mouse::Event::Button::MIDDLE, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
+			break;
+		case WM_RBUTTONDOWN:
+			mouse.buttonPressed(Mouse::Event::Button::RIGHT, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
+			break;
+		case WM_LBUTTONUP:
+			mouse.buttonReleased(Mouse::Event::Button::LEFT, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
+			break;
+		case WM_MBUTTONUP:
+			mouse.buttonReleased(Mouse::Event::Button::MIDDLE, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
+			break;
+		case WM_RBUTTONUP:
+			mouse.buttonReleased(Mouse::Event::Button::RIGHT, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
+			break;
+		case WM_LBUTTONDBLCLK:
+			mouse.buttonDoubleClicked(Mouse::Event::Button::LEFT, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
+			break;
+		case WM_MBUTTONDBLCLK:
+			mouse.buttonDoubleClicked(Mouse::Event::Button::MIDDLE, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
+			break;
+		case WM_RBUTTONDBLCLK:
+			mouse.buttonDoubleClicked(Mouse::Event::Button::RIGHT, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
+			break;
+		case WM_MOUSEWHEEL:
+			mouse.scrolled(msg.wParam, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
+			break;
+		case WM_MOUSEMOVE:
+			int x = GET_X_LPARAM(msg.lParam);
+			int y = GET_Y_LPARAM(msg.lParam);
+			// if mouse was in window, and now outside the window -> left
+			if (mouse.isInWindow() && (x < 0 || x > windowWidth || y < 0 || y > windowHeight))
+				mouse.left(x, y);
+			// otherwise, cursor must be in window now; if mouse wasn't in window -> entered
+			else if (!mouse.isInWindow())
+				mouse.entered(x, y);
+			mouse.moved(x, y);
+			break;
 		}
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -136,6 +186,10 @@ void Window::createExceptionMessageBox(CwfException e) {
 
 void Window::createExceptionMessageBox(std::exception e) {
 	MessageBoxW(hWnd, CwfException::getStandardExceptionString(e).c_str(), exceptionCaption, MB_ICONERROR);
+}
+
+HWND Window::getHWND() const noexcept {
+	return hWnd;
 }
 
 void Window::createExceptionMessageBoxStatic(CwfException e) {

@@ -3,6 +3,7 @@
 
 #include "CwfException.h"
 #include "Keyboard.h"
+#include "Mouse.h"
 #include <exception>
 #include <optional>
 #include <Windows.h>
@@ -18,6 +19,8 @@ private:
 	static constexpr const wchar_t* exceptionCaption = L"Exception in Program";
 	HWND hWnd;
 	ClientWindowProc clientWindowProc;
+	int windowWidth;
+	int windowHeight;
 
 	class WindowInitializationStruct {
 	public:
@@ -46,6 +49,7 @@ private:
 	};
 public:
 	Keyboard kbd;
+	Mouse mouse;
 
 	// NOTE: Remember to keep move semantics up to date as more stuff is added to 
 	// NOTE: move semantics are currently disabled, as the pointer to the window in GetWindowLongPtrW() is invalidated
@@ -62,6 +66,7 @@ public:
 	void createExceptionMessageBox(CwfException e);
 	void createExceptionMessageBox(std::exception e);
 	ClientWindowProc getClientWindowProc() const noexcept;
+	HWND getHWND() const noexcept;
 	
 	static void createExceptionMessageBoxStatic(CwfException e);
 	static void createExceptionMessageBoxStatic(std::exception e);
