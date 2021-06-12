@@ -69,6 +69,6 @@ void WindowBuilder::adjustRect() {
 Window::WindowInitializationStruct WindowBuilder::build() {
 	adjustRect();
 	Window::WindowInitializationStruct toReturn{ extendedStyle, className, windowName, windowStyle, x, y,
-					windowWidth, windowHeight, hParent, hMenu, hInstance, clientWindowProc };
+					windowWidth, windowHeight, clientWidth, clientHeight, hParent, hMenu, hInstance, clientWindowProc };
 	return toReturn;
 }

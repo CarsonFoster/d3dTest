@@ -15,8 +15,8 @@ public:
 	public:
 		enum class Type {
 			PRESSED, RELEASED, DOUBLECLICK, MOVE, 
-			SCROLL_UP, SCROLL_DOWN, /*ENTER_CLIENT,
-			LEAVE_CLIENT,*/ OTHER
+			SCROLL_UP, SCROLL_DOWN, ENTER_CLIENT,
+			LEAVE_CLIENT, OTHER
 		};
 		enum class Button {
 			LEFT, MIDDLE, RIGHT, OTHER
@@ -40,7 +40,7 @@ private:
 	bool leftPressed;
 	bool middlePressed;
 	bool rightPressed;
-	// bool inWindow;
+	bool inClientRegion;
 	int x;
 	int y;
 	int wheelDeltaAccumulator;
@@ -59,7 +59,7 @@ public:
 	bool isLeftPressed() const noexcept;
 	bool isMiddlePressed() const noexcept;
 	bool isRightPressed() const noexcept;
-	// bool isInWindow() const noexcept;
+	bool isInClientRegion() const noexcept;
 
 	std::optional<Event> pollEventQueue();
 	bool isEventQueueEmpty() const noexcept;

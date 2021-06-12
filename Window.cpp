@@ -8,11 +8,11 @@
 #include <windowsx.h>
 
 Window::WindowInitializationStruct::WindowInitializationStruct(DWORD eStyle, LPCWSTR aClassName, LPCWSTR aWindowName,
-	DWORD style, int aX, int aY, int width, int height, HWND parent, HMENU menu,
+	DWORD style, int aX, int aY, int width, int height, int cWidth, int cHeight, HWND parent, HMENU menu,
 	HINSTANCE instance, ClientWindowProc aWindowProc) noexcept
 	: extendedStyle{ eStyle }, className{ aClassName }, windowName{ aWindowName }, windowStyle{ style },
-	x{ aX }, y{ aY }, windowWidth{ width }, windowHeight{ height }, hParent{ parent }, hMenu{ menu },
-	hInstance{ instance }, windowProc{ aWindowProc } {}
+	x{ aX }, y{ aY }, windowWidth{ width }, windowHeight{ height }, clientWidth{ cWidth }, clientHeight{ cHeight },
+	hParent{ parent }, hMenu{ menu }, hInstance{ instance }, windowProc{ aWindowProc } {}
 
 Window::WindowInitializationStruct::WindowInitializationStruct(WindowInitializationStruct&& o) noexcept {
 	extendedStyle = o.extendedStyle;
@@ -31,6 +31,10 @@ Window::WindowInitializationStruct::WindowInitializationStruct(WindowInitializat
 	o.windowWidth = 0;
 	windowHeight = o.windowHeight;
 	o.windowHeight = 0;
+	clientWidth = o.clientWidth;
+	o.clientWidth = 0;
+	clientHeight = o.clientHeight;
+	o.clientHeight = 0;
 	hParent = o.hParent;
 	o.hParent = nullptr;
 	hMenu = o.hMenu;
@@ -58,6 +62,10 @@ Window::WindowInitializationStruct& Window::WindowInitializationStruct::operator
 	o.windowWidth = 0;
 	windowHeight = o.windowHeight;
 	o.windowHeight = 0;
+	clientWidth = o.clientWidth;
+	o.clientWidth = 0;
+	clientHeight = o.clientHeight;
+	o.clientHeight = 0;
 	hParent = o.hParent;
 	o.hParent = nullptr;
 	hMenu = o.hMenu;
@@ -71,7 +79,7 @@ Window::WindowInitializationStruct& Window::WindowInitializationStruct::operator
 
 Window::Window(Window::WindowInitializationStruct wis) 
 	: clientWindowProc{ wis.windowProc }, hWnd{ 0 }, kbd{}, mouse{},
-	windowWidth{ wis.windowWidth }, windowHeight{ wis.windowHeight } {
+	clientWidth{ wis.clientWidth }, clientHeight{ wis.clientHeight } {
 	
 	hWnd = CreateWindowExW(wis.extendedStyle, wis.className, wis.windowName, wis.windowStyle, wis.x, wis.y,
 		wis.windowWidth, wis.windowHeight, wis.hParent, wis.hMenu, wis.hInstance, this);
@@ -165,14 +173,21 @@ std::optional<int> Window::processMessagesOnQueue() {
 		case WM_MOUSEMOVE:
 			int x = GET_X_LPARAM(msg.lParam);
 			int y = GET_Y_LPARAM(msg.lParam);
-			/*
-			// if mouse was in window, and now outside the window -> left
-			if (mouse.isInWindow() && (x < 0 || x > windowWidth || y < 0 || y > windowHeight))
-				mouse.left(x, y);
-			// otherwise, cursor must be in window now; if mouse wasn't in window -> entered
-			else if (!mouse.isInWindow())
-				mouse.entered(x, y);*/
-			mouse.moved(x, y);
+			if (x >= 0 && x < clientWidth && y >= 0 && y < clientHeight) {
+				mouse.moved(x, y);
+				if (!mouse.isInClientRegion()) { // in client region now, but not previously -> enter message and capture
+					SetCapture(hWnd);
+					mouse.entered(x, y);
+				}
+			} else {
+				if (mouse.isLeftPressed() || mouse.isMiddlePressed() || mouse.isRightPressed()) {
+					// if any button is pressed, we're still capturing the mouse
+					mouse.moved(x, y);
+				} else { // no button pressed, release capture and leave
+					ReleaseCapture();
+					mouse.left(x, y);
+				}
+			}
 			break;
 		}
 		TranslateMessage(&msg);

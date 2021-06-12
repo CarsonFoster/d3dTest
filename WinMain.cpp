@@ -50,12 +50,6 @@ int CALLBACK WinMain(
 		while (true) {
 			try {
 				exitCode = w.processMessagesOnQueue();
-				while (!w.mouse.isEventQueueEmpty()) {
-					std::optional<Mouse::Event> e = w.mouse.pollEventQueue();
-					if (e) {
-						Mouse::Event::Type t{ e->getType() };
-					}
-				}
 			}
 			catch (const CwfException& e) {
 				w.createExceptionMessageBox(e);

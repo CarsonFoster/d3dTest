@@ -6,7 +6,7 @@
 #include <Windows.h>
 
 Mouse::Mouse() noexcept : leftPressed{ false }, middlePressed{ false }, 
-	rightPressed{ false }, /*inWindow{false},*/ x{0}, y{0},
+	rightPressed{ false }, inClientRegion{ false }, x{ 0 }, y{ 0 },
 	wheelDeltaAccumulator{ 0 }, eventQueue{} {}
 
 int Mouse::getX() const noexcept {
@@ -33,9 +33,9 @@ bool Mouse::isRightPressed() const noexcept {
 	return rightPressed;
 }
 
-/*bool Mouse::isInWindow() const noexcept {
-	return inWindow;
-}*/
+bool Mouse::isInClientRegion() const noexcept {
+	return inClientRegion;
+}
 
 std::optional<Mouse::Event> Mouse::pollEventQueue() {
 	if (!eventQueue.empty()) {
@@ -145,16 +145,16 @@ void Mouse::moved(int aX, int aY) {
 		x, y);
 }
 
-/*void Mouse::entered(int x, int y) {
-	inWindow = true;
+void Mouse::entered(int x, int y) {
+	inClientRegion = true;
 	manageQueueSize();
 	eventQueue.emplace(Event::Type::ENTER_CLIENT,
 		Event::Button::OTHER, x, y);
 }
 
 void Mouse::left(int x, int y) {
-	inWindow = false;
+	inClientRegion = false;
 	manageQueueSize();
 	eventQueue.emplace(Event::Type::LEAVE_CLIENT,
 		Event::Button::OTHER, x, y);
-}*/
+}

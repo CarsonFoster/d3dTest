@@ -19,8 +19,8 @@ private:
 	static constexpr const wchar_t* exceptionCaption = L"Exception in Program";
 	HWND hWnd;
 	ClientWindowProc clientWindowProc;
-	int windowWidth;
-	int windowHeight;
+	int clientWidth;
+	int clientHeight;
 
 	class WindowInitializationStruct {
 	public:
@@ -32,13 +32,15 @@ private:
 		int y;
 		int windowWidth;
 		int windowHeight;
+		int clientWidth;
+		int clientHeight;
 		HWND hParent;
 		HMENU hMenu;
 		HINSTANCE hInstance;
 		ClientWindowProc windowProc;
 
 		WindowInitializationStruct(DWORD eStyle, LPCWSTR aClassName, LPCWSTR aWindowName,
-			DWORD style, int aX, int aY, int width, int height, HWND parent, HMENU menu,
+			DWORD style, int aX, int aY, int width, int height, int cWidth, int cHeight, HWND parent, HMENU menu,
 			HINSTANCE instance, ClientWindowProc aWindowProc) noexcept;
 		~WindowInitializationStruct() = default;
 		WindowInitializationStruct(WindowInitializationStruct&& o) noexcept;
