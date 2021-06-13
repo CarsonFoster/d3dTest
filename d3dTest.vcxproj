@@ -153,12 +153,14 @@
     <ClCompile Include="CwfException.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="App.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WindowClass.cpp" />
     <ClCompile Include="WindowBuilder.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="App.h" />
     <ClInclude Include="CwfException.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Mouse.h" />
