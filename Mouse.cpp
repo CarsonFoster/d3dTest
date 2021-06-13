@@ -117,7 +117,7 @@ void Mouse::scrolled(WPARAM packedDelta, int x, int y) {
 	int delta = GET_WHEEL_DELTA_WPARAM(packedDelta);
 #ifndef NDEBUG
 	if (delta % WHEEL_DELTA != 0 && WHEEL_DELTA % delta != 0)
-		throw CWF_EXCEPTION(CwfException::CwfExceptionType::WINDOWS,
+		throw CWF_EXCEPTION(CwfException::Type::WINDOWS,
 			L"Passed wheel delta is not a multiple or factor of WHEEL_DELTA");
 #endif
 	wheelDeltaAccumulator += delta;

@@ -117,7 +117,7 @@ std::optional<int> Window::processMessagesOnQueue() {
 		case WM_QUIT:
 			return msg.wParam; // return exit code
 		case WM_THROW:
-			throw CwfException{ CwfException::CwfExceptionType::WINDOWS, L"Windows failure in window proc callback function.",
+			throw CwfException{ CwfException::Type::WINDOWS, L"Windows failure in window proc callback function.",
 				reinterpret_cast<const char*>(msg.lParam), static_cast<int>(msg.wParam) };
 		
 		// keyboard messages

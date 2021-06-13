@@ -22,7 +22,7 @@ int CALLBACK WinMain(
 	} catch (const std::exception& e) {
 		Window::createExceptionMessageBoxStatic(e);
 	} catch (...) {
-		Window::createExceptionMessageBoxStatic(CWF_EXCEPTION(CwfException::CwfExceptionType::OTHER, L"Unknown exception occurred."));
+		Window::createExceptionMessageBoxStatic(CWF_EXCEPTION(CwfException::Type::OTHER, L"Unknown exception occurred."));
 	}
 
 	return 0;

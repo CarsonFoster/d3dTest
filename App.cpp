@@ -47,7 +47,7 @@ int App::run() {
 			break;
 		}
 		catch (...) {
-			w->createExceptionMessageBox(CWF_EXCEPTION(CwfException::CwfExceptionType::OTHER, L"Unknown exception occurred."));
+			w->createExceptionMessageBox(CWF_EXCEPTION(CwfException::Type::OTHER, L"Unknown exception occurred."));
 			break;
 		}
 	}
