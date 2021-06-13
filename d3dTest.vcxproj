@@ -162,6 +162,7 @@
   <ItemGroup>
     <ClInclude Include="App.h" />
     <ClInclude Include="CwfException.h" />
+    <ClInclude Include="Graphics.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Window.h" />
