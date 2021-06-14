@@ -6,6 +6,9 @@
 #include <memory>
 
 void App::doFrame() {
+	w->gfx().clearBuffer(0.0f,
+		Graphics::clamp(static_cast<float>(w->mouse.getX()) / w->getClientWidth(), 0.0f, 1.0f),
+		Graphics::clamp(static_cast<float>(w->mouse.getY()) / w->getClientHeight(), 0.0f, 1.0f));
 	w->gfx().endFrame();
 }
 
