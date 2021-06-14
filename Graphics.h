@@ -23,6 +23,7 @@ public:
 	void clearBuffer(float r, float g, float b);
 
 	static void clamp(float& value, float min, float max);
+	static float clamp(float value, float min, float max);
 };
 
 #endif

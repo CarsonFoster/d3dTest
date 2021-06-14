@@ -60,3 +60,7 @@ void Graphics::clearBuffer(float r, float g, float b) {
 void Graphics::clamp(float& value, float min, float max) {
 	value = std::max(min, std::min(value, max));
 }
+
+float Graphics::clamp(float value, float min, float max) {
+	return std::max(min, std::min(value, max));
+}
