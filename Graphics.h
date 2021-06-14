@@ -10,6 +10,7 @@ private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pTarget;
 public:
 	Graphics(HWND hWnd);
 	~Graphics() = default;
@@ -19,6 +20,7 @@ public:
 	Graphics& operator=(const Graphics& o) = delete;
 
 	void endFrame();
+	void clearBuffer(float r, float g, float b);
 };
 
 #endif
