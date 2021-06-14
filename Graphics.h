@@ -21,6 +21,8 @@ public:
 
 	void endFrame();
 	void clearBuffer(float r, float g, float b);
+
+	static void clamp(float& value, float min, float max);
 };
 
 #endif

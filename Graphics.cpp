@@ -1,4 +1,6 @@
+#define NOMINMAX
 #include "Graphics.h"
+#include <algorithm>
 #include <d3d11.h>
 #include <Windows.h>
 
@@ -53,4 +55,8 @@ void Graphics::endFrame() {
 void Graphics::clearBuffer(float r, float g, float b) {
 	const float colorRGBA[] = { r, g, b, 1.0f };
 	pContext->ClearRenderTargetView(pTarget.Get(), colorRGBA);
+}
+
+void Graphics::clamp(float& value, float min, float max) {
+	value = std::max(min, std::min(value, max));
 }
