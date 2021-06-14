@@ -14,9 +14,10 @@ int CALLBACK WinMain(
 	* go to Window::createExceptionMessageBoxStatic. The App class handles its exceptions in run().
 	*/
 
+	int exitCode{ 0 };
 	try {
 		App d3dTest{ hInstance };
-		d3dTest.run();
+		exitCode = d3dTest.run();
 	} catch (const CwfException& e) {
 		Window::createExceptionMessageBoxStatic(e);
 	} catch (const std::exception& e) {
@@ -25,5 +26,5 @@ int CALLBACK WinMain(
 		Window::createExceptionMessageBoxStatic(CWF_EXCEPTION(CwfException::Type::OTHER, L"Unknown exception occurred."));
 	}
 
-	return 0;
+	return exitCode;
 }

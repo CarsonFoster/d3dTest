@@ -2,9 +2,11 @@
 #define CWF_WINDOW_H
 
 #include "CwfException.h"
+#include "Graphics.h"
 #include "Keyboard.h"
 #include "Mouse.h"
 #include <exception>
+#include <memory>
 #include <optional>
 #include <Windows.h>
 
@@ -21,6 +23,7 @@ private:
 	ClientWindowProc clientWindowProc;
 	int clientWidth;
 	int clientHeight;
+	std::unique_ptr<Graphics> graphics;
 
 	class WindowInitializationStruct {
 	public:
@@ -53,16 +56,17 @@ public:
 	Keyboard kbd;
 	Mouse mouse;
 
+	Window(WindowInitializationStruct wis);
 	// NOTE: Remember to keep move semantics up to date as more stuff is added to 
 	// NOTE: move semantics are currently disabled, as the pointer to the window in GetWindowLongPtrW() is invalidated
 	// 	     when the window is moved
 	// Window(Window&& o) noexcept;
 	// Window& operator=(Window&& o) noexcept;
-	Window(WindowInitializationStruct wis);
 	// no copy init/assign
 	Window(const Window& o) = delete;
 	Window& operator=(const Window& o) = delete;
 
+	Graphics& gfx();
 	std::optional<int> processMessagesOnQueue();
 	void showWindow(int showCommand = SW_SHOW);
 	void createExceptionMessageBox(CwfException e);

@@ -1,7 +1,8 @@
 #include "CwfException.h"
+#include "Graphics.h"
 #include "Window.h"
 #include <exception>
-#include <iostream>
+#include <memory>
 #include <optional>
 #include <string>
 #include <Windows.h>
@@ -83,6 +84,7 @@ Window::Window(Window::WindowInitializationStruct wis)
 	
 	hWnd = CreateWindowExW(wis.extendedStyle, wis.className, wis.windowName, wis.windowStyle, wis.x, wis.y,
 		wis.windowWidth, wis.windowHeight, wis.hParent, wis.hMenu, wis.hInstance, this);
+	graphics = std::make_unique<Graphics>(hWnd);
 }
 
 /*Window::Window(Window&& o) noexcept : hWnd{o.hWnd}, clientWindowProc{o.clientWindowProc} {
@@ -100,6 +102,11 @@ Window& Window::operator=(Window&& o) noexcept {
 	o.clientWindowProc = nullptr;
 	return *this;
 }*/
+
+Graphics& Window::gfx() {
+	if (!graphics) throw CWF_EXCEPTION(CwfException::Type::FRAMEWORK, L"No graphics object found.");
+	return *graphics;
+}
 
 Window::ClientWindowProc Window::getClientWindowProc() const noexcept {
 	return clientWindowProc;
