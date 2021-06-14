@@ -31,9 +31,16 @@ Graphics::Graphics(HWND hWnd) {
 		0,
 		D3D11_SDK_VERSION,
 		&swapChainDescriptor,
-		&swapChain,
-		&device,
+		&pSwapChain,
+		&pDevice,
 		nullptr,
-		&context
+		&pContext
 	);
+}
+
+void Graphics::endFrame() {
+	// TODO: frame rate management
+	// Present( SyncInterval, Flags)
+	// target frame rate = refresh rate / sync interval
+	pSwapChain->Present(1u, 0u);
 }

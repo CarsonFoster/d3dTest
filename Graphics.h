@@ -7,9 +7,9 @@
 
 class Graphics {
 private:
-	Microsoft::WRL::ComPtr<IDXGISwapChain> swapChain;
-	Microsoft::WRL::ComPtr<ID3D11Device> device;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> context;
+	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
+	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
 public:
 	Graphics(HWND hWnd);
 	~Graphics() = default;
@@ -17,6 +17,8 @@ public:
 	// no copy init/assign
 	Graphics(const Graphics& o) = delete;
 	Graphics& operator=(const Graphics& o) = delete;
+
+	void endFrame();
 };
 
 #endif

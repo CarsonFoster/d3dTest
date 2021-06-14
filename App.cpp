@@ -6,7 +6,7 @@
 #include <memory>
 
 void App::doFrame() {
-
+	w->gfx().endFrame();
 }
 
 LRESULT WndProc(Window* pWindow, HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
