@@ -1,8 +1,8 @@
 #include "App.h"
-#include "CwfException.h"
-#include "Window.h"
-#include "WindowBuilder.h"
-#include "WindowClass.h"
+#include "framework/CwfException.h"
+#include "framework/Window.h"
+#include "framework/WindowBuilder.h"
+#include "framework/WindowClass.h"
 #include <memory>
 
 void App::doFrame() {

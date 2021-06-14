@@ -1,6 +1,6 @@
 #include "App.h"
-#include "CwfException.h"
-#include "Window.h"
+#include "framework/CwfException.h"
+#include "framework/Window.h"
 #include <Windows.h>
 
 int CALLBACK WinMain(

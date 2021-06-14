@@ -1,7 +1,7 @@
 #ifndef CWF_APP_H
 #define CWF_APP_H
 
-#include "Window.h"
+#include "framework/Window.h"
 #include <memory>
 #include <Windows.h>
 // App.h and App.cpp are all supposed to be client-created code; it's just organization

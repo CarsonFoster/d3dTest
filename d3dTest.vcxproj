@@ -152,25 +152,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CwfException.cpp" />
-    <ClCompile Include="Graphics.cpp" />
-    <ClCompile Include="Keyboard.cpp" />
-    <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="Window.cpp" />
-    <ClCompile Include="WindowClass.cpp" />
-    <ClCompile Include="WindowBuilder.cpp" />
+    <ClCompile Include="framework\CwfException.cpp" />
+    <ClCompile Include="framework\Graphics.cpp" />
+    <ClCompile Include="framework\Keyboard.cpp" />
+    <ClCompile Include="framework\Mouse.cpp" />
+    <ClCompile Include="framework\Window.cpp" />
+    <ClCompile Include="framework\WindowBuilder.cpp" />
+    <ClCompile Include="framework\WindowClass.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
-    <ClInclude Include="CwfException.h" />
-    <ClInclude Include="Graphics.h" />
-    <ClInclude Include="Keyboard.h" />
-    <ClInclude Include="Mouse.h" />
-    <ClInclude Include="Window.h" />
-    <ClInclude Include="WindowClass.h" />
-    <ClInclude Include="WindowBuilder.h" />
+    <ClInclude Include="framework\CwfException.h" />
+    <ClInclude Include="framework\Graphics.h" />
+    <ClInclude Include="framework\Keyboard.h" />
+    <ClInclude Include="framework\Mouse.h" />
+    <ClInclude Include="framework\Window.h" />
+    <ClInclude Include="framework\WindowBuilder.h" />
+    <ClInclude Include="framework\WindowClass.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
