@@ -66,7 +66,9 @@ public:
 	Window(const Window& o) = delete;
 	Window& operator=(const Window& o) = delete;
 
-	Graphics& gfx();
+	Graphics& gfx() const;
+	int getClientWidth() const noexcept;
+	int getClientHeight() const noexcept;
 	std::optional<int> processMessagesOnQueue();
 	void showWindow(int showCommand = SW_SHOW);
 	void createExceptionMessageBox(CwfException e);

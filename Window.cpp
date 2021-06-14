@@ -103,9 +103,17 @@ Window& Window::operator=(Window&& o) noexcept {
 	return *this;
 }*/
 
-Graphics& Window::gfx() {
+Graphics& Window::gfx() const {
 	if (!graphics) throw CWF_EXCEPTION(CwfException::Type::FRAMEWORK, L"No graphics object found.");
 	return *graphics;
+}
+
+int Window::getClientWidth() const noexcept {
+	return clientWidth;
+}
+
+int Window::getClientHeight() const noexcept {
+	return clientHeight;
 }
 
 Window::ClientWindowProc Window::getClientWindowProc() const noexcept {
