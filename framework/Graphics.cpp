@@ -1,6 +1,5 @@
 #define NOMINMAX
 #include "Graphics.h"
-#include <algorithm>
 #include <d3d11.h>
 #include <Windows.h>
 
@@ -48,19 +47,10 @@ Graphics::Graphics(HWND hWnd) {
 void Graphics::endFrame() {
 	// TODO: frame rate management
 	// Present( SyncInterval, Flags)
-	// target frame rate = refresh rate / sync interval
 	pSwapChain->Present(1u, 0u);
 }
 
 void Graphics::clearBuffer(float r, float g, float b) {
 	const float colorRGBA[] = { r, g, b, 1.0f };
 	pContext->ClearRenderTargetView(pTarget.Get(), colorRGBA);
-}
-
-void Graphics::clamp(float& value, float min, float max) {
-	value = std::max(min, std::min(value, max));
-}
-
-float Graphics::clamp(float value, float min, float max) {
-	return std::max(min, std::min(value, max));
 }
