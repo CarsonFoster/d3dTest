@@ -87,6 +87,11 @@ Window::Window(Window::WindowInitializationStruct wis)
 	graphics = std::make_unique<Graphics>(hWnd);
 }
 
+Window::~Window() noexcept {
+	SetWindowLongPtrW(hWnd, GWLP_USERDATA, 0); // clear out old window pointer
+	DestroyWindow(hWnd);
+}
+
 /*Window::Window(Window&& o) noexcept : hWnd{o.hWnd}, clientWindowProc{o.clientWindowProc} {
 	o.hWnd = nullptr;
 	o.clientWindowProc = nullptr;
@@ -211,11 +216,11 @@ std::optional<int> Window::processMessagesOnQueue() {
 	return {};
 }
 
-void Window::createExceptionMessageBox(CwfException e) {
+void Window::createExceptionMessageBox(const CwfException& e) {
 	MessageBoxW(hWnd, e.getExceptionString().c_str(), exceptionCaption, MB_ICONERROR);
 }
 
-void Window::createExceptionMessageBox(std::exception e) {
+void Window::createExceptionMessageBox(const std::exception& e) {
 	MessageBoxW(hWnd, CwfException::getStandardExceptionString(e).c_str(), exceptionCaption, MB_ICONERROR);
 }
 
@@ -227,10 +232,10 @@ bool Window::setTitle(LPCWSTR title) noexcept {
 	return SetWindowTextW(hWnd, title);
 }
 
-void Window::createExceptionMessageBoxStatic(CwfException e) {
+void Window::createExceptionMessageBoxStatic(const CwfException& e) {
 	MessageBoxW(nullptr, e.getExceptionString().c_str(), exceptionCaption, MB_ICONERROR);
 }
 
-void Window::createExceptionMessageBoxStatic(std::exception e) {
+void Window::createExceptionMessageBoxStatic(const std::exception& e) {
 	MessageBoxW(nullptr, CwfException::getStandardExceptionString(e).c_str(), exceptionCaption, MB_ICONERROR);
 }

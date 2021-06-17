@@ -63,6 +63,7 @@ public:
 	// Window(Window&& o) noexcept;
 	// Window& operator=(Window&& o) noexcept;
 	// no copy init/assign
+	~Window() noexcept;
 	Window(const Window& o) = delete;
 	Window& operator=(const Window& o) = delete;
 
@@ -71,14 +72,14 @@ public:
 	int getClientHeight() const noexcept;
 	std::optional<int> processMessagesOnQueue();
 	void showWindow(int showCommand = SW_SHOW);
-	void createExceptionMessageBox(CwfException e);
-	void createExceptionMessageBox(std::exception e);
+	void createExceptionMessageBox(const CwfException& e);
+	void createExceptionMessageBox(const std::exception& e);
 	ClientWindowProc getClientWindowProc() const noexcept;
 	bool setTitle(LPCWSTR title) noexcept;
 	HWND getHWND() const noexcept;
 	
-	static void createExceptionMessageBoxStatic(CwfException e);
-	static void createExceptionMessageBoxStatic(std::exception e);
+	static void createExceptionMessageBoxStatic(const CwfException& e);
+	static void createExceptionMessageBoxStatic(const std::exception& e);
 
 	friend class WindowBuilder;
 };
