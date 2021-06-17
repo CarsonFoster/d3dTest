@@ -84,6 +84,7 @@ Window::Window(Window::WindowInitializationStruct wis)
 	
 	hWnd = CreateWindowExW(wis.extendedStyle, wis.className, wis.windowName, wis.windowStyle, wis.x, wis.y,
 		wis.windowWidth, wis.windowHeight, wis.hParent, wis.hMenu, wis.hInstance, this);
+	if (hWnd == nullptr) throw CWF_LAST_EXCEPTION();
 	graphics = std::make_unique<Graphics>(hWnd);
 }
 

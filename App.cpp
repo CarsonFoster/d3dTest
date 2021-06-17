@@ -35,7 +35,6 @@ App::App(HINSTANCE hInstance) {
 
 int App::run() {
 	w->showWindow();
-	throw CWF_LAST_EXCEPTION();
 	std::optional<int> exitCode{};
 	while (true) {
 		try {
