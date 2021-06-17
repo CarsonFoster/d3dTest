@@ -1,4 +1,5 @@
 #include "CwfException.h"
+#include "Graphics.h"
 #include "lib/dxerr.h"
 #include <exception>
 #include <memory>
@@ -27,12 +28,16 @@ const wchar_t* CwfException::WindowsErrorStringSmartPtr::get() const noexcept {
 	return ptr;
 }
 
-CwfException::DirectXErrorString::DirectXErrorString() noexcept
-	: errorString{}, errorDescription{ std::make_unique<wchar_t[]>(BUFFER_SIZE) } {}
+CwfException::DirectXErrorString::DirectXErrorString(HRESULT hr) noexcept
+	: errorString{ DXGetErrorStringW(hr) }, errorDescription{ std::make_unique<wchar_t[]>(BUFFER_SIZE) }, 
+	isDeviceRemoved{ hr == DXGI_ERROR_DEVICE_REMOVED } {
+	DXGetErrorDescriptionW(hr, errorDescription.get(), BUFFER_SIZE);
+}
 
 CwfException::DirectXErrorString::DirectXErrorString(DirectXErrorString&& o) noexcept
-	: errorString{ o.errorString }, errorDescription{ std::move(o.errorDescription) } {
+	: errorString{ o.errorString }, errorDescription{ std::move(o.errorDescription) }, isDeviceRemoved{ o.isDeviceRemoved } {
 	o.errorString = nullptr;
+	o.isDeviceRemoved = false;
 }
 
 CwfException::DirectXErrorString& CwfException::DirectXErrorString::operator=(DirectXErrorString&& o) noexcept {
@@ -41,16 +46,10 @@ CwfException::DirectXErrorString& CwfException::DirectXErrorString::operator=(Di
 	errorString = o.errorString;
 	o.errorString = nullptr;
 	errorDescription = std::move(o.errorDescription);
+	isDeviceRemoved = o.isDeviceRemoved;
+	o.isDeviceRemoved = false;
 
 	return *this;
-}
-
-void CwfException::DirectXErrorString::setErrorString(const wchar_t* str) noexcept {
-	errorString = str;
-}
-
-wchar_t* CwfException::DirectXErrorString::setErrorDescription() noexcept {
-	return errorDescription.get();
 }
 
 const wchar_t* CwfException::DirectXErrorString::getErrorString() const noexcept {
@@ -59,6 +58,10 @@ const wchar_t* CwfException::DirectXErrorString::getErrorString() const noexcept
 
 const wchar_t* CwfException::DirectXErrorString::getErrorDescription() const noexcept {
 	return errorDescription.get();
+}
+
+bool CwfException::DirectXErrorString::isDeviceRemovedError() const noexcept {
+	return isDeviceRemoved;
 }
 
 /* Static functions */
@@ -81,13 +84,6 @@ std::optional<CwfException::WindowsErrorStringSmartPtr> CwfException::getWindows
 	return {};
 }
 
-CwfException::DirectXErrorString CwfException::getDirectXErrorString(HRESULT hr) noexcept {
-	DirectXErrorString dxErr{};
-	dxErr.setErrorString(DXGetErrorStringW(hr));
-	DXGetErrorDescriptionW(hr, dxErr.setErrorDescription(), DirectXErrorString::BUFFER_SIZE);
-	return dxErr; // should be moved
-}
-
 /* Constructors */
 CwfException::CwfException(Type t, const wchar_t* message, const char* filename, int lineNumber) noexcept
 	: line{ lineNumber }, file{ filename }, type{ t }, msg{ message } {};
@@ -101,10 +97,14 @@ CwfException::CwfException(std::optional<WindowsErrorStringSmartPtr>&& p, const 
 	}
 };
 
-CwfException::CwfException(DirectXErrorString&& dxErr, const char* filename, int lineNumber) noexcept
+CwfException::CwfException(const Graphics& gfx, const DirectXErrorString& dxErr, const char* filename, int lineNumber) noexcept
 	: line{ lineNumber }, file{ filename }, type{ Type::DIRECTX }, msg{} {
 	std::wostringstream builder{};
 	builder << dxErr.getErrorString() << ": " << dxErr.getErrorDescription();
+	if (dxErr.isDeviceRemovedError()) {
+		DirectXErrorString reason{ gfx.getDeviceRemovedReason() };
+		builder << "\n[Reason] " << reason.getErrorDescription() << ": " << reason.getErrorDescription();
+	}
 	msg = builder.str();
 }
 

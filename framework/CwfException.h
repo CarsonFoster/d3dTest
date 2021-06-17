@@ -10,7 +10,9 @@
 
 #define CWF_EXCEPTION(type, message) CwfException{ type, message, __FILE__, __LINE__ }
 #define CWF_LAST_EXCEPTION() CwfException{ CwfException::getWindowsErrorString(HRESULT_FROM_WIN32(GetLastError())), __FILE__, __LINE__ }
-#define CWF_DX_EXCEPTION(hr) CwfException{ CwfException::getDirectXErrorString(hr), __FILE__, __LINE__ }
+#define CWF_DX_EXCEPTION(gfx, hr) CwfException{ gfx, CwfException::DirectXErrorString{ hr }, __FILE__, __LINE__ }
+
+class Graphics;
 
 class CwfException {
 public:
@@ -36,17 +38,17 @@ public:
 	private:
 		const wchar_t* errorString;
 		std::unique_ptr<wchar_t[]> errorDescription;
+		bool isDeviceRemoved;
 	public:
-		DirectXErrorString() noexcept;
+		DirectXErrorString(HRESULT hr) noexcept;
 		~DirectXErrorString() = default;
 		DirectXErrorString(DirectXErrorString&& o) noexcept;
 		DirectXErrorString& operator=(DirectXErrorString&& o) noexcept;
 		DirectXErrorString(const DirectXErrorString& o) = delete;
 		DirectXErrorString& operator=(const DirectXErrorString& o) = delete;
-		void setErrorString(const wchar_t* str) noexcept;
-		wchar_t* setErrorDescription() noexcept;
 		const wchar_t* getErrorString() const noexcept;
 		const wchar_t* getErrorDescription() const noexcept;
+		bool isDeviceRemovedError() const noexcept;
 	};
 private:
 	int line;
@@ -57,12 +59,11 @@ public:
 
 	CwfException(Type t, const wchar_t* message, const char* filename, int lineNumber) noexcept;
 	CwfException(std::optional<WindowsErrorStringSmartPtr>&& ptr, const char* filename, int lineNumber) noexcept;
-	CwfException(DirectXErrorString&& dxErr, const char* filename, int lineNumber) noexcept;
+	CwfException(const Graphics& gfx, const DirectXErrorString& dxErr, const char* filename, int lineNumber) noexcept;
 	~CwfException() = default;
 
 	static std::wstring getStandardExceptionString(const std::exception& e) noexcept;
 	static std::optional<WindowsErrorStringSmartPtr> getWindowsErrorString(HRESULT hr) noexcept;
-	static DirectXErrorString getDirectXErrorString(HRESULT hr) noexcept;
 
 	int getLine() const noexcept;
 	const char* getFile() const noexcept;

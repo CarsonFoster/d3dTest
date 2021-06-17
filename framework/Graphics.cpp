@@ -54,3 +54,8 @@ void Graphics::clearBuffer(float r, float g, float b) {
 	const float colorRGBA[] = { r, g, b, 1.0f };
 	pContext->ClearRenderTargetView(pTarget.Get(), colorRGBA);
 }
+
+HRESULT Graphics::getDeviceRemovedReason() const noexcept {
+	if (pDevice) return pDevice->GetDeviceRemovedReason();
+	return S_OK;
+}
