@@ -1,4 +1,5 @@
 #define NOMINMAX
+#include "CwfException.h"
 #include "Graphics.h"
 #include <d3d11.h>
 #include <Windows.h>
@@ -21,8 +22,7 @@ Graphics::Graphics(HWND hWnd) {
 	swapChainDescriptor.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	swapChainDescriptor.Flags = 0;
 
-	// TODO: check return value of D3D11CreateDeviceAndSwapChain
-	D3D11CreateDeviceAndSwapChain(
+	HRESULT hr = D3D11CreateDeviceAndSwapChain(
 		nullptr,
 		D3D_DRIVER_TYPE_HARDWARE,
 		nullptr,
@@ -36,12 +36,14 @@ Graphics::Graphics(HWND hWnd) {
 		nullptr,
 		&pContext
 	);
+	if (FAILED(hr)) throw CWF_DX_EXCEPTION(*this, hr);
 
 	Microsoft::WRL::ComPtr<ID3D11Resource> pBuffer;
-	// TODO: check return value of GetBuffer
-	pSwapChain->GetBuffer(0u, __uuidof(ID3D11Resource), &pBuffer);
-	// TODO: check return value of CreateRenderTargetView
-	pDevice->CreateRenderTargetView(pBuffer.Get(), nullptr, &pTarget);
+	hr = pSwapChain->GetBuffer(0u, __uuidof(ID3D11Resource), &pBuffer);
+	if (FAILED(hr)) throw CWF_DX_EXCEPTION(*this, hr);
+
+	hr = pDevice->CreateRenderTargetView(pBuffer.Get(), nullptr, &pTarget);
+	if (FAILED(hr)) throw CWF_DX_EXCEPTION(*this, hr);
 }
 
 void Graphics::endFrame() {
