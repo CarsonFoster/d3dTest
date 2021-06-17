@@ -58,7 +58,7 @@ void WindowBuilder::adjustRect() {
 	r.top = 100;
 	r.right = r.left + clientWidth;
 	r.bottom = r.top + clientHeight;
-	bool hasMenu = (windowStyle & (WS_SYSMENU | WS_CAPTION)); // TODO: determine if this does what I want it to do
+	bool hasMenu = (windowStyle & WS_SYSMENU & WS_CAPTION);
 	if (!AdjustWindowRectEx(&r, windowStyle, hasMenu, extendedStyle)) { // if it returns zero, there has been an error
 		// throw CWF_EXCEPTION(CwfException::Type::WINDOWS, L"AdjustWindowRectEx call failed");
 		throw CWF_LAST_EXCEPTION();
