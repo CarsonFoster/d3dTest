@@ -1,11 +1,14 @@
 #include "CwfException.h"
+#include "lib/dxerr.h"
 #include <exception>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <utility>
 #include <variant>
 #include <Windows.h>
 
+/* Nested classes */
 CwfException::WindowsErrorStringSmartPtr::WindowsErrorStringSmartPtr(wchar_t* p) noexcept : ptr{ p } {}
 CwfException::WindowsErrorStringSmartPtr::~WindowsErrorStringSmartPtr() noexcept {
 	if (ptr) LocalFree(ptr);
@@ -24,7 +27,42 @@ const wchar_t* CwfException::WindowsErrorStringSmartPtr::get() const noexcept {
 	return ptr;
 }
 
-std::wstring CwfException::getStandardExceptionString(std::exception e) noexcept {
+CwfException::DirectXErrorString::DirectXErrorString() noexcept
+	: errorString{}, errorDescription{ std::make_unique<wchar_t[]>(BUFFER_SIZE) } {}
+
+CwfException::DirectXErrorString::DirectXErrorString(DirectXErrorString&& o) noexcept
+	: errorString{ o.errorString }, errorDescription{ std::move(o.errorDescription) } {
+	o.errorString = nullptr;
+}
+
+CwfException::DirectXErrorString& CwfException::DirectXErrorString::operator=(DirectXErrorString&& o) noexcept {
+	if (&o == this) return *this;
+
+	errorString = o.errorString;
+	o.errorString = nullptr;
+	errorDescription = std::move(o.errorDescription);
+
+	return *this;
+}
+
+void CwfException::DirectXErrorString::setErrorString(const wchar_t* str) noexcept {
+	errorString = str;
+}
+
+wchar_t* CwfException::DirectXErrorString::setErrorDescription() noexcept {
+	return errorDescription.get();
+}
+
+const wchar_t* CwfException::DirectXErrorString::getErrorString() const noexcept {
+	return errorString;
+}
+
+const wchar_t* CwfException::DirectXErrorString::getErrorDescription() const noexcept {
+	return errorDescription.get();
+}
+
+/* Static functions */
+std::wstring CwfException::getStandardExceptionString(const std::exception& e) noexcept {
 	std::wostringstream builder{};
 	builder << "[Type] Standard Exception\n"
 		<< "[Message] " << e.what();
@@ -43,10 +81,18 @@ std::optional<CwfException::WindowsErrorStringSmartPtr> CwfException::getWindows
 	return {};
 }
 
+CwfException::DirectXErrorString CwfException::getDirectXErrorString(HRESULT hr) noexcept {
+	DirectXErrorString dxErr{};
+	dxErr.setErrorString(DXGetErrorStringW(hr));
+	DXGetErrorDescriptionW(hr, dxErr.setErrorDescription(), DirectXErrorString::BUFFER_SIZE);
+	return dxErr; // should be moved
+}
+
+/* Constructors */
 CwfException::CwfException(Type t, const wchar_t* message, const char* filename, int lineNumber) noexcept
 	: line{ lineNumber }, file{ filename }, type{ t }, msg{ message } {};
 
-CwfException::CwfException(std::optional<WindowsErrorStringSmartPtr> p, const char* filename, int lineNumber) noexcept
+CwfException::CwfException(std::optional<WindowsErrorStringSmartPtr>&& p, const char* filename, int lineNumber) noexcept
 	: line{ lineNumber }, file{ filename }, type{ Type::WINDOWS }, msg{} {
 	if (p) {
 		msg = std::move(*p);
@@ -55,6 +101,14 @@ CwfException::CwfException(std::optional<WindowsErrorStringSmartPtr> p, const ch
 	}
 };
 
+CwfException::CwfException(DirectXErrorString&& dxErr, const char* filename, int lineNumber) noexcept
+	: line{ lineNumber }, file{ filename }, type{ Type::DIRECTX }, msg{} {
+	std::wostringstream builder{};
+	builder << dxErr.getErrorString() << ": " << dxErr.getErrorDescription();
+	msg = builder.str();
+}
+
+/* Member functions */
 int CwfException::getLine() const noexcept {
 	return line;
 }
@@ -84,7 +138,8 @@ const wchar_t* CwfException::getTypeAsString() const noexcept {
 
 const wchar_t* CwfException::getMessage() const noexcept {
 	if (std::holds_alternative<const wchar_t*>(msg)) return std::get<const wchar_t*>(msg);
-	else return std::get<WindowsErrorStringSmartPtr>(msg).get();
+	else if (std::holds_alternative<WindowsErrorStringSmartPtr>(msg)) return std::get<WindowsErrorStringSmartPtr>(msg).get();
+	else return std::get<std::wstring>(msg).c_str();
 }
 
 std::wstring CwfException::getExceptionString() const noexcept {

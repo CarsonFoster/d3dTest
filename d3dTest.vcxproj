@@ -156,6 +156,7 @@
     <ClCompile Include="framework\CwfException.cpp" />
     <ClCompile Include="framework\Graphics.cpp" />
     <ClCompile Include="framework\Keyboard.cpp" />
+    <ClCompile Include="framework\lib\dxerr.cpp" />
     <ClCompile Include="framework\Mouse.cpp" />
     <ClCompile Include="framework\Window.cpp" />
     <ClCompile Include="framework\WindowBuilder.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="framework\CwfException.h" />
     <ClInclude Include="framework\Graphics.h" />
     <ClInclude Include="framework\Keyboard.h" />
+    <ClInclude Include="framework\lib\dxerr.h" />
     <ClInclude Include="framework\Mouse.h" />
     <ClInclude Include="framework\Window.h" />
     <ClInclude Include="framework\WindowBuilder.h" />
