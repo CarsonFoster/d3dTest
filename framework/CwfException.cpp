@@ -78,7 +78,7 @@ std::optional<CwfException::WindowsErrorStringSmartPtr> CwfException::getWindows
 	wchar_t* szError{};
 	if (FormatMessageW(
 		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr,
-		hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), reinterpret_cast<LPWSTR>(&szError), // TODO: determine why Mr. Microsoft is three dingoes in a trench coat
+		hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), reinterpret_cast<LPWSTR>(&szError),
 		0, nullptr
 	)) return szError;
 	return {};
