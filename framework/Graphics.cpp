@@ -4,6 +4,12 @@
 #include <d3d11.h>
 #include <Windows.h>
 
+inline void Graphics::throwIfFailed(const Graphics& gfx, HRESULT hr) {
+	if (FAILED(hr)) {
+		throw CWF_DX_EXCEPTION(gfx, hr);
+	}
+}
+
 Graphics::Graphics(HWND hWnd) {
 	DXGI_SWAP_CHAIN_DESC swapChainDescriptor{};
 	swapChainDescriptor.BufferDesc.Width = 0; // get width from output window
@@ -22,39 +28,44 @@ Graphics::Graphics(HWND hWnd) {
 	swapChainDescriptor.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	swapChainDescriptor.Flags = 0;
 
-	HRESULT hr = D3D11CreateDeviceAndSwapChain(
-		nullptr,
-		D3D_DRIVER_TYPE_HARDWARE,
-		nullptr,
-		0, // TODO: enable debug here later
-		nullptr,
-		0,
-		D3D11_SDK_VERSION,
-		&swapChainDescriptor,
-		&pSwapChain,
-		&pDevice,
-		nullptr,
-		&pContext
+	throwIfFailed(*this,
+		D3D11CreateDeviceAndSwapChain(
+			nullptr,
+			D3D_DRIVER_TYPE_HARDWARE,
+			nullptr,
+			0, // TODO: enable debug here later
+			nullptr,
+			0,
+			D3D11_SDK_VERSION,
+			&swapChainDescriptor,
+			&pSwapChain,
+			&pDevice,
+			nullptr,
+			&pContext
+		)
 	);
-	if (FAILED(hr)) throw CWF_DX_EXCEPTION(*this, hr);
 
 	Microsoft::WRL::ComPtr<ID3D11Resource> pBuffer;
-	hr = pSwapChain->GetBuffer(0u, __uuidof(ID3D11Resource), &pBuffer);
-	if (FAILED(hr)) throw CWF_DX_EXCEPTION(*this, hr);
+	throwIfFailed(*this,
+		pSwapChain->GetBuffer(0u, __uuidof(ID3D11Resource), &pBuffer)
+	);
 
-	hr = pDevice->CreateRenderTargetView(pBuffer.Get(), nullptr, &pTarget);
-	if (FAILED(hr)) throw CWF_DX_EXCEPTION(*this, hr);
+	throwIfFailed(*this,
+		pDevice->CreateRenderTargetView(pBuffer.Get(), nullptr, &pTarget)
+	);
 }
 
 void Graphics::endFrame() {
 	// TODO: frame rate management
 	// Present( SyncInterval, Flags)
-	pSwapChain->Present(1u, 0u);
+	throwIfFailed(*this,
+		pSwapChain->Present(1u, 0u)
+	);
 }
 
 void Graphics::clearBuffer(float r, float g, float b) {
 	const float colorRGBA[] = { r, g, b, 1.0f };
-	pContext->ClearRenderTargetView(pTarget.Get(), colorRGBA);
+	pContext->ClearRenderTargetView(pTarget.Get(), colorRGBA); // does not return an HRESULT
 }
 
 HRESULT Graphics::getDeviceRemovedReason() const noexcept {

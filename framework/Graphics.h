@@ -19,6 +19,7 @@ public:
 	Graphics(const Graphics& o) = delete;
 	Graphics& operator=(const Graphics& o) = delete;
 
+	static inline void throwIfFailed(const Graphics& gfx, HRESULT hr);
 	void endFrame();
 	void clearBuffer(float r, float g, float b);
 
