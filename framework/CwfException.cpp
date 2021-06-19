@@ -9,25 +9,7 @@
 #include <variant>
 #include <Windows.h>
 
-/* Nested classes */
-CwfException::WindowsErrorStringSmartPtr::WindowsErrorStringSmartPtr(wchar_t* p) noexcept : ptr{ p } {}
-CwfException::WindowsErrorStringSmartPtr::~WindowsErrorStringSmartPtr() noexcept {
-	if (ptr) LocalFree(ptr);
-	ptr = nullptr;
-}
-CwfException::WindowsErrorStringSmartPtr::WindowsErrorStringSmartPtr(WindowsErrorStringSmartPtr&& o) noexcept : ptr{ o.ptr } {
-	o.ptr = nullptr;
-}
-CwfException::WindowsErrorStringSmartPtr& CwfException::WindowsErrorStringSmartPtr::operator=(WindowsErrorStringSmartPtr&& o) noexcept {
-	if (&o == this) return *this;
-	ptr = o.ptr;
-	o.ptr = nullptr;
-	return *this;
-}
-const wchar_t* CwfException::WindowsErrorStringSmartPtr::get() const noexcept {
-	return ptr;
-}
-
+/* Nested class */
 CwfException::DirectXErrorString::DirectXErrorString(HRESULT hr) noexcept
 	: errorString{ DXGetErrorStringW(hr) }, errorDescription{ std::make_unique<wchar_t[]>(BUFFER_SIZE) }, 
 	isDeviceRemoved{ hr == DXGI_ERROR_DEVICE_REMOVED } {
@@ -72,7 +54,7 @@ std::wstring CwfException::getStandardExceptionString(const std::exception& e) n
 	return builder.str(); // should be moved
 }
 
-std::optional<CwfException::WindowsErrorStringSmartPtr> CwfException::getWindowsErrorString(HRESULT hr) noexcept {
+std::wstring CwfException::getWindowsErrorString(HRESULT hr) noexcept {
 	if (FACILITY_WINDOWS == HRESULT_FACILITY(hr))
 		hr = HRESULT_CODE(hr);
 	wchar_t* szError{};
@@ -80,22 +62,20 @@ std::optional<CwfException::WindowsErrorStringSmartPtr> CwfException::getWindows
 		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr,
 		hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), reinterpret_cast<LPWSTR>(&szError),
 		0, nullptr
-	)) return szError;
-	return {};
+	)) {
+		std::wstring toReturn{ szError };
+		LocalFree(szError);
+		return toReturn; // should be moved or elided
+	}
+	return L"Unknown error code";
 }
 
 /* Constructors */
 CwfException::CwfException(Type t, const wchar_t* message, const char* filename, int lineNumber) noexcept
-	: line{ lineNumber }, file{ filename }, type{ t }, msg{ message } {};
+	: line{ lineNumber }, file{ filename }, type{ t }, msg{ message } {}
 
-CwfException::CwfException(std::optional<WindowsErrorStringSmartPtr>&& p, const char* filename, int lineNumber) noexcept
-	: line{ lineNumber }, file{ filename }, type{ Type::WINDOWS }, msg{} {
-	if (p) {
-		msg = std::move(*p);
-	} else {
-		msg = L"Unknown error code";
-	}
-};
+CwfException::CwfException(Type t, std::wstring&& message, const char* filename, int lineNumber) noexcept
+	: line{ lineNumber }, file{ filename }, type{ t }, msg{ message } {}
 
 CwfException::CwfException(const Graphics& gfx, const DirectXErrorString& dxErr, const char* filename, int lineNumber) noexcept
 	: line{ lineNumber }, file{ filename }, type{ Type::DIRECTX }, msg{} {
@@ -138,7 +118,6 @@ const wchar_t* CwfException::getTypeAsString() const noexcept {
 
 const wchar_t* CwfException::getMessage() const noexcept {
 	if (std::holds_alternative<const wchar_t*>(msg)) return std::get<const wchar_t*>(msg);
-	else if (std::holds_alternative<WindowsErrorStringSmartPtr>(msg)) return std::get<WindowsErrorStringSmartPtr>(msg).get();
 	else return std::get<std::wstring>(msg).c_str();
 }
 

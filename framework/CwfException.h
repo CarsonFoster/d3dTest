@@ -3,13 +3,12 @@
 
 #include <exception>
 #include <memory>
-#include <optional>
 #include <string>
 #include <variant>
 #include <Windows.h>
 
 #define CWF_EXCEPTION(type, message) CwfException{ type, message, __FILE__, __LINE__ }
-#define CWF_LAST_EXCEPTION() CwfException{ CwfException::getWindowsErrorString(HRESULT_FROM_WIN32(GetLastError())), __FILE__, __LINE__ }
+#define CWF_LAST_EXCEPTION() CwfException{ CwfException::Type::WINDOWS, CwfException::getWindowsErrorString(HRESULT_FROM_WIN32(GetLastError())), __FILE__, __LINE__ }
 #define CWF_DX_EXCEPTION(gfx, hr) CwfException{ gfx, CwfException::DirectXErrorString{ hr }, __FILE__, __LINE__ }
 
 class Graphics;
@@ -18,19 +17,6 @@ class CwfException {
 public:
 	enum class Type {
 		WINDOWS, DIRECTX, FRAMEWORK, OTHER
-	};
-	class WindowsErrorStringSmartPtr {
-	private:
-		wchar_t* ptr;
-	public:
-		WindowsErrorStringSmartPtr(wchar_t* p) noexcept;
-		~WindowsErrorStringSmartPtr() noexcept;
-		WindowsErrorStringSmartPtr(WindowsErrorStringSmartPtr&& o) noexcept;
-		WindowsErrorStringSmartPtr& operator=(WindowsErrorStringSmartPtr&& o) noexcept;
-		// no copy init/assign
-		WindowsErrorStringSmartPtr(const WindowsErrorStringSmartPtr& o) = delete;
-		WindowsErrorStringSmartPtr& operator=(const WindowsErrorStringSmartPtr& o) = delete;
-		const wchar_t* get() const noexcept;
 	};
 	class DirectXErrorString {
 	public:
@@ -54,16 +40,16 @@ private:
 	int line;
 	const char* file;
 	Type type;
-	std::variant<const wchar_t*, WindowsErrorStringSmartPtr, std::wstring> msg;
+	std::variant<const wchar_t*, std::wstring> msg;
 public:
 
 	CwfException(Type t, const wchar_t* message, const char* filename, int lineNumber) noexcept;
-	CwfException(std::optional<WindowsErrorStringSmartPtr>&& ptr, const char* filename, int lineNumber) noexcept;
+	CwfException(Type t, std::wstring&& message, const char* filename, int lineNumber) noexcept;
 	CwfException(const Graphics& gfx, const DirectXErrorString& dxErr, const char* filename, int lineNumber) noexcept;
 	~CwfException() = default;
 
 	static std::wstring getStandardExceptionString(const std::exception& e) noexcept;
-	static std::optional<WindowsErrorStringSmartPtr> getWindowsErrorString(HRESULT hr) noexcept;
+	static std::wstring getWindowsErrorString(HRESULT hr) noexcept;
 
 	int getLine() const noexcept;
 	const char* getFile() const noexcept;
