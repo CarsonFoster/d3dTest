@@ -60,7 +60,7 @@ std::wstring CwfException::getWindowsErrorString(HRESULT hr) noexcept {
 	wchar_t* szError{};
 	if (FormatMessageW(
 		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr,
-		hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), reinterpret_cast<LPWSTR>(&szError),
+		static_cast<DWORD>(hr), MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), reinterpret_cast<LPWSTR>(&szError),
 		0, nullptr
 	)) {
 		std::wstring toReturn{ szError };

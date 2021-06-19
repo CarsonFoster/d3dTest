@@ -8,8 +8,8 @@
 
 void App::doFrame() {
 	w->gfx().clearBuffer(0.0f,
-		std::clamp(static_cast<float>(w->mouse.getX()) / w->getClientWidth(), 0.0f, 1.0f),
-		std::clamp(static_cast<float>(w->mouse.getY()) / w->getClientHeight(), 0.0f, 1.0f));
+		std::clamp(static_cast<float>(w->mouse.getX()) / static_cast<float>(w->getClientWidth()), 0.0f, 1.0f),
+		std::clamp(static_cast<float>(w->mouse.getY()) / static_cast<float>(w->getClientHeight()), 0.0f, 1.0f));
 	w->gfx().endFrame();
 }
 
@@ -55,4 +55,5 @@ int App::run() {
 			break;
 		}
 	}
+	return 2;
 }

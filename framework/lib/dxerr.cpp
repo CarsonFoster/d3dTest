@@ -8,7 +8,7 @@
 //--------------------------------------------------------------------------------------
 
 // This version only supports UNICODE.
-
+#pragma warning( push, 0 )
 #include "dxerr.h"
 
 #include <cstdio>
@@ -3966,3 +3966,5 @@ HRESULT WINAPI DXTraceW( _In_z_ const WCHAR* strFile, _In_ DWORD dwLine, _In_ HR
 
     return hr;
 }
+
+#pragma warning( pop )
