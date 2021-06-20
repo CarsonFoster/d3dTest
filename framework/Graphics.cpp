@@ -4,9 +4,9 @@
 #include <d3d11.h>
 #include <Windows.h>
 
-inline void Graphics::throwIfFailed(const Graphics& gfx, HRESULT hr) {
+inline void Graphics::throwIfFailed(const Graphics& gfx, HRESULT hr, const char* file, int line) {
 	if (FAILED(hr)) {
-		throw CWF_DX_EXCEPTION(gfx, hr);
+		throw CwfException{ gfx, CwfException::DirectXErrorString{ hr }, file, line };
 	}
 }
 
@@ -28,7 +28,7 @@ Graphics::Graphics(HWND hWnd) {
 	swapChainDescriptor.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	swapChainDescriptor.Flags = 0;
 
-	throwIfFailed(*this,
+	THROW_IF_FAILED(*this,
 		D3D11CreateDeviceAndSwapChain(
 			nullptr,
 			D3D_DRIVER_TYPE_HARDWARE,
@@ -46,11 +46,11 @@ Graphics::Graphics(HWND hWnd) {
 	);
 
 	Microsoft::WRL::ComPtr<ID3D11Resource> pBuffer;
-	throwIfFailed(*this,
+	THROW_IF_FAILED(*this,
 		pSwapChain->GetBuffer(0u, __uuidof(ID3D11Resource), &pBuffer)
 	);
 
-	throwIfFailed(*this,
+	THROW_IF_FAILED(*this,
 		pDevice->CreateRenderTargetView(pBuffer.Get(), nullptr, &pTarget)
 	);
 }
@@ -58,7 +58,7 @@ Graphics::Graphics(HWND hWnd) {
 void Graphics::endFrame() {
 	// TODO: frame rate management
 	// Present( SyncInterval, Flags)
-	throwIfFailed(*this,
+	THROW_IF_FAILED(*this,
 		pSwapChain->Present(1u, 0u)
 	);
 }

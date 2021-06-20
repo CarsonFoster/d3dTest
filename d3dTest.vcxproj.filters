@@ -45,6 +45,9 @@
     <ClCompile Include="framework\lib\dxerr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="framework\DXDebugInfoManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework\CwfException.h">
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="framework\lib\dxerr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\DXDebugInfoManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

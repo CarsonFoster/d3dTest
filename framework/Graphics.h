@@ -5,6 +5,8 @@
 #include <Windows.h>
 #include <wrl.h>
 
+#define THROW_IF_FAILED(gfx, hr) throwIfFailed(gfx, hr, __FILE__, __LINE__)
+
 class Graphics {
 private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
@@ -19,7 +21,7 @@ public:
 	Graphics(const Graphics& o) = delete;
 	Graphics& operator=(const Graphics& o) = delete;
 
-	static inline void throwIfFailed(const Graphics& gfx, HRESULT hr);
+	static inline void throwIfFailed(const Graphics& gfx, HRESULT hr, const char* file, int line);
 	void endFrame();
 	void clearBuffer(float r, float g, float b);
 
