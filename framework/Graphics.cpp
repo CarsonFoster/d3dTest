@@ -10,6 +10,12 @@ inline void Graphics::throwIfFailed(const Graphics& gfx, HRESULT hr, const char*
 	}
 }
 
+inline void Graphics::throwIfFailedNoGfx(HRESULT hr, const char* file, int line) {
+	if (FAILED(hr)) {
+		throw CwfException{ CwfException::DirectXErrorString{ hr }, file, line };
+	}
+}
+
 Graphics::Graphics(HWND hWnd) {
 	DXGI_SWAP_CHAIN_DESC swapChainDescriptor{};
 	swapChainDescriptor.BufferDesc.Width = 0; // get width from output window
