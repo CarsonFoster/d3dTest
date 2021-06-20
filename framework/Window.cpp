@@ -79,8 +79,8 @@ Window::WindowInitializationStruct& Window::WindowInitializationStruct::operator
 }
 
 Window::Window(Window::WindowInitializationStruct wis) 
-	: clientWindowProc{ wis.windowProc }, hWnd{ 0 }, kbd{}, mouse{},
-	clientWidth{ wis.clientWidth }, clientHeight{ wis.clientHeight } {
+	: hWnd{ 0 }, clientWindowProc{ wis.windowProc }, 
+	clientWidth{ wis.clientWidth }, clientHeight{ wis.clientHeight }, kbd{}, mouse{} {
 	
 	hWnd = CreateWindowExW(wis.extendedStyle, wis.className, wis.windowName, wis.windowStyle, wis.x, wis.y,
 		wis.windowWidth, wis.windowHeight, wis.hParent, wis.hMenu, wis.hInstance, this);
