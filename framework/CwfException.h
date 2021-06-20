@@ -10,6 +10,7 @@
 #define CWF_EXCEPTION(type, message) CwfException{ type, message, __FILE__, __LINE__ }
 #define CWF_LAST_EXCEPTION() CwfException{ CwfException::Type::WINDOWS, CwfException::getWindowsErrorString(HRESULT_FROM_WIN32(GetLastError())), __FILE__, __LINE__ }
 #define CWF_DX_EXCEPTION(gfx, hr) CwfException{ gfx, CwfException::DirectXErrorString{ hr }, __FILE__, __LINE__ }
+#define CWF_DX_EXCEPTION_NOGFX(hr) CwfException{ CwfException::DirectXErrorString{ hr }, __FILE__, __LINE__ }
 
 class Graphics;
 
@@ -46,6 +47,7 @@ public:
 	CwfException(Type t, const wchar_t* message, const char* filename, int lineNumber) noexcept;
 	CwfException(Type t, std::wstring&& message, const char* filename, int lineNumber) noexcept;
 	CwfException(const Graphics& gfx, const DirectXErrorString& dxErr, const char* filename, int lineNumber) noexcept;
+	CwfException(const DirectXErrorString& dxErr, const char* filename, int lineNumber) noexcept;
 	~CwfException() = default;
 
 	static std::wstring getStandardExceptionString(const std::exception& e) noexcept;

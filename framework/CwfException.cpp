@@ -88,6 +88,13 @@ CwfException::CwfException(const Graphics& gfx, const DirectXErrorString& dxErr,
 	msg = builder.str();
 }
 
+CwfException::CwfException(const DirectXErrorString& dxErr, const char* filename, int lineNumber) noexcept
+	: line{ lineNumber }, file{ filename }, type{ Type::DIRECTX }, msg{} {
+	std::wostringstream builder{};
+	builder << dxErr.getErrorString() << ": " << dxErr.getErrorDescription();
+	msg = builder.str();
+}
+
 /* Member functions */
 int CwfException::getLine() const noexcept {
 	return line;
