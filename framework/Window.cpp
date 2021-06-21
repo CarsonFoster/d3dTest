@@ -78,7 +78,7 @@ Window::WindowInitializationStruct& Window::WindowInitializationStruct::operator
 	return *this;
 }
 
-Window::Window(Window::WindowInitializationStruct wis) 
+Window::Window(Window::WindowInitializationStruct wis) try
 	: hWnd{ 0 }, clientWindowProc{ wis.windowProc }, 
 	clientWidth{ wis.clientWidth }, clientHeight{ wis.clientHeight }, kbd{}, mouse{} {
 	
@@ -86,6 +86,15 @@ Window::Window(Window::WindowInitializationStruct wis)
 		wis.windowWidth, wis.windowHeight, wis.hParent, wis.hMenu, wis.hInstance, this);
 	if (hWnd == nullptr) throw CWF_LAST_EXCEPTION();
 	graphics = std::make_unique<Graphics>(hWnd);
+} catch (...) {
+	// if the graphics constructor fails, the constructor exits with an exception,
+	// and the destructor is never called, so the old pointer is never cleaned out,
+	// and the window is never destroyed, so we do it here
+	if (hWnd) {
+		SetWindowLongPtr(hWnd, GWLP_USERDATA, 0); // clear out old window pointer
+		DestroyWindow(hWnd);
+	}
+	throw;
 }
 
 Window::~Window() noexcept {
