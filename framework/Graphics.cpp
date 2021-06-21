@@ -34,12 +34,17 @@ Graphics::Graphics(HWND hWnd) {
 	swapChainDescriptor.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	swapChainDescriptor.Flags = 0;
 
+	UINT deviceFlags = 0;
+#ifndef NDEBUG
+	deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+
 	THROW_IF_FAILED(*this,
 		D3D11CreateDeviceAndSwapChain(
 			nullptr,
 			D3D_DRIVER_TYPE_HARDWARE,
 			nullptr,
-			0, // TODO: enable debug here later
+			deviceFlags,
 			nullptr,
 			0,
 			D3D11_SDK_VERSION,
