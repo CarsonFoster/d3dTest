@@ -7,6 +7,11 @@
 #include <string>
 #include <utility>
 #include <variant>
+
+#ifndef NDEBUG
+#include <vector>
+#endif
+
 #include <Windows.h>
 
 /* Nested class */
@@ -85,6 +90,12 @@ CwfException::CwfException(const Graphics& gfx, const DirectXErrorString& dxErr,
 		DirectXErrorString reason{ gfx.getDeviceRemovedReason() };
 		builder << "\n[Reason] " << reason.getErrorDescription() << ": " << reason.getErrorDescription();
 	}
+#ifndef NDEBUG
+	std::vector<std::wstring> messages{ gfx.info.getMessages() };
+	auto end = messages.end();
+	for (auto i{ messages.begin() }; i != end; i++)
+		builder << "\n[Debug Msg] " << *i;
+#endif
 	msg = builder.str();
 }
 
