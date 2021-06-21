@@ -11,9 +11,9 @@
 
 #ifndef NDEBUG
 #define THROW_IF_FAILED(gfx, func) { \
-									gfx.info.set(); \
+									(gfx).info.set(); \
 									HRESULT hr{ (func) }; \
-									throwIfFailed(gfx, hr, __FILE__, __LINE__); \
+									throwIfFailed((gfx), hr, __FILE__, __LINE__); \
 								   }
 #else
 #define THROW_IF_FAILED(gfx, hr) throwIfFailed(gfx, hr, __FILE__, __LINE__)
