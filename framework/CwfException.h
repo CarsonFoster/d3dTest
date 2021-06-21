@@ -21,7 +21,7 @@ public:
 	};
 	class DirectXErrorString {
 	public:
-		static const constexpr size_t BUFFER_SIZE = 256;
+		static const constexpr size_t BUFFER_SIZE = 512;
 	private:
 		const wchar_t* errorString;
 		std::unique_ptr<wchar_t[]> errorDescription;
