@@ -106,6 +106,18 @@ CwfException::CwfException(const DirectXErrorString& dxErr, const char* filename
 	msg = builder.str();
 }
 
+#ifndef NDEBUG
+CwfException::CwfException(const std::vector<std::wstring>& dbugInfo, const char* filename, int lineNumber) noexcept
+	: line{ lineNumber }, file{ filename }, type{ Type::DIRECTX }, msg{} {
+	std::wostringstream builder{};
+	builder << "Debug information given below";
+	auto end = dbugInfo.end();
+	for (auto i = dbugInfo.begin(); i != end; i++)
+		builder << "\n[Debug Msg] " << *i;
+	msg = builder.str();
+}
+#endif
+
 /* Member functions */
 int CwfException::getLine() const noexcept {
 	return line;

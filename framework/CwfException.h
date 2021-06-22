@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <variant>
+#include <vector>
 #include <Windows.h>
 
 #define CWF_EXCEPTION(type, message) CwfException{ type, message, __FILE__, __LINE__ }
@@ -48,6 +49,9 @@ public:
 	CwfException(Type t, std::wstring&& message, const char* filename, int lineNumber) noexcept;
 	CwfException(const Graphics& gfx, const DirectXErrorString& dxErr, const char* filename, int lineNumber) noexcept;
 	CwfException(const DirectXErrorString& dxErr, const char* filename, int lineNumber) noexcept;
+#ifndef NDEBUG
+	CwfException(const std::vector<std::wstring>& dbugInfo, const char* filename, int lineNumber) noexcept;
+#endif
 	~CwfException() = default;
 
 	static std::wstring getStandardExceptionString(const std::exception& e) noexcept;

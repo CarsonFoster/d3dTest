@@ -15,11 +15,18 @@
 									HRESULT hr{ (func) }; \
 									throwIfFailed((gfx), hr, __FILE__, __LINE__); \
 								   }
+#define THROW_ON_INFO(gfx, func) { \
+								  (gfx).info.set(); \
+								  (func); \
+								  std::vector<std::wstring> dbugInfo{ (gfx).info.getMessages() }; \
+								  if (!dbugInfo.empty()) throw CwfException{ dbugInfo, __FILE__, __LINE__ }; \
+								 }
 #else
-#define THROW_IF_FAILED(gfx, hr) throwIfFailed(gfx, hr, __FILE__, __LINE__)
+#define THROW_IF_FAILED(gfx, func) throwIfFailed((gfx), (func), __FILE__, __LINE__)
+#define THROW_ON_INFO(gfx, func) func
 #endif
 
-#define THROW_IF_FAILED_NOGFX(hr) throwIfFailedNoGfx(hr, __FILE__, __LINE__)
+#define THROW_IF_FAILED_NOGFX(func) throwIfFailedNoGfx((func), __FILE__, __LINE__)
 
 class Graphics {
 private:
