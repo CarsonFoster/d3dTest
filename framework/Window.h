@@ -18,13 +18,6 @@ class Window {
 public:
 	using ClientWindowProc = LRESULT(*)(Window*, HWND, UINT, WPARAM, LPARAM);
 private:
-	static constexpr const wchar_t* exceptionCaption = L"Exception in Program";
-	HWND hWnd;
-	ClientWindowProc clientWindowProc;
-	int clientWidth;
-	int clientHeight;
-	std::unique_ptr<Graphics> graphics;
-
 	class WindowInitializationStruct {
 	public:
 		DWORD extendedStyle;
@@ -52,6 +45,30 @@ private:
 		WindowInitializationStruct(const WindowInitializationStruct& o) = delete;
 		WindowInitializationStruct& operator=(const WindowInitializationStruct& o) = delete;
 	};
+
+	class SmartHWND {
+	private:
+		HWND hWnd;
+	public:
+		SmartHWND() noexcept;
+		SmartHWND(HWND h) noexcept;
+		~SmartHWND() noexcept;
+		// no copy init/assign
+		SmartHWND(const SmartHWND& o) = delete;
+		SmartHWND& operator=(const SmartHWND& o) = delete;
+		SmartHWND(SmartHWND&& o) noexcept;
+		SmartHWND& operator=(SmartHWND&& o) noexcept;
+
+		HWND get() const noexcept;
+		operator bool() const noexcept;
+	};
+
+	static constexpr const wchar_t* exceptionCaption = L"Exception in Program";
+	SmartHWND shWnd;
+	ClientWindowProc clientWindowProc;
+	int clientWidth;
+	int clientHeight;
+	std::unique_ptr<Graphics> graphics;
 public:
 	Keyboard kbd;
 	Mouse mouse;
@@ -63,7 +80,7 @@ public:
 	// Window(Window&& o) noexcept;
 	// Window& operator=(Window&& o) noexcept;
 	// no copy init/assign
-	~Window() noexcept;
+	~Window() = default;
 	Window(const Window& o) = delete;
 	Window& operator=(const Window& o) = delete;
 

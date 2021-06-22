@@ -8,6 +8,35 @@
 #include <Windows.h>
 #include <windowsx.h>
 
+// Nested classes
+Window::SmartHWND::SmartHWND() noexcept : hWnd{ nullptr } {}
+
+Window::SmartHWND::SmartHWND(HWND h) noexcept : hWnd{ h } {}
+
+Window::SmartHWND::SmartHWND(SmartHWND&& o) noexcept : hWnd{ o.hWnd } {
+	o.hWnd = nullptr;
+}
+
+Window::SmartHWND& Window::SmartHWND::operator=(SmartHWND&& o) noexcept {
+	if (&o == this) return *this;
+	hWnd = o.hWnd;
+	o.hWnd = nullptr;
+	return *this;
+}
+
+Window::SmartHWND::~SmartHWND() noexcept {
+	SetWindowLongPtrW(hWnd, GWLP_USERDATA, 0); // clear out old window pointer
+	DestroyWindow(hWnd);
+}
+
+HWND Window::SmartHWND::get() const noexcept {
+	return hWnd;
+}
+
+Window::SmartHWND::operator bool() const noexcept {
+	return (hWnd != nullptr);
+}
+
 Window::WindowInitializationStruct::WindowInitializationStruct(DWORD eStyle, LPCWSTR aClassName, LPCWSTR aWindowName,
 	DWORD style, int aX, int aY, int width, int height, int cWidth, int cHeight, HWND parent, HMENU menu,
 	HINSTANCE instance, ClientWindowProc aWindowProc) noexcept
@@ -78,28 +107,16 @@ Window::WindowInitializationStruct& Window::WindowInitializationStruct::operator
 	return *this;
 }
 
-Window::Window(Window::WindowInitializationStruct wis) try
-	: hWnd{ 0 }, clientWindowProc{ wis.windowProc }, 
+// Constructor and Destructor
+Window::Window(Window::WindowInitializationStruct wis)
+	: shWnd{}, clientWindowProc{ wis.windowProc }, 
 	clientWidth{ wis.clientWidth }, clientHeight{ wis.clientHeight }, kbd{}, mouse{} {
 	
-	hWnd = CreateWindowExW(wis.extendedStyle, wis.className, wis.windowName, wis.windowStyle, wis.x, wis.y,
+	HWND hWnd = CreateWindowExW(wis.extendedStyle, wis.className, wis.windowName, wis.windowStyle, wis.x, wis.y,
 		wis.windowWidth, wis.windowHeight, wis.hParent, wis.hMenu, wis.hInstance, this);
 	if (hWnd == nullptr) throw CWF_LAST_EXCEPTION();
+	shWnd = hWnd;
 	graphics = std::make_unique<Graphics>(hWnd);
-} catch (...) {
-	// if the graphics constructor fails, the constructor exits with an exception,
-	// and the destructor is never called, so the old pointer is never cleaned out,
-	// and the window is never destroyed, so we do it here
-	if (hWnd) {
-		SetWindowLongPtr(hWnd, GWLP_USERDATA, 0); // clear out old window pointer
-		DestroyWindow(hWnd);
-	}
-	throw;
-}
-
-Window::~Window() noexcept {
-	SetWindowLongPtrW(hWnd, GWLP_USERDATA, 0); // clear out old window pointer
-	DestroyWindow(hWnd);
 }
 
 /*Window::Window(Window&& o) noexcept : hWnd{o.hWnd}, clientWindowProc{o.clientWindowProc} {
@@ -118,6 +135,7 @@ Window& Window::operator=(Window&& o) noexcept {
 	return *this;
 }*/
 
+// Member functions
 Graphics& Window::gfx() const {
 	if (!graphics) throw CWF_EXCEPTION(CwfException::Type::FRAMEWORK, L"No graphics object found.");
 	return *graphics;
@@ -136,7 +154,7 @@ Window::ClientWindowProc Window::getClientWindowProc() const noexcept {
 }
 
 void Window::showWindow(int showCommand) {
-	ShowWindow(hWnd, showCommand);
+	ShowWindow(shWnd.get(), showCommand);
 }
 
 std::optional<int> Window::processMessagesOnQueue() {
@@ -206,7 +224,7 @@ std::optional<int> Window::processMessagesOnQueue() {
 			if (x >= 0 && x < clientWidth && y >= 0 && y < clientHeight) {
 				mouse.moved(x, y);
 				if (!mouse.isInClientRegion()) { // in client region now, but not previously -> enter message and capture
-					SetCapture(hWnd);
+					SetCapture(shWnd.get());
 					mouse.entered(x, y);
 				}
 			} else {
@@ -227,19 +245,19 @@ std::optional<int> Window::processMessagesOnQueue() {
 }
 
 void Window::createExceptionMessageBox(const CwfException& e) {
-	MessageBoxW(hWnd, e.getExceptionString().c_str(), exceptionCaption, MB_ICONERROR);
+	MessageBoxW(shWnd.get(), e.getExceptionString().c_str(), exceptionCaption, MB_ICONERROR);
 }
 
 void Window::createExceptionMessageBox(const std::exception& e) {
-	MessageBoxW(hWnd, CwfException::getStandardExceptionString(e).c_str(), exceptionCaption, MB_ICONERROR);
+	MessageBoxW(shWnd.get(), CwfException::getStandardExceptionString(e).c_str(), exceptionCaption, MB_ICONERROR);
 }
 
 HWND Window::getHWND() const noexcept {
-	return hWnd;
+	return shWnd.get();
 }
 
 bool Window::setTitle(LPCWSTR title) noexcept {
-	return SetWindowTextW(hWnd, title);
+	return SetWindowTextW(shWnd.get(), title);
 }
 
 void Window::createExceptionMessageBoxStatic(const CwfException& e) {
