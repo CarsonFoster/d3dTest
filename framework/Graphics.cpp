@@ -2,6 +2,7 @@
 #include "CwfException.h"
 #include "Graphics.h"
 #include <array>
+#include <cmath>
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <Windows.h>
@@ -17,6 +18,8 @@ inline void Graphics::throwIfFailedNoGfx(HRESULT hr, const char* file, int line)
 		throw CwfException{ CwfException::DirectXErrorString{ hr }, file, line };
 	}
 }
+
+const float SQRTTHREE{ std::sqrt(3.0f) };
 
 Graphics::Graphics(HWND hWnd, int cWidth, int cHeight) : clientWidth{ cWidth }, clientHeight{ cHeight } {
 	DXGI_SWAP_CHAIN_DESC swapChainDescriptor{};
@@ -83,10 +86,25 @@ void Graphics::clearBuffer(float r, float g, float b) {
 
 void Graphics::drawTestTriangle() {
 	struct Vertex2D {
-		float x;
-		float y;
+		struct {
+			float x;
+			float y;
+		} pos;
+		struct {
+			unsigned char r;
+			unsigned char g;
+			unsigned char b;
+			unsigned char a;
+		} color;
 	};
-	const Vertex2D vertices[]{ {0.0f, 0.0f}, {1.0f, -1.0f}, {-1.0f, -1.0f} }; // NDC
+
+	const constexpr float S = 1.5f;
+	const float x = S * SQRTTHREE * 0.5f;
+	const Vertex2D vertices[]{
+		{0, x * 0.5f, 255, 0, 0, 0},
+		{0.5f * S, -x * 0.5f, 0, 255, 0, 0},
+		{-0.5f * S, -x * 0.5f, 0, 0, 255, 0}
+	}; // NDC
 	
 	D3D11_BUFFER_DESC bDesc{};
 	bDesc.ByteWidth = sizeof(vertices);
@@ -115,7 +133,8 @@ void Graphics::drawTestTriangle() {
 	pContext->VSSetShader(pVertexShader.Get(), nullptr, 0u);
 
 	const D3D11_INPUT_ELEMENT_DESC pDescs[] = {
-		{ "Position", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u }
+		{ "Position", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u },
+		{ "Color", 0u, DXGI_FORMAT_R8G8B8A8_UNORM, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u}
 	};
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> pInputLayout;
 	THROW_IF_FAILED(*this,
