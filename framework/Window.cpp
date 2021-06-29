@@ -116,7 +116,7 @@ Window::Window(Window::WindowInitializationStruct wis)
 		wis.windowWidth, wis.windowHeight, wis.hParent, wis.hMenu, wis.hInstance, this);
 	if (hWnd == nullptr) throw CWF_LAST_EXCEPTION();
 	shWnd = hWnd;
-	graphics = std::make_unique<Graphics>(hWnd);
+	graphics = std::make_unique<Graphics>(hWnd, clientWidth, clientHeight);
 }
 
 /*Window::Window(Window&& o) noexcept : hWnd{o.hWnd}, clientWindowProc{o.clientWindowProc} {

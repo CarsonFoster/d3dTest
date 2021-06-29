@@ -30,6 +30,8 @@
 
 class Graphics {
 private:
+	int clientWidth;
+	int clientHeight;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
@@ -42,7 +44,7 @@ public:
 	DXDebugInfoManager info;
 #endif
 public:
-	Graphics(HWND hWnd);
+	Graphics(HWND hWnd, int cWidth, int cHeight);
 	~Graphics() = default;
 
 	// no copy init/assign
@@ -51,6 +53,7 @@ public:
 
 	void endFrame();
 	void clearBuffer(float r, float g, float b);
+	void drawTestTriangle();
 
 	HRESULT getDeviceRemovedReason() const noexcept;
 };

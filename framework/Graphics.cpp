@@ -1,7 +1,9 @@
 #define NOMINMAX
 #include "CwfException.h"
 #include "Graphics.h"
+#include <array>
 #include <d3d11.h>
+#include <d3dcompiler.h>
 #include <Windows.h>
 
 inline void Graphics::throwIfFailed(const Graphics& gfx, HRESULT hr, const char* file, int line) {
@@ -16,7 +18,7 @@ inline void Graphics::throwIfFailedNoGfx(HRESULT hr, const char* file, int line)
 	}
 }
 
-Graphics::Graphics(HWND hWnd) {
+Graphics::Graphics(HWND hWnd, int cWidth, int cHeight) : clientWidth{ cWidth }, clientHeight{ cHeight } {
 	DXGI_SWAP_CHAIN_DESC swapChainDescriptor{};
 	swapChainDescriptor.BufferDesc.Width = 0; // get width from output window
 	swapChainDescriptor.BufferDesc.Height = 0; // get height from output window
@@ -77,6 +79,66 @@ void Graphics::endFrame() {
 void Graphics::clearBuffer(float r, float g, float b) {
 	const float colorRGBA[] = { r, g, b, 1.0f };
 	pContext->ClearRenderTargetView(pTarget.Get(), colorRGBA); // does not return an HRESULT
+}
+
+void Graphics::drawTestTriangle() {
+	struct Vertex2D {
+		float x;
+		float y;
+	};
+	const Vertex2D vertices[]{ {0.0f, 0.0f}, {1.0f, -1.0f}, {-1.0f, -1.0f} }; // NDC
+	
+	D3D11_BUFFER_DESC bDesc{};
+	bDesc.ByteWidth = sizeof(vertices);
+	bDesc.Usage = D3D11_USAGE_DEFAULT;
+	bDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bDesc.CPUAccessFlags = 0u;
+	bDesc.MiscFlags = 0u;
+	bDesc.StructureByteStride = sizeof(Vertex2D);
+
+	D3D11_SUBRESOURCE_DATA data{};
+	data.pSysMem = &vertices;
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer;
+	THROW_IF_FAILED(*this, pDevice->CreateBuffer(&bDesc, &data, &pBuffer));
+
+	UINT stride{ sizeof(Vertex2D) };
+	UINT offset{ 0u };
+	pContext->IASetVertexBuffers(0u, 1u, pBuffer.GetAddressOf(), &stride, &offset);
+
+	pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	Microsoft::WRL::ComPtr<ID3DBlob> pBlob;
+	THROW_IF_FAILED(*this, D3DReadFileToBlob(L"TestTriangleVertexShader.cso", &pBlob));
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> pVertexShader;
+	THROW_IF_FAILED(*this, pDevice->CreateVertexShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pVertexShader));
+	pContext->VSSetShader(pVertexShader.Get(), nullptr, 0u);
+
+	const D3D11_INPUT_ELEMENT_DESC pDescs[] = {
+		{ "Position", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u }
+	};
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> pInputLayout;
+	THROW_IF_FAILED(*this,
+		pDevice->CreateInputLayout(pDescs, std::size(pDescs), pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pInputLayout));
+	pContext->IASetInputLayout(pInputLayout.Get());
+
+	THROW_IF_FAILED(*this, D3DReadFileToBlob(L"TestTrianglePixelShader.cso", &pBlob));
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> pPixelShader;
+	THROW_IF_FAILED(*this, pDevice->CreatePixelShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pPixelShader));
+	pContext->PSSetShader(pPixelShader.Get(), nullptr, 0u);
+
+	pContext->OMSetRenderTargets(1u, pTarget.GetAddressOf(), nullptr);
+
+	D3D11_VIEWPORT viewport{};
+	viewport.TopLeftX = 0.0f;
+	viewport.TopLeftY = 0.0f;
+	viewport.Width = clientWidth;
+	viewport.Height = clientHeight;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	pContext->RSSetViewports(1u, &viewport);
+
+	THROW_ON_INFO(*this, pContext->Draw(std::size(vertices), 0u));
 }
 
 HRESULT Graphics::getDeviceRemovedReason() const noexcept {
