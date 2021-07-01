@@ -85,7 +85,7 @@ void Graphics::clearBuffer(float r, float g, float b) {
 	pContext->ClearRenderTargetView(pTarget.Get(), colorRGBA); // does not return an HRESULT
 }
 
-void Graphics::drawTestTriangle() {
+void Graphics::drawTestTriangle(bool isLeftPressed, bool isRightPressed, bool isUpPressed, bool isDownPressed) {
 	struct Vertex2D {
 		struct {
 			float x;
@@ -149,12 +149,17 @@ void Graphics::drawTestTriangle() {
 
 	pContext->IASetIndexBuffer(pIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
 
+	static float angleY{ 0.0f };
+	angleY += (isLeftPressed ? 0.1f : isRightPressed ? -0.1f : 0.0f);
+	static float angleX{ 0.0f };
+	angleX += (isUpPressed ? 0.1f : isDownPressed ? -0.1f : 0.0f);
 	struct CBufMatrixTransform {
 		math::XMMATRIX transform;
 	};
 	CBufMatrixTransform t{ math::XMMatrixTranspose(
-								math::XMMatrixRotationY(1.0f)
-								* math::XMMatrixTranslation(0.0f, 0.0f, 4.0f)
+								math::XMMatrixRotationX(angleX)
+								* math::XMMatrixRotationY(angleY)
+								* math::XMMatrixTranslation(0.0f, 0.0f, 2.0f)
 								* math::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 4.0f)) };
 	
 	D3D11_BUFFER_DESC cbDesc{};
@@ -171,6 +176,32 @@ void Graphics::drawTestTriangle() {
 	THROW_IF_FAILED(*this, pDevice->CreateBuffer(&cbDesc, &cbData, &pCBuffer));
 
 	pContext->VSSetConstantBuffers(0u, 1u, pCBuffer.GetAddressOf());
+
+	struct CBufColors {
+		float colors[6][4];
+	};
+	CBufColors cBuffer{
+		{
+			{1.0f, 0.0f, 0.0f, 1.0f},
+			{0.0f, 1.0f, 0.0f, 1.0f},
+			{0.0f, 0.0f, 1.0f, 1.0f},
+			{0.5f, 0.0f, 0.5f, 1.0f},
+			{0.0f, 0.5f, 0.5f, 1.0f},
+			{0.5f, 0.5f, 0.0, 1.0f}
+		}
+	};
+
+	cbDesc.ByteWidth = sizeof(cBuffer);
+	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+	cbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cbDesc.MiscFlags = 0u;
+	cbDesc.StructureByteStride = 0u;
+	cbData.pSysMem = &cBuffer;
+
+	THROW_IF_FAILED(*this, pDevice->CreateBuffer(&cbDesc, &cbData, &pCBuffer));
+
+	pContext->PSSetConstantBuffers(0u, 1u, pCBuffer.GetAddressOf());
 
 	pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 

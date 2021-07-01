@@ -53,7 +53,7 @@ public:
 
 	void endFrame();
 	void clearBuffer(float r, float g, float b);
-	void drawTestTriangle();
+	void drawTestTriangle(bool, bool, bool, bool);
 
 	HRESULT getDeviceRemovedReason() const noexcept;
 };
