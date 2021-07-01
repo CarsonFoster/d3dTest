@@ -1,11 +1,7 @@
-struct VSOut {
-	float4 color : Color;
-	float4 pos : SV_Position;
+cbuffer CBuf {
+	float4x4 transform;
 };
 
-VSOut main(float2 pos : Position, float4 color : Color) {
-	VSOut output;
-	output.pos = float4(pos.x, pos.y, 0.0f, 1.0f);
-	output.color = color;
-	return output;
+float4 main(float3 pos : Position) : SV_Position{
+	return mul(float4(pos, 1.0f), transform);
 }
