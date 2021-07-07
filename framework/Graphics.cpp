@@ -85,7 +85,7 @@ void Graphics::clearBuffer(float r, float g, float b) {
 	pContext->ClearRenderTargetView(pTarget.Get(), colorRGBA); // does not return an HRESULT
 }
 
-void Graphics::drawTestTriangle(bool isLeftPressed, bool isRightPressed, bool isUpPressed, bool isDownPressed) {
+void Graphics::drawTestCube(bool isLeftPressed, bool isRightPressed, bool isUpPressed, bool isDownPressed) {
 	struct Vertex2D {
 		struct {
 			float x;
