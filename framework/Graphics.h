@@ -41,7 +41,7 @@ private:
 	static inline void throwIfFailedNoGfx(HRESULT hr, const char* file, int line);
 public:
 #ifndef NDEBUG
-	DXDebugInfoManager info;
+	mutable DXDebugInfoManager info;
 #endif
 public:
 	Graphics(HWND hWnd, int cWidth, int cHeight);
@@ -56,6 +56,7 @@ public:
 	void drawTestCube(bool, bool, bool, bool);
 
 	HRESULT getDeviceRemovedReason() const noexcept;
+	Microsoft::WRL::ComPtr<ID3D11Device> getDevice() const noexcept;
 };
 
 #endif

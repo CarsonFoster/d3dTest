@@ -242,3 +242,7 @@ HRESULT Graphics::getDeviceRemovedReason() const noexcept {
 	if (pDevice) return pDevice->GetDeviceRemovedReason();
 	return S_OK;
 }
+
+Microsoft::WRL::ComPtr<ID3D11Device> Graphics::getDevice() const noexcept {
+	return pDevice;
+}
