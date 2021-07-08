@@ -86,6 +86,9 @@
     <ClInclude Include="framework\Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="framework\Submaterial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="framework\shaders\TestTrianglePixelShader.hlsl">

@@ -1,6 +1,7 @@
 #ifndef CWF_MATERIAL_H
 #define CWF_MATERIAL_H
 
+#include "Submaterial.h"
 #include <d3d11.h>
 #include <initializer_list>
 #include <memory>
@@ -34,6 +35,7 @@ private:
 	std::vector<Vertex> vtx;
 	std::vector<Index> idx;
 	std::vector<ConstantBuffer> cBuffs;
+	std::vector<Submaterial<Vertex, Index>> subs;
 	Shader vs;
 	std::optional<Shader> oPS;
 	std::optional<ID3D11RenderTargetView*> oPrtv;
@@ -41,6 +43,8 @@ private:
 	std::optional<D3D11_VIEWPORT> vp;
 
 public:
+	Material() = default;
+
 	// do not interact with DirectX
 	void setTopology(D3D11_PRIMITIVE_TOPOLOGY topology) noexcept {
 		pt = topology;
@@ -74,6 +78,11 @@ public:
 
 	void setViewport(D3D11_VIEWPORT viewport) noexcept {                                                   // optional
 		vp = viewport;
+	}
+
+	Submaterial<Vertex, Index>& createSubmaterial() noexcept {
+		subs.emplace_back();
+		return subs[subs.size() - 1];
 	}
 
 
