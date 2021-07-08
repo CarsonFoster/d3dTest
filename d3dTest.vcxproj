@@ -175,6 +175,7 @@
     <ClInclude Include="framework\Graphics.h" />
     <ClInclude Include="framework\Keyboard.h" />
     <ClInclude Include="framework\lib\dxerr.h" />
+    <ClInclude Include="framework\Material.h" />
     <ClInclude Include="framework\Mouse.h" />
     <ClInclude Include="framework\Window.h" />
     <ClInclude Include="framework\WindowBuilder.h" />
