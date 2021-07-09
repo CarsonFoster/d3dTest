@@ -2,6 +2,7 @@
 #define CWF_APP_H
 
 #include "framework/Material.h"
+#include "framework/Submaterial.h"
 #include "framework/Window.h"
 #include <cstdint>
 #include <DirectXMath.h>
@@ -20,6 +21,7 @@ private:
 	static constexpr const LPCWSTR windowName{ L"d3dTest Window" };
 	std::unique_ptr<Window> w;
 	Material<math::XMFLOAT3, uint16_t> cube;
+	Submaterial<math::XMFLOAT3, uint16_t> otherCube;
 public:
 	App(HINSTANCE hInstance);
 	~App() = default;

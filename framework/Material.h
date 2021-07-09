@@ -54,7 +54,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11CommandList> pCmdList;
 
 public:
-	Material(DXGI_FORMAT indexFormat) : idxFormat{ indexFormat } {}
+	Material(DXGI_FORMAT indexFormat) : pt{}, numberOfDescs{}, idxFormat{ indexFormat } {}
 
 	DXGI_FORMAT getIndexFormat() const noexcept {
 		return idxFormat;
@@ -103,6 +103,17 @@ public:
 		oVP = viewport;
 	}
 
+	void setViewport(float topLeftX, float topLeftY, float width, float height) noexcept {
+		D3D11_VIEWPORT vp{};
+		vp.TopLeftX = topLeftX;
+		vp.TopLeftY = topLeftY;
+		vp.Width = width;
+		vp.Height = height;
+		vp.MinDepth = 0.0f;
+		vp.MaxDepth = 1.0f;
+		oVP = vp;
+	}
+
 	Submaterial<Vertex, Index>& createSubmaterial() noexcept {
 		subs.emplace_back(this);
 		return subs[subs.size() - 1];
@@ -122,7 +133,7 @@ public:
 
 	//  should call in another thread for optimal performance
 	void setupPipeline(const Graphics& gfx, Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeferred, 
-		Microsoft::WRL::ComPtr<ID3D11CommandList> pListToFill, bool submaterialCalling = false) {
+		Microsoft::WRL::ComPtr<ID3D11CommandList>& pListToFill, bool submaterialCalling = false) {
 		Microsoft::WRL::ComPtr<ID3D11Device> pDevice{ gfx.getDevice() };
 
 		// vertex buffer

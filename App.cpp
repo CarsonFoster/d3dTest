@@ -20,6 +20,7 @@ void App::doFrame() {
 		w->kbd.isKeyPressed('W'), w->kbd.isKeyPressed('S'));*/
 	Graphics& gfx{ w->gfx() };
 	cube.draw(gfx);
+	otherCube.draw(gfx);
 	gfx.endFrame();
 }
 
@@ -32,7 +33,7 @@ LRESULT WndProc(Window* pWindow, HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 	return DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
-App::App(HINSTANCE hInstance) : cube{ DXGI_FORMAT_R16_UINT } {
+App::App(HINSTANCE hInstance) : cube{ DXGI_FORMAT_R16_UINT }, otherCube{ cube } {
 	WindowClass wc{ hInstance, className };
 	wc.registerClass();
 
@@ -48,14 +49,7 @@ App::App(HINSTANCE hInstance) : cube{ DXGI_FORMAT_R16_UINT } {
 	cube.setVertexShader(g_pVertexShader, sizeof(g_pVertexShader));
 	cube.setPixelShader(g_pPixelShader, sizeof(g_pPixelShader));
 	cube.setRenderTarget(w->gfx().getRenderTargetView(), nullptr);
-	D3D11_VIEWPORT vp{};
-	vp.TopLeftX = 0.0f;
-	vp.TopLeftY = 0.0f;
-	vp.Width = w->getClientWidth();
-	vp.Height = w->getClientHeight();
-	vp.MinDepth = 0.0f;
-	vp.MaxDepth = 1.0f;
-	cube.setViewport(vp);
+	cube.setViewport(0.0f, 0.0f, w->getClientWidth(), w->getClientHeight());
 	cube.addMesh(mesh.vertices, mesh.indices);
 	struct CBuf {
 		math::XMMATRIX transformation;
@@ -64,10 +58,15 @@ App::App(HINSTANCE hInstance) : cube{ DXGI_FORMAT_R16_UINT } {
 		* math::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 4.0f)) };
 	cube.addConstantBuffer(&constantBuffer, sizeof(constantBuffer), ShaderStage::VERTEX);
 
+	CBuf otherConstantBuffer{ math::XMMatrixTranspose(math::XMMatrixTranslation(-0.5, 0, 3.0f)
+		* math::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 4.0f)) };
+	otherCube.addMesh(mesh.vertices, mesh.indices);
+	otherCube.addConstantBuffer(&otherConstantBuffer, sizeof(otherConstantBuffer), ShaderStage::VERTEX);
 }
 
 int App::run() {
 	cube.setupPipeline(w->gfx());
+	otherCube.setupPipeline(w->gfx());
 	w->showWindow();
 	std::optional<int> exitCode{};
 	while (true) {

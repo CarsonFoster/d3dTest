@@ -27,7 +27,7 @@ private:
 			: pBuffer{ p }, length{ l }, stage{ s }, readOnly{ r }{}
 	};
 private:
-	Material<Vertex, Index>* parent;
+	Material<Vertex, Index>& parent;
 	std::vector<Vertex> vtx;
 	std::vector<Index> idx;
 	std::vector<ConstantBuffer> cBuffs;
@@ -35,7 +35,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11CommandList> pCmdList;
 
 public:
-	Submaterial(Material<Vertex, Index>* parentMaterial) : parent{ parentMaterial }, vtx{}, idx{}, cBuffs{}, pCmdList{} {}
+	Submaterial(Material<Vertex, Index>& parentMaterial) : parent{ parentMaterial }, vtx{}, idx{}, cBuffs{}, pCmdList{} {}
 
 	// do not interact with DirectX
 	void addMesh(std::initializer_list<Vertex> vertices, std::initializer_list<Index> indices) noexcept {
@@ -99,7 +99,7 @@ public:
 			Microsoft::WRL::ComPtr<ID3D11Buffer> pIdxBuffer;
 			THROW_IF_FAILED(gfx, pDevice->CreateBuffer(&idxDesc, &idxData, &pIdxBuffer));
 
-			pDeferred->IASetIndexBuffer(pIdxBuffer.Get(), parent->getIndexFormat(), 0u);
+			pDeferred->IASetIndexBuffer(pIdxBuffer.Get(), parent.getIndexFormat(), 0u);
 		}
 
 		// constant buffer
@@ -146,7 +146,7 @@ public:
 				pDeferred->VSSetConstantBuffers(0u, pixelRawBuffers.size(), pixelRawBuffers.data());
 		}
 
-		parent->setupPipeline(gfx, pDeferred, pCmdList, true);
+		parent.setupPipeline(gfx, pDeferred, pCmdList, true);
 	}
 
 	void draw(const Graphics& gfx) {
