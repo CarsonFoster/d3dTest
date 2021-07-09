@@ -10,18 +10,6 @@
 
 namespace math = DirectX;
 
-inline void Graphics::throwIfFailed(const Graphics& gfx, HRESULT hr, const char* file, int line) {
-	if (FAILED(hr)) {
-		throw CwfException{ gfx, CwfException::DirectXErrorString{ hr }, file, line };
-	}
-}
-
-inline void Graphics::throwIfFailedNoGfx(HRESULT hr, const char* file, int line) {
-	if (FAILED(hr)) {
-		throw CwfException{ CwfException::DirectXErrorString{ hr }, file, line };
-	}
-}
-
 Graphics::Graphics(HWND hWnd, int cWidth, int cHeight) : clientWidth{ cWidth }, clientHeight{ cHeight } {
 	DXGI_SWAP_CHAIN_DESC swapChainDescriptor{};
 	swapChainDescriptor.BufferDesc.Width = 0; // get width from output window
@@ -70,6 +58,8 @@ Graphics::Graphics(HWND hWnd, int cWidth, int cHeight) : clientWidth{ cWidth }, 
 	THROW_IF_FAILED(*this,
 		pDevice->CreateRenderTargetView(pBuffer.Get(), nullptr, &pTarget)
 	);
+
+	pContext->OMSetRenderTargets(1u, pTarget.GetAddressOf(), nullptr);
 }
 
 void Graphics::endFrame() {
@@ -224,8 +214,6 @@ void Graphics::drawTestCube(bool isLeftPressed, bool isRightPressed, bool isUpPr
 	THROW_IF_FAILED(*this, pDevice->CreatePixelShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pPixelShader));
 	pContext->PSSetShader(pPixelShader.Get(), nullptr, 0u);
 
-	pContext->OMSetRenderTargets(1u, pTarget.GetAddressOf(), nullptr);
-
 	D3D11_VIEWPORT viewport{};
 	viewport.TopLeftX = 0.0f;
 	viewport.TopLeftY = 0.0f;
@@ -245,4 +233,12 @@ HRESULT Graphics::getDeviceRemovedReason() const noexcept {
 
 Microsoft::WRL::ComPtr<ID3D11Device> Graphics::getDevice() const noexcept {
 	return pDevice;
+}
+
+Microsoft::WRL::ComPtr<ID3D11DeviceContext> Graphics::getImmediateContext() const noexcept {
+	return pContext;
+}
+
+Microsoft::WRL::ComPtr<ID3D11RenderTargetView> Graphics::getRenderTargetView() const noexcept {
+	return pTarget;
 }

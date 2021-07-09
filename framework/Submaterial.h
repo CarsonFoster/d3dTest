@@ -31,6 +31,11 @@ public:
 		idx.insert(idx.cend(), indices);
 	}
 
+	void addMesh(std::vector<Vertex> vertices, std::vector<Index> indices) noexcept {
+		vtx.insert(vtx.cend(), vertices.begin(), vertices.end());
+		idx.insert(idx.cend(), indices.begin(), indices.end());
+	}
+
 	void addConstantBuffer(const void* pBuffer, size_t byteWidth, bool readOnly = true) noexcept {
 		cBuffs.emplace_back({ pBuffer, byteWidth, readOnly });
 	}

@@ -1,11 +1,14 @@
 #ifndef CWF_GRAPHICS_H
 #define CWF_GRAPHICS_H
 
+#include "CwfException.h"
+
 #ifndef NDEBUG
 #include "DXDebugInfoManager.h"
 #endif
 
 #include <d3d11.h>
+#include <vector>
 #include <Windows.h>
 #include <wrl.h>
 
@@ -36,17 +39,24 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pTarget;
-
-	static inline void throwIfFailed(const Graphics& gfx, HRESULT hr, const char* file, int line);
-	static inline void throwIfFailedNoGfx(HRESULT hr, const char* file, int line);
 public:
 #ifndef NDEBUG
 	mutable DXDebugInfoManager info;
 #endif
 public:
+	template <class Vertex, typename Index>
+	struct IndexedVertexList {
+		std::vector<Vertex> vertices;
+		std::vector<Index> indices;
+	};
+
+	struct Shader {
+		const void* pByteCode;
+		size_t length;
+	};
+public:
 	Graphics(HWND hWnd, int cWidth, int cHeight);
 	~Graphics() = default;
-
 	// no copy init/assign
 	Graphics(const Graphics& o) = delete;
 	Graphics& operator=(const Graphics& o) = delete;
@@ -57,6 +67,20 @@ public:
 
 	HRESULT getDeviceRemovedReason() const noexcept;
 	Microsoft::WRL::ComPtr<ID3D11Device> getDevice() const noexcept;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> getImmediateContext() const noexcept;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> getRenderTargetView() const noexcept;
 };
+
+inline void throwIfFailed(const Graphics& gfx, HRESULT hr, const char* file, int line) {
+	if (FAILED(hr)) {
+		throw CwfException{ gfx, CwfException::DirectXErrorString{ hr }, file, line };
+	}
+}
+
+inline void throwIfFailedNoGfx(HRESULT hr, const char* file, int line) {
+	if (FAILED(hr)) {
+		throw CwfException{ CwfException::DirectXErrorString{ hr }, file, line };
+	}
+}
 
 #endif

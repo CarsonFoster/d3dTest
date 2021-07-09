@@ -5,7 +5,6 @@
 #include "Submaterial.h"
 #include <d3d11.h>
 #include <initializer_list>
-#include <memory>
 #include <optional>
 #include <vector>
 #include <wrl.h>
@@ -16,6 +15,9 @@
 * An übershader is one large shader that uses conditionals to determine which code to execute; this means that we
 * don't have to load multiple shaders, which is expensive.
 */
+enum class ShaderStage {
+	VERTEX, PIXEL
+};
 
 template <class Vertex, typename Index>
 class Material {
@@ -29,12 +31,15 @@ private:
 	struct ConstantBuffer {
 		const void* pBuffer;
 		size_t length;
+		ShaderStage stage;
 		bool readOnly;
+		ConstantBuffer(const void* p, size_t l, ShaderStage s, bool r) 
+			: pBuffer{ p }, length{ l }, stage{ s }, readOnly{ r }{}
 	};
 private:
 	// set by user
 	D3D11_PRIMITIVE_TOPOLOGY pt;
-	std::shared_ptr<D3D11_INPUT_ELEMENT_DESC[]> pDescs;
+	const D3D11_INPUT_ELEMENT_DESC* pDescs;
 	size_t numberOfDescs;
 	DXGI_FORMAT idxFormat;
 	std::vector<Vertex> vtx;
@@ -51,15 +56,14 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11CommandList> pCmdList;
 
 public:
-	Material(DXGI_FORMAT indexFormat) : pt{}, pDescs{}, numberOfDescs{}, idxFormat{ indexFormat }, vtx{}, idx{},
-		cBuffs{}, subs{}, vs{}, oPS{}, oPrtv{}, oPdsv{}, oVP{}, pCmdList{} {}
+	Material(DXGI_FORMAT indexFormat) : idxFormat{ indexFormat } {}
 
 	// do not interact with DirectX
 	void setTopology(D3D11_PRIMITIVE_TOPOLOGY topology) noexcept {
 		pt = topology;
 	}
 
-	void setInputLayout(std::shared_ptr<D3D11_INPUT_ELEMENT_DESC[]> pDescriptions, size_t size) noexcept {
+	void setInputLayout(const D3D11_INPUT_ELEMENT_DESC* pDescriptions, size_t size) noexcept {
 		pDescs = pDescriptions;
 		numberOfDescs = size;
 	}
@@ -69,8 +73,13 @@ public:
 		idx.insert(idx.cend(), indices);
 	}
 
-	void addConstantBuffer(const void* pBuffer, size_t byteWidth, bool readOnly = true) noexcept {
-		cBuffs.emplace_back({ pBuffer, byteWidth, readOnly });
+	void addMesh(std::vector<Vertex> vertices, std::vector<Index> indices) noexcept {
+		vtx.insert(vtx.cend(), vertices.begin(), vertices.end());
+		idx.insert(idx.cend(), indices.begin(), indices.end());
+	}
+
+	void addConstantBuffer(const void* pBuffer, size_t byteWidth, ShaderStage stage, bool readOnly = true) noexcept {
+		cBuffs.emplace_back(pBuffer, byteWidth, stage, readOnly);
 	}
 
 	void setVertexShader(const void* pByteCode, size_t length, bool bind = true) noexcept {
@@ -89,7 +98,7 @@ public:
 	}
 
 	void setViewport(D3D11_VIEWPORT viewport) noexcept {                                                   // optional
-		vp = viewport;
+		oVP = viewport;
 	}
 
 	Submaterial<Vertex, Index>& createSubmaterial() noexcept {
@@ -147,6 +156,50 @@ public:
 			pDeferred->IASetIndexBuffer(pIdxBuffer.Get(), idxFormat, 0u);
 		}
 
+		// constant buffer
+		{
+			std::vector<Microsoft::WRL::ComPtr<ID3D11Buffer>> vertexBuffers;
+			std::vector<Microsoft::WRL::ComPtr<ID3D11Buffer>> pixelBuffers;
+			for (ConstantBuffer& cb : cBuffs) {
+				D3D11_BUFFER_DESC cbDesc{};
+				cbDesc.ByteWidth = cb.length;
+				cbDesc.Usage = (cb.readOnly ? D3D11_USAGE_DEFAULT : D3D11_USAGE_DYNAMIC);
+				cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+				cbDesc.CPUAccessFlags = (cb.readOnly ? 0u : D3D11_CPU_ACCESS_WRITE);
+				cbDesc.MiscFlags = 0u;
+				cbDesc.StructureByteStride = 0u;
+
+				D3D11_SUBRESOURCE_DATA cbData{};
+				cbData.pSysMem = cb.pBuffer;
+
+				Microsoft::WRL::ComPtr<ID3D11Buffer> pCBuff;
+				THROW_IF_FAILED(gfx, pDevice->CreateBuffer(&cbDesc, &cbData, &pCBuff));
+
+				switch (cb.stage) {
+				case ShaderStage::VERTEX:
+					vertexBuffers.push_back(pCBuff);
+					break;
+				case ShaderStage::PIXEL:
+					pixelBuffers.push_back(pCBuff);
+					break;
+#ifndef NDEBUG
+				default:
+					OutputDebugStringW(L"Update your ShaderStage switch, dumb dumb.");
+#endif
+				}
+			}
+			std::vector<ID3D11Buffer*> vertexRawBuffers;
+			std::vector<ID3D11Buffer*> pixelRawBuffers;
+			for (auto& comPtr : vertexBuffers)
+				vertexRawBuffers.push_back(comPtr.Get());
+			for (auto& comPtr : pixelBuffers)
+				pixelRawBuffers.push_back(comPtr.Get());
+			if (!vertexRawBuffers.empty())
+				pDeferred->VSSetConstantBuffers(0u, vertexRawBuffers.size(), vertexRawBuffers.data());
+			if (!pixelRawBuffers.empty())
+				pDeferred->VSSetConstantBuffers(0u, pixelRawBuffers.size(), pixelRawBuffers.data());
+		}
+
 		// primitive topology
 		{
 			pDeferred->IASetPrimitiveTopology(pt);
@@ -156,7 +209,7 @@ public:
 		{
 			if (vs.bind) {
 				Microsoft::WRL::ComPtr<ID3D11VertexShader> pVtxShader;
-				THROW_IF_FAILED(gfx, pDevice->CreateVertexShader(vs.pByteCode, vs.length, nullptr, pVtxShader));
+				THROW_IF_FAILED(gfx, pDevice->CreateVertexShader(vs.pByteCode, vs.length, nullptr, &pVtxShader));
 				pDeferred->VSSetShader(pVtxShader.Get(), nullptr, 0u);
 			}
 		}
@@ -165,7 +218,7 @@ public:
 		{
 			if (oPS) {
 				Microsoft::WRL::ComPtr<ID3D11PixelShader> pPixelShader;
-				THROW_IF_FAILED(gfx, pDevice->CreatePixelShader(oPS->pByteCode, oPS->length, nullptr, pPixelShader));
+				THROW_IF_FAILED(gfx, pDevice->CreatePixelShader(oPS->pByteCode, oPS->length, nullptr, &pPixelShader));
 				pDeferred->PSSetShader(pPixelShader.Get(), nullptr, 0u);
 			}
 		}
@@ -173,7 +226,7 @@ public:
 		// input layout
 		{
 			Microsoft::WRL::ComPtr<ID3D11InputLayout> pLayout;
-			THROW_IF_FAILED(gfx, pDevice->CreateInputLayout(pDescs.get(), numberOfDescs, vs.pByteCode, vs.length, &pLayout));
+			THROW_IF_FAILED(gfx, pDevice->CreateInputLayout(pDescs, numberOfDescs, vs.pByteCode, vs.length, &pLayout));
 			pDeferred->IASetInputLayout(pLayout.Get());
 		}
 
@@ -199,8 +252,8 @@ public:
 	}
 
 	// call on main thread
-	void draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> pImmediateContext) {
-		pImmediateContext->ExecuteCommandList(pCommandList.Get(), FALSE);
+	void draw(const Graphics& gfx) {
+		gfx.getImmediateContext()->ExecuteCommandList(pCmdList.Get(), FALSE);
 	}
 };
 
