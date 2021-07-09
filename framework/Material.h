@@ -2,6 +2,7 @@
 #define CWF_MATERIAL_H
 
 #include "Graphics.h"
+#include "ShaderStage.h"
 #include "Submaterial.h"
 #include <d3d11.h>
 #include <initializer_list>
@@ -15,9 +16,6 @@
 * An übershader is one large shader that uses conditionals to determine which code to execute; this means that we
 * don't have to load multiple shaders, which is expensive.
 */
-enum class ShaderStage {
-	VERTEX, PIXEL
-};
 
 template <class Vertex, typename Index>
 class Material {
@@ -57,6 +55,10 @@ private:
 
 public:
 	Material(DXGI_FORMAT indexFormat) : idxFormat{ indexFormat } {}
+
+	DXGI_FORMAT getIndexFormat() const noexcept {
+		return idxFormat;
+	}
 
 	// do not interact with DirectX
 	void setTopology(D3D11_PRIMITIVE_TOPOLOGY topology) noexcept {
@@ -102,21 +104,29 @@ public:
 	}
 
 	Submaterial<Vertex, Index>& createSubmaterial() noexcept {
-		subs.emplace_back();
+		subs.emplace_back(this);
 		return subs[subs.size() - 1];
 	}
 
 
-	//  should call in another thread for optimal performance
 	void setupPipeline(const Graphics& gfx) {
 		if (pCmdList) return; // do not re-generate resources
+
 		Microsoft::WRL::ComPtr<ID3D11Device> pDevice{ gfx.getDevice() };
 		
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeferred;
 		THROW_IF_FAILED(gfx, pDevice->CreateDeferredContext(0, &pDeferred));
 
+		setupPipeline(gfx, pDeferred, pCmdList);
+	}
+
+	//  should call in another thread for optimal performance
+	void setupPipeline(const Graphics& gfx, Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeferred, 
+		Microsoft::WRL::ComPtr<ID3D11CommandList> pListToFill, bool submaterialCalling = false) {
+		Microsoft::WRL::ComPtr<ID3D11Device> pDevice{ gfx.getDevice() };
+
 		// vertex buffer
-		{
+		if (!submaterialCalling) {
 			D3D11_BUFFER_DESC vtxDesc{};
 			vtxDesc.ByteWidth = vtx.size() * sizeof(Vertex);
 			vtxDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -138,7 +148,7 @@ public:
 		}
 
 		// index buffer
-		{
+		if (!submaterialCalling) {
 			D3D11_BUFFER_DESC idxDesc{};
 			idxDesc.ByteWidth = idx.size() * sizeof(Index);
 			idxDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -157,7 +167,7 @@ public:
 		}
 
 		// constant buffer
-		{
+		if (!submaterialCalling) {
 			std::vector<Microsoft::WRL::ComPtr<ID3D11Buffer>> vertexBuffers;
 			std::vector<Microsoft::WRL::ComPtr<ID3D11Buffer>> pixelBuffers;
 			for (ConstantBuffer& cb : cBuffs) {
@@ -248,7 +258,7 @@ public:
 		pDeferred->DrawIndexed(idx.size(), 0u, 0);
 
 		// generate command list
-		THROW_IF_FAILED(gfx, pDeferred->FinishCommandList(FALSE, &pCmdList));
+		THROW_IF_FAILED(gfx, pDeferred->FinishCommandList(FALSE, &pListToFill));
 	}
 
 	// call on main thread
