@@ -61,8 +61,11 @@ private:
 			Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer{};
 		} index{};
 		struct {
-			// TODO
-		} constant;
+			std::vector<Microsoft::WRL::ComPtr<ID3D11Buffer>> vertexBuffers{};
+			std::vector<Microsoft::WRL::ComPtr<ID3D11Buffer>> pixelBuffers{};
+			std::vector<ID3D11Buffer*> vertexRawBuffers{};
+			std::vector<ID3D11Buffer*> pixelRawBuffers{};
+		} constant{};
 		struct {
 			Microsoft::WRL::ComPtr<ID3D11VertexShader> pVertex{};
 			Microsoft::WRL::ComPtr<ID3D11PixelShader> pPixel{};
@@ -202,8 +205,6 @@ public:
 
 		// constant buffer
 		if (!submaterialCalling) {
-			std::vector<Microsoft::WRL::ComPtr<ID3D11Buffer>> vertexBuffers;
-			std::vector<Microsoft::WRL::ComPtr<ID3D11Buffer>> pixelBuffers;
 			for (ConstantBuffer& cb : cBuffs) {
 				D3D11_BUFFER_DESC cbDesc{};
 				cbDesc.ByteWidth = cb.length;
@@ -221,10 +222,10 @@ public:
 
 				switch (cb.stage) {
 				case ShaderStage::VERTEX:
-					vertexBuffers.push_back(pCBuff);
+					Data.constant.vertexBuffers.push_back(pCBuff);
 					break;
 				case ShaderStage::PIXEL:
-					pixelBuffers.push_back(pCBuff);
+					Data.constant.pixelBuffers.push_back(pCBuff);
 					break;
 #ifndef NDEBUG
 				default:
@@ -232,16 +233,14 @@ public:
 #endif
 				}
 			}
-			std::vector<ID3D11Buffer*> vertexRawBuffers;
-			std::vector<ID3D11Buffer*> pixelRawBuffers;
-			for (auto& comPtr : vertexBuffers)
-				vertexRawBuffers.push_back(comPtr.Get());
-			for (auto& comPtr : pixelBuffers)
-				pixelRawBuffers.push_back(comPtr.Get());
-			if (!vertexRawBuffers.empty())
-				pDeferred->VSSetConstantBuffers(0u, vertexRawBuffers.size(), vertexRawBuffers.data());
-			if (!pixelRawBuffers.empty())
-				pDeferred->VSSetConstantBuffers(0u, pixelRawBuffers.size(), pixelRawBuffers.data());
+			for (auto& comPtr : Data.constant.vertexBuffers)
+				Data.constant.vertexRawBuffers.push_back(comPtr.Get());
+			for (auto& comPtr : Data.constant.pixelBuffers)
+				Data.constant.pixelRawBuffers.push_back(comPtr.Get());
+			if (!Data.constant.vertexRawBuffers.empty())
+				pDeferred->VSSetConstantBuffers(0u, Data.constant.vertexRawBuffers.size(), Data.constant.vertexRawBuffers.data());
+			if (!Data.constant.pixelRawBuffers.empty())
+				pDeferred->VSSetConstantBuffers(0u, Data.constant.pixelRawBuffers.size(), Data.constant.pixelRawBuffers.data());
 		}
 
 		// primitive topology
