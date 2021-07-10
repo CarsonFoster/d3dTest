@@ -12,7 +12,7 @@ private:
 	};
 public:
 	template <class Vertex, typename Index>
-	static constexpr Graphics::IndexedVertexList<Vertex, Index> mesh() {
+	static Graphics::IndexedVertexList<Vertex, Index> mesh() {
 		Graphics::IndexedVertexList<Vertex, Index> list{};
 		list.vertices.emplace_back(-0.5f, 0.5f, 0.0f);
 		list.vertices.emplace_back(-0.5f, -0.5f, 0.0f);

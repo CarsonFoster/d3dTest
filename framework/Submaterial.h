@@ -1,6 +1,7 @@
 #ifndef CWF_SUBMATERIAL_H
 #define CWF_SUBMATERIAL_H
 
+#include "Graphics.h"
 #include "ShaderStage.h"
 #include <d3d11.h>
 #include <vector>
@@ -46,6 +47,11 @@ public:
 	void addMesh(std::vector<Vertex> vertices, std::vector<Index> indices) noexcept {
 		vtx.insert(vtx.cend(), vertices.begin(), vertices.end());
 		idx.insert(idx.cend(), indices.begin(), indices.end());
+	}
+
+	void addMesh(const Graphics::IndexedVertexList<Vertex, Index>& mesh) noexcept {
+		vtx.insert(vtx.cend(), mesh.vertices.begin(), mesh.vertices.end());
+		idx.insert(idx.cend(), mesh.indices.begin(), mesh.indices.end());
 	}
 
 	void addConstantBuffer(const void* pBuffer, size_t byteWidth, ShaderStage stage, bool readOnly = true) noexcept {

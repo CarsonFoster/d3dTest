@@ -80,6 +80,11 @@ public:
 		idx.insert(idx.cend(), indices.begin(), indices.end());
 	}
 
+	void addMesh(const Graphics::IndexedVertexList<Vertex, Index>& mesh) noexcept {
+		vtx.insert(vtx.cend(), mesh.vertices.begin(), mesh.vertices.end());
+		idx.insert(idx.cend(), mesh.indices.begin(), mesh.indices.end());
+	}
+
 	void addConstantBuffer(const void* pBuffer, size_t byteWidth, ShaderStage stage, bool readOnly = true) noexcept {
 		cBuffs.emplace_back(pBuffer, byteWidth, stage, readOnly);
 	}
