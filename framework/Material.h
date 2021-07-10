@@ -4,8 +4,11 @@
 #include "Graphics.h"
 #include "ShaderStage.h"
 #include "Submaterial.h"
+#include <cstddef> // for std::byte
+#include <cstring> // for std::memcpy :(
 #include <d3d11.h>
 #include <initializer_list>
+#include <memory> // std::unique_ptr
 #include <optional>
 #include <vector>
 #include <wrl.h>
@@ -42,6 +45,7 @@ private:
 	DXGI_FORMAT idxFormat;
 	std::vector<Vertex> vtx;
 	std::vector<Index> idx;
+	std::vector<std::unique_ptr<std::byte[]>> copiedConstantBuffers;
 	std::vector<ConstantBuffer> cBuffs;
 	std::vector<Submaterial<Vertex, Index>> subs;
 	Shader vs;
@@ -110,6 +114,13 @@ public:
 
 	void addConstantBuffer(const void* pBuffer, size_t byteWidth, ShaderStage stage, bool readOnly = true) noexcept {
 		cBuffs.emplace_back(pBuffer, byteWidth, stage, readOnly);
+	}
+
+	void copyConstantBuffer(const void* pBuffer, size_t byteWidth, ShaderStage stage, bool readOnly = true) {
+		auto copiedBuffer = std::make_unique<std::byte[]>(byteWidth);
+		std::memcpy(copiedBuffer.get(), pBuffer, byteWidth);
+		cBuffs.emplace_back(copiedBuffer.get(), byteWidth, stage, readOnly);
+		copiedConstantBuffers.push_back(std::move(copiedBuffer));
 	}
 
 	void setVertexShader(const void* pByteCode, size_t length, bool bind = true) noexcept {

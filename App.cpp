@@ -55,7 +55,7 @@ App::App(HINSTANCE hInstance) : cube{ DXGI_FORMAT_R16_UINT }, otherCube{ cube } 
 	};
 	CBuf constantBuffer{ math::XMMatrixTranspose(math::XMMatrixRotationY(1.0f) * math::XMMatrixTranslation(0, 0, 2.0f)
 		* math::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 4.0f)) };
-	cube.addConstantBuffer(&constantBuffer, sizeof(constantBuffer), ShaderStage::VERTEX);
+	cube.copyConstantBuffer(&constantBuffer, sizeof(constantBuffer), ShaderStage::VERTEX);
 
 	/*CBuf otherConstantBuffer{math::XMMatrixTranspose(math::XMMatrixTranslation(-0.5, 0, 3.0f)
 		* math::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 4.0f)) };
