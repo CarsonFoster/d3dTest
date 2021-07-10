@@ -20,7 +20,7 @@ void App::doFrame() {
 		w->kbd.isKeyPressed('W'), w->kbd.isKeyPressed('S'));*/
 	Graphics& gfx{ w->gfx() };
 	cube.draw(gfx);
-	otherCube.draw(gfx);
+	// otherCube.draw(gfx);
 	gfx.endFrame();
 }
 
@@ -42,7 +42,7 @@ App::App(HINSTANCE hInstance) : cube{ DXGI_FORMAT_R16_UINT }, otherCube{ cube } 
 		.addWindowStyle(WS_MINIMIZEBOX)
 		.setClientSize(1000, 1000)
 		.build());
-	// Graphics::IndexedVertexList<math::XMFLOAT3, uint16_t> randomName{ Cube::mesh<math::XMFLOAT3, uint16_t>() };
+	//Graphics::IndexedVertexList<math::XMFLOAT3, uint16_t> randomName{ Cube::mesh<math::XMFLOAT3, uint16_t>() };
 	cube.setInputLayout(Cube::defaultLayout(), Cube::defaultLayoutSize());
 	cube.setTopology(Cube::topology());
 	cube.setVertexShader(g_pVertexShader, sizeof(g_pVertexShader));
@@ -57,15 +57,15 @@ App::App(HINSTANCE hInstance) : cube{ DXGI_FORMAT_R16_UINT }, otherCube{ cube } 
 		* math::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 4.0f)) };
 	cube.addConstantBuffer(&constantBuffer, sizeof(constantBuffer), ShaderStage::VERTEX);
 
-	CBuf otherConstantBuffer{ math::XMMatrixTranspose(math::XMMatrixTranslation(-0.5, 0, 3.0f)
+	/*CBuf otherConstantBuffer{math::XMMatrixTranspose(math::XMMatrixTranslation(-0.5, 0, 3.0f)
 		* math::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 4.0f)) };
 	otherCube.addMesh(Cube::mesh<math::XMFLOAT3, uint16_t>());
-	otherCube.addConstantBuffer(&otherConstantBuffer, sizeof(otherConstantBuffer), ShaderStage::VERTEX);
+	otherCube.addConstantBuffer(&otherConstantBuffer, sizeof(otherConstantBuffer), ShaderStage::VERTEX);*/
 }
 
 int App::run() {
 	cube.setupPipeline(w->gfx());
-	otherCube.setupPipeline(w->gfx());
+	//otherCube.setupPipeline(w->gfx());
 	w->showWindow();
 	std::optional<int> exitCode{};
 	while (true) {
