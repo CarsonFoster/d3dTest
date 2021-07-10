@@ -262,7 +262,8 @@ public:
 		// vertex shader
 		{
 			if (vs.bind) {
-				THROW_IF_FAILED(gfx, pDevice->CreateVertexShader(vs.pByteCode, vs.length, nullptr, &Data.shader.pVertex));
+				if (!Data.shader.pVertex) // if already generated, skip
+					THROW_IF_FAILED(gfx, pDevice->CreateVertexShader(vs.pByteCode, vs.length, nullptr, &Data.shader.pVertex));
 				pDeferred->VSSetShader(Data.shader.pVertex.Get(), nullptr, 0u);
 			}
 		}
@@ -270,14 +271,16 @@ public:
 		// pixel shader
 		{
 			if (oPS) {
-				THROW_IF_FAILED(gfx, pDevice->CreatePixelShader(oPS->pByteCode, oPS->length, nullptr, &Data.shader.pPixel));
+				if (!Data.shader.pPixel) // if already generated, skip
+					THROW_IF_FAILED(gfx, pDevice->CreatePixelShader(oPS->pByteCode, oPS->length, nullptr, &Data.shader.pPixel));
 				pDeferred->PSSetShader(Data.shader.pPixel.Get(), nullptr, 0u);
 			}
 		}
 
 		// input layout
 		{
-			THROW_IF_FAILED(gfx, pDevice->CreateInputLayout(pDescs, numberOfDescs, vs.pByteCode, vs.length, &Data.pLayout));
+			if (!Data.pLayout) // if already generated, skip
+				THROW_IF_FAILED(gfx, pDevice->CreateInputLayout(pDescs, numberOfDescs, vs.pByteCode, vs.length, &Data.pLayout));
 			pDeferred->IASetInputLayout(Data.pLayout.Get());
 		}
 

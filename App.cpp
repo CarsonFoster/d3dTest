@@ -20,7 +20,7 @@ void App::doFrame() {
 		w->kbd.isKeyPressed('W'), w->kbd.isKeyPressed('S'));*/
 	Graphics& gfx{ w->gfx() };
 	cube.draw(gfx);
-	// otherCube.draw(gfx);
+	otherCube.draw(gfx);
 	gfx.endFrame();
 }
 
@@ -57,15 +57,15 @@ App::App(HINSTANCE hInstance) : cube{ DXGI_FORMAT_R16_UINT }, otherCube{ cube } 
 		* math::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 4.0f)) };
 	cube.copyConstantBuffer(&constantBuffer, sizeof(constantBuffer), ShaderStage::VERTEX);
 
-	/*CBuf otherConstantBuffer{math::XMMatrixTranspose(math::XMMatrixTranslation(-0.5, 0, 3.0f)
+	CBuf otherConstantBuffer{math::XMMatrixTranspose(math::XMMatrixTranslation(-0.5, 0, 3.0f)
 		* math::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 4.0f)) };
 	otherCube.addMesh(Cube::mesh<math::XMFLOAT3, uint16_t>());
-	otherCube.addConstantBuffer(&otherConstantBuffer, sizeof(otherConstantBuffer), ShaderStage::VERTEX);*/
+	otherCube.copyConstantBuffer(&otherConstantBuffer, sizeof(otherConstantBuffer), ShaderStage::VERTEX);
 }
 
 int App::run() {
 	cube.setupPipeline(w->gfx());
-	//otherCube.setupPipeline(w->gfx());
+	otherCube.setupPipeline(w->gfx());
 	w->showWindow();
 	std::optional<int> exitCode{};
 	while (true) {
