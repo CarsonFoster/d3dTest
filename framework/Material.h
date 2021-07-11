@@ -47,7 +47,6 @@ private:
 	std::vector<Index> idx;
 	std::vector<std::unique_ptr<std::byte[]>> copiedConstantBuffers;
 	std::vector<ConstantBuffer> cBuffs;
-	std::vector<Submaterial<Vertex, Index>> subs;
 	Shader vs;
 	std::optional<Shader> oPS;
 	std::optional<Microsoft::WRL::ComPtr<ID3D11RenderTargetView>> oPrtv;
@@ -123,6 +122,29 @@ public:
 		copiedConstantBuffers.push_back(std::move(copiedBuffer));
 	}
 
+	void updateCopyConstantBuffer(size_t index, const Graphics& gfx, const void* pBuffer, size_t byteWidth) { // expensive
+		if (index >= cBuffs.size() || cBuffs[index].readOnly) return;
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> pImmediateContext{ gfx.getImmediateContext() };
+		D3D11_MAPPED_SUBRESOURCE mappedResource{ 0 };
+		ID3D11Buffer* pConstantBuffer{};
+		switch (cBuffs[index].stage) {
+		case ShaderStage::VERTEX:
+			pConstantBuffer = Data.constant.vertexRawBuffers[index];
+			break;
+		case ShaderStage::PIXEL:
+			pConstantBuffer = Data.constant.pixelRawBuffers[index];
+			break;
+#ifndef NDEBUG
+		default:
+			OutputDebugStringW(L"Update your other stage switch, dumb dumb.\n");
+#endif
+		}
+		THROW_IF_FAILED(gfx, 
+			pImmediateContext->Map(pConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+		std::memcpy(mappedResource.pData, pBuffer, byteWidth);
+		pImmediateContext->Unmap(pConstantBuffer, 0);
+	}
+
 	void setVertexShader(const void* pByteCode, size_t length, bool bind = true) noexcept {
 		vs = { pByteCode, length, bind };
 	}
@@ -152,12 +174,6 @@ public:
 		vp.MaxDepth = 1.0f;
 		oVP = vp;
 	}
-
-	Submaterial<Vertex, Index>& createSubmaterial() noexcept {
-		subs.emplace_back(this);
-		return subs[subs.size() - 1];
-	}
-
 
 	void setupPipeline(const Graphics& gfx) {
 		if (pCmdList) return; // do not re-generate resources

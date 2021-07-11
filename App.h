@@ -22,6 +22,9 @@ private:
 	std::unique_ptr<Window> w;
 	Material<math::XMFLOAT3, uint16_t> cube;
 	Submaterial<math::XMFLOAT3, uint16_t> otherCube;
+	struct {
+		math::XMMATRIX transformation;
+	} cbuf;
 public:
 	App(HINSTANCE hInstance);
 	~App() = default;

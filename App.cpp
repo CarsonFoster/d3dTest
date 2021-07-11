@@ -13,12 +13,30 @@
 #include <memory>
 
 void App::doFrame() {
+	static Graphics& gfx{ w->gfx() };
+	static constexpr float dTheta = 0.1f;
+	static float angle{};
+	bool changed{ false };
 	/*w->gfx().clearBuffer(0.0f,
 		std::clamp(static_cast<float>(w->mouse.getX()) / static_cast<float>(w->getClientWidth()), 0.0f, 1.0f),
 		std::clamp(static_cast<float>(w->mouse.getY()) / static_cast<float>(w->getClientHeight()), 0.0f, 1.0f));
 	w->gfx().drawTestCube(w->kbd.isKeyPressed('A'), w->kbd.isKeyPressed('D'),
 		w->kbd.isKeyPressed('W'), w->kbd.isKeyPressed('S'));*/
-	Graphics& gfx{ w->gfx() };
+	if (w->kbd.isKeyPressed('A')) {
+		angle += dTheta;
+		changed = true;
+	}
+	if (w->kbd.isKeyPressed('D')) {
+		angle -= dTheta; 
+		changed = true;
+	}
+	if (changed) {
+		cbuf = { math::XMMatrixTranspose(math::XMMatrixRotationY(angle)
+			* math::XMMatrixTranslation(0, 0, 2.0f)
+			* math::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 4.0f)) };
+		cube.updateCopyConstantBuffer(0, gfx, &cbuf, sizeof(cbuf));
+	}
+	gfx.clearBuffer(0, 0, 0);
 	cube.draw(gfx);
 	otherCube.draw(gfx);
 	gfx.endFrame();
@@ -33,7 +51,8 @@ LRESULT WndProc(Window* pWindow, HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 	return DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
-App::App(HINSTANCE hInstance) : cube{ DXGI_FORMAT_R16_UINT }, otherCube{ cube } {
+App::App(HINSTANCE hInstance) : cube{ DXGI_FORMAT_R16_UINT }, otherCube{ cube }, 
+	cbuf{ math::XMMatrixTranslation(0, 0, 2.0f) * math::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 4.0f) } {
 	WindowClass wc{ hInstance, className };
 	wc.registerClass();
 
@@ -50,14 +69,10 @@ App::App(HINSTANCE hInstance) : cube{ DXGI_FORMAT_R16_UINT }, otherCube{ cube } 
 	cube.setRenderTarget(w->gfx().getRenderTargetView(), nullptr);
 	cube.setViewport(0.0f, 0.0f, w->getClientWidth(), w->getClientHeight());
 	cube.addMesh(Cube::mesh<math::XMFLOAT3, uint16_t>());
-	struct CBuf {
-		math::XMMATRIX transformation;
-	};
-	CBuf constantBuffer{ math::XMMatrixTranspose(math::XMMatrixRotationY(1.0f) * math::XMMatrixTranslation(0, 0, 2.0f)
-		* math::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 4.0f)) };
-	cube.copyConstantBuffer(&constantBuffer, sizeof(constantBuffer), ShaderStage::VERTEX);
-
-	CBuf otherConstantBuffer{math::XMMatrixTranspose(math::XMMatrixTranslation(-0.5, 0, 3.0f)
+	cube.addConstantBuffer(&cbuf, sizeof(cbuf), ShaderStage::VERTEX, false);
+	struct {
+		math::XMMATRIX transformation; 
+	} otherConstantBuffer{ math::XMMatrixTranspose(math::XMMatrixTranslation(-0.5, 0, 3.0f)
 		* math::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 4.0f)) };
 	otherCube.addMesh(Cube::mesh<math::XMFLOAT3, uint16_t>());
 	otherCube.copyConstantBuffer(&otherConstantBuffer, sizeof(otherConstantBuffer), ShaderStage::VERTEX);
