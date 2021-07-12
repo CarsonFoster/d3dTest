@@ -242,3 +242,12 @@ Microsoft::WRL::ComPtr<ID3D11DeviceContext> Graphics::getImmediateContext() cons
 Microsoft::WRL::ComPtr<ID3D11RenderTargetView> Graphics::getRenderTargetView() const noexcept {
 	return pTarget;
 }
+
+void Graphics::setProjection(float fov_deg, float nearZ, float farZ) noexcept {
+	float aspectRatio = static_cast<float>(clientWidth) / static_cast<float>(clientHeight);
+	projection = math::XMMatrixPerspectiveFovLH(math::XMConvertToRadians(fov_deg), aspectRatio, nearZ, farZ);
+}
+
+math::XMMATRIX Graphics::getProjection() const noexcept {
+	return projection;
+}

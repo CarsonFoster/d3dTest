@@ -8,6 +8,7 @@
 #endif
 
 #include <d3d11.h>
+#include <DirectXMath.h>
 #include <vector>
 #include <Windows.h>
 #include <wrl.h>
@@ -31,10 +32,13 @@
 
 #define THROW_IF_FAILED_NOGFX(func) throwIfFailedNoGfx((func), __FILE__, __LINE__)
 
+namespace math = DirectX;
+
 class Graphics {
 private:
 	int clientWidth;
 	int clientHeight;
+	math::XMMATRIX projection;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
@@ -54,6 +58,17 @@ public:
 		const void* pByteCode;
 		size_t length;
 	};
+
+	struct TConstBuffer {
+		math::XMMATRIX transform;
+
+		TConstBuffer(const math::XMMATRIX& t) : transform{ math::XMMatrixTranspose(t) } {}
+		TConstBuffer() : transform{} {}
+		TConstBuffer& operator=(const math::XMMATRIX& t) {
+			transform = math::XMMatrixTranspose(t);
+			return *this;
+		}
+	};
 public:
 	Graphics(HWND hWnd, int cWidth, int cHeight);
 	~Graphics() = default;
@@ -69,6 +84,9 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11Device> getDevice() const noexcept;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> getImmediateContext() const noexcept;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> getRenderTargetView() const noexcept;
+	
+	void setProjection(float fov_deg, float nearZ, float farZ) noexcept;
+	math::XMMATRIX getProjection() const noexcept;
 };
 
 inline void throwIfFailed(const Graphics& gfx, HRESULT hr, const char* file, int line) {

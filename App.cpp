@@ -31,9 +31,9 @@ void App::doFrame() {
 		changed = true;
 	}
 	if (changed) {
-		cbuf = { math::XMMatrixTranspose(math::XMMatrixRotationY(angle)
+		cbuf = { math::XMMatrixRotationY(angle)
 			* math::XMMatrixTranslation(0, 0, 2.0f)
-			* math::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 4.0f)) };
+			* gfx.getProjection() };
 		cube.updateCopyConstantBuffer(0, gfx, &cbuf, sizeof(cbuf));
 	}
 	gfx.clearBuffer(0, 0, 0);
@@ -51,8 +51,7 @@ LRESULT WndProc(Window* pWindow, HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 	return DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
-App::App(HINSTANCE hInstance) : cube{ DXGI_FORMAT_R16_UINT }, otherCube{ cube }, 
-	cbuf{ math::XMMatrixTranslation(0, 0, 2.0f) * math::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 4.0f) } {
+App::App(HINSTANCE hInstance) : cube{ DXGI_FORMAT_R16_UINT }, otherCube{ cube }, cbuf{} {
 	WindowClass wc{ hInstance, className };
 	wc.registerClass();
 
@@ -61,7 +60,10 @@ App::App(HINSTANCE hInstance) : cube{ DXGI_FORMAT_R16_UINT }, otherCube{ cube },
 		.addWindowStyle(WS_MINIMIZEBOX)
 		.setClientSize(1000, 1000)
 		.build());
-	//Graphics::IndexedVertexList<math::XMFLOAT3, uint16_t> randomName{ Cube::mesh<math::XMFLOAT3, uint16_t>() };
+	w->gfx().setProjection(90.0f, 0.5f, 4.0f);
+
+	cbuf = math::XMMatrixTranslation(0, 0, 2.0f) * w->gfx().getProjection();
+
 	cube.setInputLayout(Cube::defaultLayout(), Cube::defaultLayoutSize());
 	cube.setTopology(Cube::topology());
 	cube.setVertexShader(g_pVertexShader, sizeof(g_pVertexShader));
@@ -70,10 +72,7 @@ App::App(HINSTANCE hInstance) : cube{ DXGI_FORMAT_R16_UINT }, otherCube{ cube },
 	cube.setViewport(0.0f, 0.0f, w->getClientWidth(), w->getClientHeight());
 	cube.addMesh(Cube::mesh<math::XMFLOAT3, uint16_t>());
 	cube.addConstantBuffer(&cbuf, sizeof(cbuf), ShaderStage::VERTEX, false);
-	struct {
-		math::XMMATRIX transformation; 
-	} otherConstantBuffer{ math::XMMatrixTranspose(math::XMMatrixTranslation(-0.5, 0, 3.0f)
-		* math::XMMatrixPerspectiveLH(1.0f, 1.0f, 0.5f, 4.0f)) };
+	Graphics::TConstBuffer otherConstantBuffer{ math::XMMatrixTranslation(-0.5, 0, 3.0f) * w->gfx().getProjection() };
 	otherCube.addMesh(Cube::mesh<math::XMFLOAT3, uint16_t>());
 	otherCube.copyConstantBuffer(&otherConstantBuffer, sizeof(otherConstantBuffer), ShaderStage::VERTEX);
 }
