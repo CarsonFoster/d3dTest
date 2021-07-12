@@ -88,6 +88,28 @@ public:
 		copiedConstantBuffers.push_back(std::move(bytes));
 	}
 
+	void updateCopyConstantBuffer(size_t index, const Graphics& gfx, const void* pBuffer, size_t byteWidth) { // expensive
+		if (index >= cBuffs.size() || cBuffs[index].readOnly || !pCmdList) return;
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> pImmediateContext{ gfx.getImmediateContext() };
+		D3D11_MAPPED_SUBRESOURCE mappedResource{ 0 };
+		ID3D11Buffer* pConstantBuffer{};
+		switch (cBuffs[index].stage) {
+		case ShaderStage::VERTEX:
+			pConstantBuffer = Data.constant.vertexRawBuffers[index];
+			break;
+		case ShaderStage::PIXEL:
+			pConstantBuffer = Data.constant.pixelRawBuffers[index];
+			break;
+#ifndef NDEBUG
+		default:
+			OutputDebugStringW(L"Update your other stage switch (submaterial), dumb dumb.\n");
+#endif
+		}
+		THROW_IF_FAILED(gfx,
+			pImmediateContext->Map(pConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+		std::memcpy(mappedResource.pData, pBuffer, byteWidth);
+		pImmediateContext->Unmap(pConstantBuffer, 0);
+	}
 	
 	// call in another thread for optimal performance
 	void setupPipeline(const Graphics& gfx) {
