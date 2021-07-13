@@ -31,9 +31,9 @@ void App::doFrame() {
 		changed = true;
 	}
 	if (changed) {
-		cbuf = { math::XMMatrixRotationY(angle)
-			* math::XMMatrixTranslation(0, 0, 2.0f)
-			* gfx.getProjection() };
+		cbuf = { math::XMMatrixMultiply(math::XMMatrixRotationY(angle),
+			math::XMMatrixMultiply(math::XMMatrixTranslation(0, 0, 2.0f),
+			gfx.getProjection())) };
 		cube.updateCopyConstantBuffer(0, gfx, &cbuf, sizeof(cbuf));
 	}
 	gfx.clearBuffer(0, 0, 0);

@@ -116,6 +116,7 @@ public:
 	}
 
 	void copyConstantBuffer(const void* pBuffer, size_t byteWidth, ShaderStage stage, bool readOnly = true) {
+		// TODO: alignment issues with XMMATRIX and such?
 		auto copiedBuffer = std::make_unique<std::byte[]>(byteWidth);
 		std::memcpy(copiedBuffer.get(), pBuffer, byteWidth);
 		cBuffs.emplace_back(copiedBuffer.get(), byteWidth, stage, readOnly);
@@ -123,6 +124,7 @@ public:
 	}
 
 	void updateCopyConstantBuffer(size_t index, const Graphics& gfx, const void* pBuffer, size_t byteWidth) { // expensive
+		// TODO: again, are there alignment issues here?
 		if (index >= cBuffs.size() || cBuffs[index].readOnly || !pCmdList) return;
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> pImmediateContext{ gfx.getImmediateContext() };
 		D3D11_MAPPED_SUBRESOURCE mappedResource{ 0 };
@@ -201,7 +203,7 @@ public:
 			vtxDesc.MiscFlags = 0u;
 			vtxDesc.StructureByteStride = sizeof(Vertex);
 
-			D3D11_SUBRESOURCE_DATA vtxData;
+			D3D11_SUBRESOURCE_DATA vtxData{};
 			vtxData.pSysMem = vtx.data();
 
 			THROW_IF_FAILED(gfx, pDevice->CreateBuffer(&vtxDesc, &vtxData, &Data.vertex.pBuffer));
@@ -214,7 +216,7 @@ public:
 
 		// index buffer
 		if (!submaterialCalling) {
-			D3D11_BUFFER_DESC idxDesc;
+			D3D11_BUFFER_DESC idxDesc{};
 			idxDesc.ByteWidth = idx.size() * sizeof(Index);
 			idxDesc.Usage = D3D11_USAGE_DEFAULT;
 			idxDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -222,7 +224,7 @@ public:
 			idxDesc.MiscFlags = 0u;
 			idxDesc.StructureByteStride = sizeof(Index);
 
-			D3D11_SUBRESOURCE_DATA idxData;
+			D3D11_SUBRESOURCE_DATA idxData{};
 			idxData.pSysMem = idx.data();
 
 			THROW_IF_FAILED(gfx, pDevice->CreateBuffer(&idxDesc, &idxData, &Data.index.pBuffer));

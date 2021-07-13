@@ -82,6 +82,7 @@ public:
 	}
 
 	void copyConstantBuffer(const void* pBuffer, size_t byteWidth, ShaderStage stage, bool readOnly = true) {
+		// TODO: alignment
 		auto bytes = std::make_unique<std::byte[]>(byteWidth);
 		std::memcpy(bytes.get(), pBuffer, byteWidth);
 		cBuffs.emplace_back(bytes.get(), byteWidth, stage, readOnly);
@@ -89,6 +90,7 @@ public:
 	}
 
 	void updateCopyConstantBuffer(size_t index, const Graphics& gfx, const void* pBuffer, size_t byteWidth) { // expensive
+		// TODO: alignment
 		if (index >= cBuffs.size() || cBuffs[index].readOnly || !pCmdList) return;
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> pImmediateContext{ gfx.getImmediateContext() };
 		D3D11_MAPPED_SUBRESOURCE mappedResource{ 0 };
