@@ -90,7 +90,7 @@ public:
 		}
 	};
 
-	template <class U>
+	template <class U, size_t A = 16>
 	class AlignedObject {
 	private:
 		struct AlignedDeleter {
@@ -102,7 +102,7 @@ public:
 	public:
 		template <class... Args>
 		AlignedObject(Args&&... args) : pObj{} {
-			void* raw{ _aligned_malloc(sizeof(U), 16) }; // allocate 16-byte aligned memory
+			void* raw{ _aligned_malloc(sizeof(U), A) }; // allocate A-byte aligned memory (by default, 16)
 			pObj = std::unique_ptr<U, AlignedDeleter>(new(raw) U{ std::forward<Args>(args)... }); // new(raw) U{} constructs a new U at the raw memory location
 		}
 
