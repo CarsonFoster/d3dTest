@@ -46,7 +46,7 @@ private:
 	std::vector<Vertex> vtx;
 	std::vector<Index> idx;
 	std::vector<std::unique_ptr<std::byte[]>> copiedConstantBuffers;
-	std::vector<std::unique_ptr<std::byte[], Graphics::AlignedObject::AlignedDeleter>> copiedAlignedConstantBuffers;
+	std::vector<std::unique_ptr<std::byte[], Graphics::AlignedDeleter>> copiedAlignedConstantBuffers;
 	std::vector<ConstantBuffer> cBuffs;
 	Shader vs;
 	std::optional<Shader> oPS;
@@ -126,7 +126,7 @@ public:
 			void* raw = _aligned_malloc(byteWidth, 16);
 			std::memcpy(raw, pBuffer, byteWidth);
 			cBuffs.emplace_back(raw, byteWidth, stage, readOnly);
-			copiedAlignedConstantBuffers.push_back(std::unique_ptr<std::byte[], Graphics::AlignedObject::AlignedDeleter>{raw});
+			copiedAlignedConstantBuffers.push_back(std::unique_ptr<std::byte[], Graphics::AlignedDeleter>{raw});
 		}
 	}
 
