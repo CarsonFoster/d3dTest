@@ -9,6 +9,8 @@
 
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include <memory>
+#include <utility>
 #include <vector>
 #include <Windows.h>
 #include <wrl.h>
@@ -87,6 +89,28 @@ public:
 			_aligned_free(p);
 		}
 	};
+
+	template <class U>
+	class AlignedObject {
+	private:
+		struct AlignedDeleter {
+			void operator()(void* p) {
+				_aligned_free(p); // frees memory allocated with _aligned_malloc
+			}
+		};
+		std::unique_ptr<U, AlignedDeleter> pObj;
+	public:
+		template <class... Args>
+		AlignedObject(Args&&... args) : pObj{} {
+			void* raw{ _aligned_malloc(sizeof(U), 16) }; // allocate 16-byte aligned memory
+			pObj = std::unique_ptr<U, AlignedDeleter>(new(raw) U{ std::forward<Args>(args)... }); // new(raw) U{} constructs a new U at the raw memory location
+		}
+
+		U& get() {
+			return *pObj;
+		}
+	};
+
 public:
 	Graphics(HWND hWnd, int cWidth, int cHeight);
 	~Graphics() = default;
