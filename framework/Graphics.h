@@ -92,12 +92,13 @@ public:
 
 	template <class U, size_t A = 16>
 	class AlignedObject {
-	private:
+	public:
 		struct AlignedDeleter {
 			void operator()(void* p) {
 				_aligned_free(p); // frees memory allocated with _aligned_malloc
 			}
 		};
+	private:
 		std::unique_ptr<U, AlignedDeleter> pObj;
 	public:
 		template <class... Args>

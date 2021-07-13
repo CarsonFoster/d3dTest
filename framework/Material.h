@@ -46,6 +46,7 @@ private:
 	std::vector<Vertex> vtx;
 	std::vector<Index> idx;
 	std::vector<std::unique_ptr<std::byte[]>> copiedConstantBuffers;
+	std::vector<std::unique_ptr<std::byte[], Graphics::AlignedObject::AlignedDeleter>> copiedAlignedConstantBuffers;
 	std::vector<ConstantBuffer> cBuffs;
 	Shader vs;
 	std::optional<Shader> oPS;
@@ -115,12 +116,19 @@ public:
 		cBuffs.emplace_back(pBuffer, byteWidth, stage, readOnly);
 	}
 
-	void copyConstantBuffer(const void* pBuffer, size_t byteWidth, ShaderStage stage, bool readOnly = true) {
+	void copyConstantBuffer(const void* pBuffer, size_t byteWidth, ShaderStage stage, bool readOnly = true, bool aligned = false) {
 		// TODO: alignment issues with XMMATRIX and such?
-		auto copiedBuffer = std::make_unique<std::byte[]>(byteWidth);
-		std::memcpy(copiedBuffer.get(), pBuffer, byteWidth);
-		cBuffs.emplace_back(copiedBuffer.get(), byteWidth, stage, readOnly);
-		copiedConstantBuffers.push_back(std::move(copiedBuffer));
+		if (!aligned) {
+			auto copiedBuffer = std::make_unique<std::byte[]>(byteWidth);
+			std::memcpy(copiedBuffer.get(), pBuffer, byteWidth);
+			cBuffs.emplace_back(copiedBuffer.get(), byteWidth, stage, readOnly);
+			copiedConstantBuffers.push_back(std::move(copiedBuffer));
+		} else {
+			void* raw = _aligned_malloc(byteWidth, 16);
+			std::memcpy(raw, pBuffer, byteWidth);
+			cBuffs.emplace_back(raw, byteWidth, stage, readOnly);
+			copiedAlignedConstantBuffers.push_back(std::unique_ptr<std::byte[], Graphics::AlignedObject::AlignedDeleter>{raw});
+		}
 	}
 
 	void updateCopyConstantBuffer(size_t index, const Graphics& gfx, const void* pBuffer, size_t byteWidth) { // expensive
