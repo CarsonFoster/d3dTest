@@ -117,7 +117,6 @@ public:
 	}
 
 	void copyConstantBuffer(const void* pBuffer, size_t byteWidth, ShaderStage stage, bool readOnly = true, bool aligned = false) {
-		// TODO: alignment issues with XMMATRIX and such?
 		if (!aligned) {
 			auto copiedBuffer = std::make_unique<std::byte[]>(byteWidth);
 			std::memcpy(copiedBuffer.get(), pBuffer, byteWidth);

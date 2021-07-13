@@ -35,6 +35,7 @@ private:
 	std::vector<Vertex> vtx;
 	std::vector<Index> idx;
 	std::vector<std::unique_ptr<std::byte[]>> copiedConstantBuffers;
+	std::vector<std::unique_ptr<std::byte[], Graphics::AlignedObject::AlignedDeleter>> copiedAlignedConstantBuffers;
 	std::vector<ConstantBuffer> cBuffs;
 
 	// need to maintain for GPU access later
@@ -81,12 +82,19 @@ public:
 		cBuffs.emplace_back( pBuffer, byteWidth, stage, readOnly );
 	}
 
-	void copyConstantBuffer(const void* pBuffer, size_t byteWidth, ShaderStage stage, bool readOnly = true) {
-		// TODO: alignment
-		auto bytes = std::make_unique<std::byte[]>(byteWidth);
-		std::memcpy(bytes.get(), pBuffer, byteWidth);
-		cBuffs.emplace_back(bytes.get(), byteWidth, stage, readOnly);
-		copiedConstantBuffers.push_back(std::move(bytes));
+	void copyConstantBuffer(const void* pBuffer, size_t byteWidth, ShaderStage stage, bool readOnly = true, bool aligned = false) {
+		if (!aligned) {
+			auto bytes = std::make_unique<std::byte[]>(byteWidth);
+			std::memcpy(bytes.get(), pBuffer, byteWidth);
+			cBuffs.emplace_back(bytes.get(), byteWidth, stage, readOnly);
+			copiedConstantBuffers.push_back(std::move(bytes));
+		}
+		else {
+			void* raw = _aligned_malloc(byteWidth, 16);
+			std::memcpy(raw, pBuffer, byteWidth);
+			cBuffs.emplace_back(raw, byteWidth, stage, readOnly);
+			copiedAlignedConstantBuffers.push_back(std::unique_ptr<std::byte[], Graphics::AlignedObject::AlignedDeleter>{raw});
+		}
 	}
 
 	void updateCopyConstantBuffer(size_t index, const Graphics& gfx, const void* pBuffer, size_t byteWidth) { // expensive
