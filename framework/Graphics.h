@@ -60,13 +60,31 @@ public:
 	};
 
 	struct TConstBuffer {
-		math::XMMATRIX transform;
+		math::XMMATRIX transform; // must be 16-byte aligned
 
-		TConstBuffer(const math::XMMATRIX& t) : transform{ math::XMMatrixTranspose(t) } {}
+		TConstBuffer(math::CXMMATRIX t) : transform{ math::XMMatrixTranspose(t) } {}
 		TConstBuffer() : transform{} {}
-		TConstBuffer& operator=(const math::XMMATRIX& t) {
+		TConstBuffer& XM_CALLCONV operator=(math::FXMMATRIX t) {
 			transform = math::XMMatrixTranspose(t);
 			return *this;
+		}
+
+		void* operator new(size_t size) {
+			void* p{ _aligned_malloc(size, 16) };
+			return p;
+		}
+
+		void* operator new[](size_t size) {
+			void* p{ _aligned_malloc(size, 16) };
+			return p;
+		}
+
+		void operator delete(void* p) {
+			_aligned_free(p);
+		}
+
+		void operator delete[](void* p) {
+			_aligned_free(p);
 		}
 	};
 public:
@@ -86,7 +104,7 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> getRenderTargetView() const noexcept;
 	
 	void setProjection(float fov_deg, float nearZ, float farZ) noexcept;
-	math::XMMATRIX getProjection() const noexcept;
+	math::XMMATRIX getProjection() const noexcept; // TODO: determine if this can be XMMATRIX or not
 };
 
 inline void throwIfFailed(const Graphics& gfx, HRESULT hr, const char* file, int line) {
