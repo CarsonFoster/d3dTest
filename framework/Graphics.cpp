@@ -62,6 +62,22 @@ Graphics::Graphics(HWND hWnd, int cWidth, int cHeight) : clientWidth{ cWidth }, 
 	pContext->OMSetRenderTargets(1u, pTarget.GetAddressOf(), nullptr);
 }
 
+void* Graphics::operator new(size_t size) {
+	return _aligned_malloc(size, 16);
+}
+
+void* Graphics::operator new[](size_t size) {
+	return _aligned_malloc(size, 16);
+}
+
+void Graphics::operator delete(void* p) {
+	_aligned_free(p);
+}
+
+void Graphics::operator delete[](void* p) {
+	_aligned_free(p);
+}
+
 void Graphics::endFrame() {
 	// TODO: frame rate management
 	// Present( SyncInterval, Flags)

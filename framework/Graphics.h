@@ -119,10 +119,10 @@ public:
 	Graphics(const Graphics& o) = delete;
 	Graphics& operator=(const Graphics& o) = delete;
 	// no heap allocation
-	void* operator new(size_t) = delete;
-	void* operator new[](size_t) = delete;
-	void operator delete(void*) = delete;
-	void operator delete[](void*) = delete;
+	void* operator new(size_t size);
+	void* operator new[](size_t size);
+	void operator delete(void* p);
+	void operator delete[](void* p);
 
 	void endFrame();
 	void clearBuffer(float r, float g, float b);

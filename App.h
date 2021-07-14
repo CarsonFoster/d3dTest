@@ -20,7 +20,7 @@ private:
 	static constexpr const LPCWSTR className{ L"d3dTest" };
 	static constexpr const LPCWSTR windowName{ L"d3dTest Window" };
 	std::unique_ptr<Window> w;
-	Material<math::XMFLOAT3, uint16_t> cube;
+	Material<math::XMFLOAT3, uint16_t>& cube;
 	Submaterial<math::XMFLOAT3, uint16_t> otherCube;
 	Graphics::TConstBuffer cbuf;
 public:
