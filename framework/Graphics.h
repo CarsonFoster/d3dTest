@@ -40,7 +40,7 @@ class Graphics {
 private:
 	int clientWidth;
 	int clientHeight;
-	math::XMMATRIX projection; // TODO: alignment
+	math::XMMATRIX projection; // should be ok, heap allocation forbidden for this class
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
@@ -118,6 +118,11 @@ public:
 	// no copy init/assign
 	Graphics(const Graphics& o) = delete;
 	Graphics& operator=(const Graphics& o) = delete;
+	// no heap allocation
+	void* operator new(size_t) = delete;
+	void* operator new[](size_t) = delete;
+	void operator delete(void*) = delete;
+	void operator delete[](void*) = delete;
 
 	void endFrame();
 	void clearBuffer(float r, float g, float b);
@@ -129,7 +134,7 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> getRenderTargetView() const noexcept;
 	
 	void setProjection(float fov_deg, float nearZ, float farZ) noexcept;
-	math::XMMATRIX getProjection() const noexcept; // TODO: determine if this can be XMMATRIX or not
+	math::XMMATRIX getProjection() const noexcept;
 };
 
 inline void throwIfFailed(const Graphics& gfx, HRESULT hr, const char* file, int line) {
