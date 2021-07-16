@@ -59,7 +59,49 @@ Graphics::Graphics(HWND hWnd, int cWidth, int cHeight) : clientWidth{ cWidth }, 
 		pDevice->CreateRenderTargetView(pBuffer.Get(), nullptr, &pTarget)
 	);
 
-	pContext->OMSetRenderTargets(1u, pTarget.GetAddressOf(), nullptr);
+	// Z Buffer setup below
+	D3D11_DEPTH_STENCIL_DESC zBufferDesc{};
+	zBufferDesc.DepthEnable = TRUE;
+	zBufferDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	zBufferDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	zBufferDesc.StencilEnable = FALSE;
+
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> pState;
+	THROW_IF_FAILED(*this,
+		pDevice->CreateDepthStencilState(&zBufferDesc, &pState)
+	);
+
+	pContext->OMSetDepthStencilState(pState.Get(), 1u);
+
+	D3D11_TEXTURE2D_DESC zBufferTextureDesc{};
+	zBufferTextureDesc.Width = clientWidth;
+	zBufferTextureDesc.Height = clientHeight;
+	zBufferTextureDesc.MipLevels = 1u;
+	zBufferTextureDesc.ArraySize = 1u;
+	zBufferTextureDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	zBufferTextureDesc.SampleDesc.Count = 1u;
+	zBufferTextureDesc.SampleDesc.Quality = 0u;
+	zBufferTextureDesc.Usage = D3D11_USAGE_DEFAULT;
+	zBufferTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	zBufferTextureDesc.CPUAccessFlags = 0;
+	zBufferTextureDesc.MiscFlags = 0;
+
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> pZBufferTexture;
+	THROW_IF_FAILED(*this,
+		pDevice->CreateTexture2D(&zBufferTextureDesc, nullptr, &pZBufferTexture)
+	);
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC zBufferViewDesc;
+	zBufferViewDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	zBufferViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	zBufferViewDesc.Flags = 0;
+	zBufferViewDesc.Texture2D.MipSlice = 0;
+
+	THROW_IF_FAILED(*this,
+		pDevice->CreateDepthStencilView(pZBufferTexture.Get(), &zBufferViewDesc, &pZBuffer)
+	);
+
+	pContext->OMSetRenderTargets(1u, pTarget.GetAddressOf(), pZBuffer.Get());
 }
 
 void* Graphics::operator new(size_t size) {
@@ -89,6 +131,7 @@ void Graphics::endFrame() {
 void Graphics::clearBuffer(float r, float g, float b) {
 	const float colorRGBA[] = { r, g, b, 1.0f };
 	pContext->ClearRenderTargetView(pTarget.Get(), colorRGBA); // does not return an HRESULT
+	pContext->ClearDepthStencilView(pZBuffer.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
 }
 
 void Graphics::drawTestCube(bool isLeftPressed, bool isRightPressed, bool isUpPressed, bool isDownPressed) {
