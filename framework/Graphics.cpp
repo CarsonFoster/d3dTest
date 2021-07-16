@@ -302,6 +302,10 @@ Microsoft::WRL::ComPtr<ID3D11RenderTargetView> Graphics::getRenderTargetView() c
 	return pTarget;
 }
 
+Microsoft::WRL::ComPtr<ID3D11DepthStencilView> Graphics::getZBuffer() const noexcept {
+	return pZBuffer;
+}
+
 void Graphics::setProjection(float fov_deg, float nearZ, float farZ) noexcept {
 	float aspectRatio = static_cast<float>(clientWidth) / static_cast<float>(clientHeight);
 	projection = math::XMMatrixPerspectiveFovLH(math::XMConvertToRadians(fov_deg), aspectRatio, nearZ, farZ);

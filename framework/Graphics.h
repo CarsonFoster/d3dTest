@@ -133,6 +133,7 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11Device> getDevice() const noexcept;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> getImmediateContext() const noexcept;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> getRenderTargetView() const noexcept;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> getZBuffer() const noexcept;
 	
 	void setProjection(float fov_deg, float nearZ, float farZ) noexcept;
 	math::XMMATRIX getProjection() const noexcept;

@@ -67,7 +67,7 @@ App::App(HINSTANCE hInstance) : cube{ Cube<math::XMFLOAT3>::material() }, otherC
 	Cube<math::XMFLOAT3>::addMesh();
 	cube.setVertexShader(g_pVertexShader, sizeof(g_pVertexShader));
 	cube.setPixelShader(g_pPixelShader, sizeof(g_pPixelShader));
-	cube.setRenderTarget(w->gfx().getRenderTargetView(), nullptr);
+	cube.setRenderTarget(w->gfx().getRenderTargetView(), w->gfx().getZBuffer());
 	cube.setViewport(0.0f, 0.0f, w->getClientWidth(), w->getClientHeight());
 	cube.addConstantBuffer(&cbuf, sizeof(cbuf), ShaderStage::VERTEX, false);
 	Graphics::TConstBuffer otherConstantBuffer{ math::XMMatrixTranslation(-0.5, 0, 3.0f) * w->gfx().getProjection() };
