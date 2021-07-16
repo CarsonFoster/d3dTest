@@ -142,10 +142,11 @@ public:
 		case ShaderStage::PIXEL:
 			pConstantBuffer = Data.constant.pixelRawBuffers[index];
 			break;
-#ifndef NDEBUG
 		default:
+#ifndef NDEBUG
 			OutputDebugStringW(L"Update your other stage switch, dumb dumb.\n");
 #endif
+			return;
 		}
 		THROW_IF_FAILED(gfx, 
 			pImmediateContext->Map(pConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
