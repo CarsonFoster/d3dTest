@@ -4,8 +4,9 @@
 #include "Graphics.h"
 #include "ShaderStage.h"
 #include "Submaterial.h"
+#include "lib/DirectXTK/DDSTextureLoader.h"
 #include <cstddef> // for std::byte
-#include <cstring> // for std::memcpy :(
+#include <cstring> // for std::memcpy
 #include <d3d11.h>
 #include <initializer_list>
 #include <memory> // std::unique_ptr

@@ -16,6 +16,12 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{65da988b-9ec0-4ed0-9ea3-349dca1cd464}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Library">
+      <UniqueIdentifier>{3d50a4a9-a0e3-4c1f-9045-dbe6a9dcc6ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Library">
+      <UniqueIdentifier>{5fac6da2-2225-451f-a6ad-a7f89366efed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -45,11 +51,20 @@
     <ClCompile Include="App.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="framework\lib\dxerr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="framework\DXDebugInfoManager.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="framework\lib\dxerr.cpp">
+      <Filter>Source Files\Library</Filter>
+    </ClCompile>
+    <ClCompile Include="framework\lib\DirectXTK\DDSTextureLoader.cpp">
+      <Filter>Source Files\Library</Filter>
+    </ClCompile>
+    <ClCompile Include="framework\lib\DirectXTK\DirectXHelpers.cpp">
+      <Filter>Source Files\Library</Filter>
+    </ClCompile>
+    <ClCompile Include="framework\lib\DirectXTK\pch.cpp">
+      <Filter>Source Files\Library</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -77,9 +92,6 @@
     <ClInclude Include="App.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="framework\lib\dxerr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="framework\DXDebugInfoManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -94,6 +106,30 @@
     </ClInclude>
     <ClInclude Include="framework\ShaderStage.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\lib\dxerr.h">
+      <Filter>Header Files\Library</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\lib\DirectXTK\DDS.h">
+      <Filter>Header Files\Library</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\lib\DirectXTK\DDSTextureLoader.h">
+      <Filter>Header Files\Library</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\lib\DirectXTK\DirectXHelpers.h">
+      <Filter>Header Files\Library</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\lib\DirectXTK\Effects.h">
+      <Filter>Header Files\Library</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\lib\DirectXTK\LoaderHelpers.h">
+      <Filter>Header Files\Library</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\lib\DirectXTK\pch.h">
+      <Filter>Header Files\Library</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\lib\DirectXTK\PlatformHelpers.h">
+      <Filter>Header Files\Library</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
