@@ -92,7 +92,7 @@ public:
 	};
 
 	struct AlignedDeleter {
-		void operator()(void* p) {
+		void operator()(void* p) noexcept {
 			_aligned_free(p); // frees memory allocated with _aligned_malloc
 		}
 	};
