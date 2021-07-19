@@ -38,42 +38,6 @@ private:
 		ConstantBuffer(const void* p, size_t l, ShaderStage s, bool r) 
 			: pBuffer{ p }, length{ l }, stage{ s }, readOnly{ r }{}
 	};
-public:
-	struct Texture2D {
-		UINT width;
-		UINT height;
-		UINT mipLevels;
-		UINT arraySize;
-		DXGI_FORMAT format;
-		UINT sampleCount;
-		UINT sampleQuality;
-		UINT cpuAccessFlags;
-		UINT miscFlags;
-		void* pData;
-		UINT pitch;
-		UINT mostDetailedMip;
-		struct {
-			D3D11_FILTER filter{ D3D11_FILTER_MIN_MAG_MIP_LINEAR };
-			D3D11_TEXTURE_ADDRESS_MODE u{ D3D11_TEXTURE_ADDRESS_CLAMP };
-			D3D11_TEXTURE_ADDRESS_MODE v{ D3D11_TEXTURE_ADDRESS_CLAMP };
-			D3D11_TEXTURE_ADDRESS_MODE w{ D3D11_TEXTURE_ADDRESS_CLAMP };
-			float mipLODBias{ 0.0f };
-			UINT maxAnisotropy{ 0u };
-			D3D11_COMPARISON_FUNC comparisonFunc{ D3D11_COMPARISON_NEVER };
-			struct {
-				float r{ 0.0f };
-				float g{ 0.0f };
-				float b{ 0.0f };
-				float a{ 1.0f };
-			} borderColor;
-			float minLOD{ 0u };
-			float maxLOD{ 0u };
-		} sampler;
-		Texture2D(UINT w, UINT h, DXGI_FORMAT f, void* pTextureData, UINT dataPitch)
-			: width{ w }, height{ h }, mipLevels{ 1u }, arraySize{ 1u }, format{ f },
-			sampleCount{ 1u }, sampleQuality{ 0u }, cpuAccessFlags{ 0u }, miscFlags{ 0u },
-			pData{ pTextureData }, pitch{ dataPitch }, mostDetailedMip{ 0u } {}
-	};
 private:
 	// set by user
 	D3D11_PRIMITIVE_TOPOLOGY pt;
@@ -90,7 +54,7 @@ private:
 	std::optional<Microsoft::WRL::ComPtr<ID3D11RenderTargetView>> oPrtv;
 	std::optional<Microsoft::WRL::ComPtr<ID3D11DepthStencilView>> oPdsv;
 	std::optional<D3D11_VIEWPORT> oVP;
-	std::optional<Texture2D> oTex2D;
+	std::optional<Graphics::Texture2D> oTex2D;
 
 	// need to maintain pointers to these for GPU
 	struct {
@@ -226,7 +190,7 @@ public:
 		oVP = vp;
 	}
 
-	void setTexture2D(Texture2D texture) {
+	void setTexture2D(Graphics::Texture2D texture) {
 		oTex2D = texture;
 	}
 
@@ -374,54 +338,67 @@ public:
 		// texture
 		{
 			if (oTex2D) {
-				D3D11_TEXTURE2D_DESC textureDesc{};
-				textureDesc.Width = oTex2D->width;
-				textureDesc.Height = oTex2D->height;
-				textureDesc.MipLevels = oTex2D->mipLevels;
-				textureDesc.ArraySize = oTex2D->arraySize;
-				textureDesc.Format = oTex2D->format;
-				textureDesc.SampleDesc.Count = oTex2D->sampleCount;
-				textureDesc.SampleDesc.Quality = oTex2D->sampleQuality;
-				textureDesc.Usage = D3D11_USAGE_DEFAULT;
-				textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-				textureDesc.CPUAccessFlags = oTex2D->cpuAccessFlags;
-				textureDesc.MiscFlags = oTex2D->miscFlags;
+				bool valid_type{ true };
+				if (std::holds_alternative<Graphics::Texture2D::RawData>(oTex2D->content)) {
+					Graphics::Texture2D::RawData& rd{ std::get<Graphics::Texture2D::RawData>(oTex2D->content) };
+					D3D11_TEXTURE2D_DESC textureDesc{};
+					textureDesc.Width = rd.width;
+					textureDesc.Height = rd.height;
+					textureDesc.MipLevels = rd.mipLevels;
+					textureDesc.ArraySize = rd.arraySize;
+					textureDesc.Format = rd.format;
+					textureDesc.SampleDesc.Count = rd.sampleCount;
+					textureDesc.SampleDesc.Quality = rd.sampleQuality;
+					textureDesc.Usage = D3D11_USAGE_DEFAULT;
+					textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+					textureDesc.CPUAccessFlags = rd.cpuAccessFlags;
+					textureDesc.MiscFlags = rd.miscFlags;
 
-				D3D11_SUBRESOURCE_DATA textureData{};
-				textureData.pSysMem = oTex2D->pData;
-				textureData.SysMemPitch = oTex2D->pitch;
+					D3D11_SUBRESOURCE_DATA textureData{};
+					textureData.pSysMem = rd.pData;
+					textureData.SysMemPitch = rd.pitch;
 
-				Microsoft::WRL::ComPtr<ID3D11Texture2D> pTexture;
-				THROW_IF_FAILED(gfx, pDevice->CreateTexture2D(&textureDesc, &textureData, &pTexture));
+					Microsoft::WRL::ComPtr<ID3D11Texture2D> pTexture;
+					THROW_IF_FAILED(gfx, pDevice->CreateTexture2D(&textureDesc, &textureData, &pTexture));
 
-				D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-				srvDesc.Format = oTex2D->format;
-				srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-				srvDesc.Texture2D.MostDetailedMip = oTex2D->mostDetailedMip;
-				srvDesc.Texture2D.MipLevels = oTex2D->mipLevels;
+					D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+					srvDesc.Format = rd.format;
+					srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+					srvDesc.Texture2D.MostDetailedMip = rd.mostDetailedMip;
+					srvDesc.Texture2D.MipLevels = rd.mipLevels;
 
-				THROW_IF_FAILED(gfx, pDevice->CreateShaderResourceView(pTexture.Get(), &srvDesc, &Data.texture2D.pSRView));
+					THROW_IF_FAILED(gfx, pDevice->CreateShaderResourceView(pTexture.Get(), &srvDesc, &Data.texture2D.pSRView));
 
-				pDeferred->PSSetShaderResources(0u, 1u, Data.texture2D.pSRView.GetAddressOf());
+					pDeferred->PSSetShaderResources(0u, 1u, Data.texture2D.pSRView.GetAddressOf());
+				} else if (std::holds_alternative<Graphics::Texture2D::File>(oTex2D->content)) {
+					// TODO: insert DDSTextureLoader code here
+				} else {
+					valid_type = false;
+#ifndef NDEBUG
+					OutputDebugStringW(L"Texture2D variant had an unexpected type (update your if statement)");
+#endif
+				}
 
-				D3D11_SAMPLER_DESC samplerDesc{};
-				samplerDesc.Filter = oTex2D->sampler.filter;
-				samplerDesc.AddressU = oTex2D->sampler.u;
-				samplerDesc.AddressV = oTex2D->sampler.v;
-				samplerDesc.AddressW = oTex2D->sampler.w;
-				samplerDesc.MipLODBias = oTex2D->sampler.mipLODBias;
-				samplerDesc.MaxAnisotropy = oTex2D->sampler.maxAnisotropy;
-				samplerDesc.ComparisonFunc = oTex2D->sampler.comparisonFunc;
-				samplerDesc.BorderColor[0] = oTex2D->sampler.borderColor.r;
-				samplerDesc.BorderColor[1] = oTex2D->sampler.borderColor.g;
-				samplerDesc.BorderColor[2] = oTex2D->sampler.borderColor.b;
-				samplerDesc.BorderColor[3] = oTex2D->sampler.borderColor.a;
-				samplerDesc.MinLOD = oTex2D->sampler.minLOD;
-				samplerDesc.MaxLOD = oTex2D->sampler.maxLOD;
+				if (valid_type) { // only execute if the type was valid
+					D3D11_SAMPLER_DESC samplerDesc{};
+					samplerDesc.Filter = oTex2D->sampler.filter;
+					samplerDesc.AddressU = oTex2D->sampler.u;
+					samplerDesc.AddressV = oTex2D->sampler.v;
+					samplerDesc.AddressW = oTex2D->sampler.w;
+					samplerDesc.MipLODBias = oTex2D->sampler.mipLODBias;
+					samplerDesc.MaxAnisotropy = oTex2D->sampler.maxAnisotropy;
+					samplerDesc.ComparisonFunc = oTex2D->sampler.comparisonFunc;
+					samplerDesc.BorderColor[0] = oTex2D->sampler.borderColor.r;
+					samplerDesc.BorderColor[1] = oTex2D->sampler.borderColor.g;
+					samplerDesc.BorderColor[2] = oTex2D->sampler.borderColor.b;
+					samplerDesc.BorderColor[3] = oTex2D->sampler.borderColor.a;
+					samplerDesc.MinLOD = oTex2D->sampler.minLOD;
+					samplerDesc.MaxLOD = oTex2D->sampler.maxLOD;
 
-				THROW_IF_FAILED(gfx, pDevice->CreateSamplerState(&samplerDesc, &Data.texture2D.pSampler));
+					THROW_IF_FAILED(gfx, pDevice->CreateSamplerState(&samplerDesc, &Data.texture2D.pSampler));
 
-				pDeferred->PSSetSamplers(0u, 1u, Data.texture2D.pSampler.GetAddressOf());
+					pDeferred->PSSetSamplers(0u, 1u, Data.texture2D.pSampler.GetAddressOf());
+				}
 			}
 		}
 
