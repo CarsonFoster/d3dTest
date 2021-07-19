@@ -371,7 +371,10 @@ public:
 
 					pDeferred->PSSetShaderResources(0u, 1u, Data.texture2D.pSRView.GetAddressOf());
 				} else if (std::holds_alternative<Graphics::Texture2D::File>(oTex2D->content)) {
-					// TODO: insert DDSTextureLoader code here
+					Graphics::Texture2D::File& file{ std::get<Graphics::Texture2D::File>(oTex2D->content) };
+					THROW_IF_FAILED(gfx,
+						DirectX::CreateDDSTextureFromFile(pDevice.Get(), file.filename, nullptr, &Data.texture2D.pSRView)
+					);
 				} else {
 					valid_type = false;
 #ifndef NDEBUG
