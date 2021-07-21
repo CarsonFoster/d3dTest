@@ -177,6 +177,17 @@ public:
 		}
 	};
 
+	struct Float3Tex : public Float3 {
+		struct {
+			float u;
+			float v;
+			void set(float U, float V) {
+				u = U;
+				v = V;
+			}
+		} tex;
+	};
+
 	struct Float4 {
 		struct {
 			float x;

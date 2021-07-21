@@ -21,6 +21,7 @@ template <class T>
 concept VertexAndTexture = Vertex<T> && requires (T vtx) {
 	vtx.tex.u;
 	vtx.tex.v;
+	vtx.tex.set(1.0f, 1.0f);
 };
 
 #endif
