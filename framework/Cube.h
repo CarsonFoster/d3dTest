@@ -22,14 +22,14 @@ private:
 public:
 	static Graphics::IndexedVertexList<Vtx, Idx> mesh() {
 		Graphics::IndexedVertexList<Vtx, Idx> list{};
-		list.vertices.emplace_back(-0.5f, 0.5f, 0.0f);
-		list.vertices.emplace_back(-0.5f, -0.5f, 0.0f);
-		list.vertices.emplace_back(0.5f, -0.5f, 0.0f);
-		list.vertices.emplace_back(0.5f, 0.5f, 0.0f);
-		list.vertices.emplace_back(-0.5f, 0.5f, 1.0f);
-		list.vertices.emplace_back(-0.5f, -0.5f, 1.0f);
-		list.vertices.emplace_back(0.5f, -0.5f, 1.0f);
-		list.vertices.emplace_back(0.5f, 0.5f, 1.0f);
+		list.vertices.emplace_back(-0.5f, 0.5f, -0.5f);
+		list.vertices.emplace_back(-0.5f, -0.5f, -0.5f);
+		list.vertices.emplace_back(0.5f, -0.5f, -0.5f);
+		list.vertices.emplace_back(0.5f, 0.5f, -0.5f);
+		list.vertices.emplace_back(-0.5f, 0.5f, 0.5f);
+		list.vertices.emplace_back(-0.5f, -0.5f, 0.5f);
+		list.vertices.emplace_back(0.5f, -0.5f, 0.5f);
+		list.vertices.emplace_back(0.5f, 0.5f, 0.5f);
 
 		list.indices = {
 			1,0,3,  2,1,3,
@@ -44,14 +44,14 @@ public:
 
 	static void XM_CALLCONV addMesh(math::FXMMATRIX t) {
 		math::XMFLOAT4 vtx[]{
-			{ -0.5f, 0.5f, 0.0f, 1.0f },
-			{ -0.5f, -0.5f, 0.0f, 1.0f },
-			{ 0.5f, -0.5f, 0.0f, 1.0f },
-			{ 0.5f, 0.5f, 0.0f, 1.0f },
-			{ -0.5f, 0.5f, 1.0f, 1.0f },
-			{ -0.5f, -0.5f, 1.0f, 1.0f },
-			{ 0.5f, -0.5f, 1.0f, 1.0f },
-			{ 0.5f, 0.5f, 1.0f, 1.0f }
+			{ -0.5f, 0.5f, -0.5f, 1.0f },
+			{ -0.5f, -0.5f, -0.5f, 1.0f },
+			{ 0.5f, -0.5f, -0.5f, 1.0f },
+			{ 0.5f, 0.5f, -0.5f, 1.0f },
+			{ -0.5f, 0.5f, 0.5f, 1.0f },
+			{ -0.5f, -0.5f, 0.5f, 1.0f },
+			{ 0.5f, -0.5f, 0.5f, 1.0f },
+			{ 0.5f, 0.5f, 0.5f, 1.0f }
 		};
 
 		constexpr size_t vtxSize{ std::size(vtx) };

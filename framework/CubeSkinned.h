@@ -25,40 +25,40 @@ public:
 		constexpr float third = (1.0f / 3.0f);
 		Graphics::IndexedVertexList<Vtx, Idx> list{};
 		// front face
-		list.vertices.emplace_back(-0.5f, 0.5f, 0.0f);  // 0
-		list.vertices.emplace_back(-0.5f, -0.5f, 0.0f); // 1
-		list.vertices.emplace_back(0.5f, -0.5f, 0.0f);  // 2
-		list.vertices.emplace_back(0.5f, 0.5f, 0.0f);   // 3
+		list.vertices.emplace_back(-0.5f, 0.5f, -0.5f);  // 0
+		list.vertices.emplace_back(-0.5f, -0.5f, -0.5f); // 1
+		list.vertices.emplace_back(0.5f, -0.5f, -0.5f);  // 2
+		list.vertices.emplace_back(0.5f, 0.5f, -0.5f);   // 3
 		list.vertices[0].tex.set(third, 0.25f);
 		list.vertices[1].tex.set(third, 0.5f);
 		list.vertices[2].tex.set(2 * third, 0.5f);
 		list.vertices[3].tex.set(2 * third, 0.25f);
 
 		// back face
-		list.vertices.emplace_back(-0.5f, 0.5f, 1.0f);  // 4
-		list.vertices.emplace_back(-0.5f, -0.5f, 1.0f); // 5
-		list.vertices.emplace_back(0.5f, -0.5f, 1.0f);  // 6
-		list.vertices.emplace_back(0.5f, 0.5f, 1.0f);   // 7
+		list.vertices.emplace_back(-0.5f, 0.5f, 0.5f);  // 4
+		list.vertices.emplace_back(-0.5f, -0.5f, 0.5f); // 5
+		list.vertices.emplace_back(0.5f, -0.5f, 0.5f);  // 6
+		list.vertices.emplace_back(0.5f, 0.5f, 0.5f);   // 7
 		list.vertices[4].tex.set(third, 1.0f);
 		list.vertices[5].tex.set(third, 0.75f);
 		list.vertices[6].tex.set(2 * third, 0.75f);
 		list.vertices[7].tex.set(2 * third, 1.0f);
 
 		// top face
-		list.vertices.emplace_back(-0.5f, 0.5f, 1.0f); // 8
-		list.vertices.emplace_back(0.5f, 0.5f, 1.0f);  // 9
+		list.vertices.emplace_back(-0.5f, 0.5f, 0.5f); // 8
+		list.vertices.emplace_back(0.5f, 0.5f, 0.5f);  // 9
 		list.vertices[8].tex.set(third, 0.0f);
 		list.vertices[9].tex.set(2 * third, 0.0f);
 
 		// left face
-		list.vertices.emplace_back(-0.5f, 0.5f, 1.0f);  // 10
-		list.vertices.emplace_back(-0.5f, -0.5f, 1.0f); // 11
+		list.vertices.emplace_back(-0.5f, 0.5f, 0.5f);  // 10
+		list.vertices.emplace_back(-0.5f, -0.5f, 0.5f); // 11
 		list.vertices[10].tex.set(0.0f, 0.25f);
 		list.vertices[11].tex.set(0.0f, 0.5f);
 
 		// right face
-		list.vertices.emplace_back(0.5f, 0.5f, 1.0f);  // 12
-		list.vertices.emplace_back(0.5f, -0.5f, 1.0f); // 13
+		list.vertices.emplace_back(0.5f, 0.5f, 0.5f);  // 12
+		list.vertices.emplace_back(0.5f, -0.5f, 0.5f); // 13
 		list.vertices[12].tex.set(1.0f, 0.25f);
 		list.vertices[13].tex.set(1.0f, 0.5f);
 
@@ -75,20 +75,20 @@ public:
 
 	static void XM_CALLCONV addMesh(math::FXMMATRIX t) {
 		math::XMFLOAT4 vtx[] {
-			{ -0.5f, 0.5f, 0.0f },
-			{ -0.5f, -0.5f, 0.0f },
-			{ 0.5f, -0.5f, 0.0f },
-			{ 0.5f, 0.5f, 0.0f },
-			{ -0.5f, 0.5f, 1.0f },
-			{ -0.5f, -0.5f, 1.0f },
-			{ 0.5f, -0.5f, 1.0f },
-			{ 0.5f, 0.5f, 1.0f },
-			{ -0.5f, 0.5f, 1.0f },
-			{ 0.5f, 0.5f, 1.0f },
-			{ -0.5f, 0.5f, 1.0f },
-			{ -0.5f, -0.5f, 1.0f },
-			{ 0.5f, 0.5f, 1.0f },
-			{ 0.5f, -0.5f, 1.0f },
+			{ -0.5f, 0.5f, -0.5f },
+			{ -0.5f, -0.5f, -0.5f },
+			{ 0.5f, -0.5f, -0.5f },
+			{ 0.5f, 0.5f, -0.5f },
+			{ -0.5f, 0.5f, 0.5f },
+			{ -0.5f, -0.5f, 0.5f },
+			{ 0.5f, -0.5f, 0.5f },
+			{ 0.5f, 0.5f, 0.5f },
+			{ -0.5f, 0.5f, 0.5f },
+			{ 0.5f, 0.5f, 0.5f },
+			{ -0.5f, 0.5f, 0.5f },
+			{ -0.5f, -0.5f, 0.5f },
+			{ 0.5f, 0.5f, 0.5f },
+			{ 0.5f, -0.5f, 0.5f },
 		};
 
 		constexpr size_t vtxSize{ std::size(vtx) };
