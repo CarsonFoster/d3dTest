@@ -2,13 +2,14 @@
 #define CWF_SHAPECONCEPTS_H
 
 #include <concepts>
+#include <vector>
 
 template <class T>
-concept Vertex = requires (T vtx) {
+concept Vertex = requires (T vtx, std::vector<T> vec) {
 	vtx.pos.x;
 	vtx.pos.y;
 	vtx.pos.z;
-	T{ 1.0f, 1.0f, 1.0f };
+	T( 1.0f, 1.0f, 1.0f ); // there must be a constructor, so emplace_back will work
 };
 
 template <class T>

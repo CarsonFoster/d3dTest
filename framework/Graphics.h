@@ -170,6 +170,11 @@ public:
 			float y;
 			float z;
 		} pos;
+		Float3(float X, float Y, float Z) {
+			pos.x = X;
+			pos.y = Y;
+			pos.z = Z;
+		}
 	};
 
 	struct Float4 {
@@ -179,6 +184,12 @@ public:
 			float z;
 			float w;
 		} pos;
+		Float4(float X, float Y, float Z, float W) {
+			pos.x = X;
+			pos.y = Y;
+			pos.z = Z;
+			pos.w = W;
+		}
 	};
 
 public:

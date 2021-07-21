@@ -54,17 +54,17 @@ public:
 			{ 0.5f, 0.5f, 1.0f, 1.0f }
 		};
 
-		std::vector<math::XMFLOAT4> dst{};
-		std::vector<Vertex> finalVtx{};
-		dst.resize(std::size(vtx));
-		finalVtx.resize(std::size(vtx));
+		constexpr size_t vtxSize{ std::size(vtx) };
+
+		math::XMFLOAT4 dst[vtxSize]{};
+		std::vector<Vtx> finalVtx{};
 
 		math::XMVector4TransformStream(
-			dst.data(),
+			dst,
 			sizeof(math::XMFLOAT4),
 			vtx,
 			sizeof(math::XMFLOAT4),
-			std::size(vtx),
+			vtxSize,
 			t
 		);
 
