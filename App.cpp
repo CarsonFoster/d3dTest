@@ -15,7 +15,8 @@
 void App::doFrame() {
 	static Graphics& gfx{ w->gfx() };
 	static constexpr float dTheta = 0.1f;
-	static float angle{};
+	static float yAngle{};
+	static float xAngle{};
 	bool changed{ false };
 	/*w->gfx().clearBuffer(0.0f,
 		std::clamp(static_cast<float>(w->mouse.getX()) / static_cast<float>(w->getClientWidth()), 0.0f, 1.0f),
@@ -23,18 +24,31 @@ void App::doFrame() {
 	w->gfx().drawTestCube(w->kbd.isKeyPressed('A'), w->kbd.isKeyPressed('D'),
 		w->kbd.isKeyPressed('W'), w->kbd.isKeyPressed('S'));*/
 	if (w->kbd.isKeyPressed('A')) {
-		angle += dTheta;
+		yAngle += dTheta;
 		changed = true;
 	}
 	if (w->kbd.isKeyPressed('D')) {
-		angle -= dTheta; 
+		yAngle -= dTheta; 
+		changed = true;
+	}
+	if (w->kbd.isKeyPressed('W')) {
+		xAngle += dTheta;
+		changed = true;
+	}
+	if (w->kbd.isKeyPressed('S')) {
+		xAngle -= dTheta;
 		changed = true;
 	}
 	if (changed) {
-		cbuf = { math::XMMatrixMultiply(math::XMMatrixRotationY(angle),
-			math::XMMatrixMultiply(math::XMMatrixTranslation(0, 0, 2.0f),
-			gfx.getProjection())) };
+		cbuf = {
+			math::XMMatrixMultiply(
+				math::XMMatrixMultiply(
+					math::XMMatrixRotationRollPitchYaw(xAngle, yAngle, 0.0f),
+					math::XMMatrixTranslation(0, 0, 2.0f)), 
+				gfx.getProjection())
+		};
 		cube.updateCopyConstantBuffer(0, gfx, &cbuf, sizeof(cbuf));
+		changed = false;
 	}
 	gfx.clearBuffer(0, 0, 0);
 	cube.draw(gfx);
