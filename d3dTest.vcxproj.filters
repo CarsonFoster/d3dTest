@@ -22,6 +22,9 @@
     <Filter Include="Source Files\Library">
       <UniqueIdentifier>{5fac6da2-2225-451f-a6ad-a7f89366efed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Shapes">
+      <UniqueIdentifier>{dbb3dfc5-9fd9-4d86-9294-2f8bddb8d6fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -101,9 +104,6 @@
     <ClInclude Include="framework\Submaterial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="framework\Cube.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="framework\ShaderStage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -130,6 +130,12 @@
     </ClInclude>
     <ClInclude Include="framework\lib\DirectXTK\PlatformHelpers.h">
       <Filter>Header Files\Library</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\Cube.h">
+      <Filter>Header Files\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="framework\ShapeConcepts.h">
+      <Filter>Header Files\Shapes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

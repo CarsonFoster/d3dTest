@@ -164,6 +164,23 @@ public:
 		Texture2D(const wchar_t* szFileName) : content{ File{ szFileName } } {}
 	};
 
+	struct Float3 {
+		struct {
+			float x;
+			float y;
+			float z;
+		} pos;
+	};
+
+	struct Float4 {
+		struct {
+			float x;
+			float y;
+			float z;
+			float w;
+		} pos;
+	};
+
 public:
 	Graphics(HWND hWnd, int cWidth, int cHeight);
 	~Graphics() = default;

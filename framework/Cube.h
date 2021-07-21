@@ -3,24 +3,25 @@
 
 #include "Graphics.h"
 #include "Material.h"
+#include "ShapeConcepts.h"
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <memory>
 
 namespace math = DirectX;
 
-template <class Vertex>
+template <Vertex Vtx>
 class Cube {
 public:
-	using Index = uint16_t;
+	using Idx = uint16_t;
 private:
-	static Material<Vertex, Index> cube;
+	static Material<Vtx, Idx> cube;
 	static constexpr D3D11_INPUT_ELEMENT_DESC layout[]{
 		{"Position", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u}
 	};
 public:
-	static Graphics::IndexedVertexList<Vertex, Index> mesh() {
-		Graphics::IndexedVertexList<Vertex, Index> list{};
+	static Graphics::IndexedVertexList<Vtx, Idx> mesh() {
+		Graphics::IndexedVertexList<Vtx, Idx> list{};
 		list.vertices.emplace_back(-0.5f, 0.5f, 0.0f);
 		list.vertices.emplace_back(-0.5f, -0.5f, 0.0f);
 		list.vertices.emplace_back(0.5f, -0.5f, 0.0f);
@@ -70,7 +71,7 @@ public:
 		for (auto& v : dst)
 			finalVtx.emplace_back(v.x, v.y, v.z);
 
-		std::vector<Index> indices {
+		std::vector<Idx> indices {
 			1,0,3,  2,1,3,
 			5,4,0,  1,5,0,
 			2,3,7,  6,2,7,
@@ -97,15 +98,15 @@ public:
 		return std::size(layout);
 	}
 
-	static Material<Vertex, Index>& material() noexcept {
+	static Material<Vtx, Idx>& material() noexcept {
 		return cube;
 	}
 };
 
-template <class Vertex>
-Material<Vertex, uint16_t> Cube<Vertex>::cube {
+template <Vertex Vtx>
+Material<Vtx, uint16_t> Cube<Vtx>::cube {
 	[] {
-		Material<Vertex, uint16_t> m{ DXGI_FORMAT_R16_UINT };
+		Material<Vtx, uint16_t> m{ DXGI_FORMAT_R16_UINT };
 		m.setTopology(topology());
 		m.setInputLayout(defaultLayout(), defaultLayoutSize());
 

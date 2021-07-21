@@ -51,7 +51,7 @@ LRESULT WndProc(Window* pWindow, HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 	return DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
-App::App(HINSTANCE hInstance) : cube{ Cube<math::XMFLOAT3>::material() }, otherCube{ cube }, cbuf{} {
+App::App(HINSTANCE hInstance) : cube{ Cube<Graphics::Float3>::material() }, otherCube{ cube }, cbuf{} {
 	WindowClass wc{ hInstance, className };
 	wc.registerClass();
 
@@ -64,14 +64,14 @@ App::App(HINSTANCE hInstance) : cube{ Cube<math::XMFLOAT3>::material() }, otherC
 
 	cbuf = math::XMMatrixTranslation(0, 0, 2.0f) * w->gfx().getProjection();
 
-	Cube<math::XMFLOAT3>::addMesh();
+	Cube<Graphics::Float3>::addMesh();
 	cube.setVertexShader(g_pVertexShader, sizeof(g_pVertexShader));
 	cube.setPixelShader(g_pPixelShader, sizeof(g_pPixelShader));
 	cube.setRenderTarget(w->gfx().getRenderTargetView(), w->gfx().getZBuffer());
 	cube.setViewport(0.0f, 0.0f, w->getClientWidth(), w->getClientHeight());
 	cube.addConstantBuffer(&cbuf, sizeof(cbuf), ShaderStage::VERTEX, false);
 	Graphics::TConstBuffer otherConstantBuffer{ math::XMMatrixTranslation(-0.5, 0, 3.0f) * w->gfx().getProjection() };
-	otherCube.addMesh(Cube<math::XMFLOAT3>::mesh());
+	otherCube.addMesh(Cube<Graphics::Float3>::mesh());
 	otherCube.copyConstantBuffer(&otherConstantBuffer, sizeof(otherConstantBuffer), ShaderStage::VERTEX, true, true);
 }
 

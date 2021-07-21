@@ -92,7 +92,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
     </ClCompile>
@@ -189,6 +189,7 @@
     <ClInclude Include="framework\Material.h" />
     <ClInclude Include="framework\Mouse.h" />
     <ClInclude Include="framework\ShaderStage.h" />
+    <ClInclude Include="framework\ShapeConcepts.h" />
     <ClInclude Include="framework\Submaterial.h" />
     <ClInclude Include="framework\Window.h" />
     <ClInclude Include="framework\WindowBuilder.h" />
