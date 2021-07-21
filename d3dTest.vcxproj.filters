@@ -137,6 +137,9 @@
     <ClInclude Include="framework\ShapeConcepts.h">
       <Filter>Header Files\Shapes</Filter>
     </ClInclude>
+    <ClInclude Include="framework\CubeSkinned.h">
+      <Filter>Header Files\Shapes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="framework\shaders\TestTrianglePixelShader.hlsl">

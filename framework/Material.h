@@ -375,6 +375,7 @@ public:
 					THROW_IF_FAILED(gfx,
 						DirectX::CreateDDSTextureFromFile(pDevice.Get(), file.filename, nullptr, &Data.texture2D.pSRView)
 					);
+					pDeferred->PSSetShaderResources(0u, 1u, Data.texture2D.pSRView.GetAddressOf());
 				} else {
 					valid_type = false;
 #ifndef NDEBUG

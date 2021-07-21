@@ -1,7 +1,7 @@
 #include "App.h"
 #include "CubeTestVertexShader.h"
 #include "CubeTestPixelShader.h"
-#include "framework/Cube.h"
+#include "framework/CubeSkinned.h"
 #include "framework/CwfException.h"
 #include "framework/Graphics.h"
 #include "framework/Material.h"
@@ -38,7 +38,7 @@ void App::doFrame() {
 	}
 	gfx.clearBuffer(0, 0, 0);
 	cube.draw(gfx);
-	otherCube.draw(gfx);
+	//otherCube.draw(gfx);
 	gfx.endFrame();
 }
 
@@ -51,7 +51,7 @@ LRESULT WndProc(Window* pWindow, HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 	return DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
-App::App(HINSTANCE hInstance) : cube{ Cube<Graphics::Float3>::material() }, otherCube{ cube }, cbuf{} {
+App::App(HINSTANCE hInstance) : cube{ CubeSkinned<Graphics::Float3Tex>::material() }, /*otherCube{cube},*/ cbuf{} {
 	WindowClass wc{ hInstance, className };
 	wc.registerClass();
 
@@ -64,20 +64,21 @@ App::App(HINSTANCE hInstance) : cube{ Cube<Graphics::Float3>::material() }, othe
 
 	cbuf = math::XMMatrixTranslation(0, 0, 2.0f) * w->gfx().getProjection();
 
-	Cube<Graphics::Float3>::addMesh();
+	CubeSkinned<Graphics::Float3Tex>::addMesh();
 	cube.setVertexShader(g_pVertexShader, sizeof(g_pVertexShader));
 	cube.setPixelShader(g_pPixelShader, sizeof(g_pPixelShader));
 	cube.setRenderTarget(w->gfx().getRenderTargetView(), w->gfx().getZBuffer());
 	cube.setViewport(0.0f, 0.0f, w->getClientWidth(), w->getClientHeight());
 	cube.addConstantBuffer(&cbuf, sizeof(cbuf), ShaderStage::VERTEX, false);
-	Graphics::TConstBuffer otherConstantBuffer{ math::XMMatrixTranslation(-0.5, 0, 3.0f) * w->gfx().getProjection() };
-	otherCube.addMesh(Cube<Graphics::Float3>::mesh());
-	otherCube.copyConstantBuffer(&otherConstantBuffer, sizeof(otherConstantBuffer), ShaderStage::VERTEX, true, true);
+	cube.setTexture2D(Graphics::Texture2D{ L"bitmap.DDS" });
+	//Graphics::TConstBuffer otherConstantBuffer{ math::XMMatrixTranslation(-0.5, 0, 3.0f) * w->gfx().getProjection() };
+	//otherCube.addMesh(CubeSkinned<Graphics::Float3>::mesh());
+	//otherCube.copyConstantBuffer(&otherConstantBuffer, sizeof(otherConstantBuffer), ShaderStage::VERTEX, true, true);
 }
 
 int App::run() {
 	cube.setupPipeline(w->gfx());
-	otherCube.setupPipeline(w->gfx());
+	// otherCube.setupPipeline(w->gfx());
 	w->showWindow();
 	std::optional<int> exitCode{};
 	while (true) {

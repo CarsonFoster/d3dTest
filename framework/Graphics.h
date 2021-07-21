@@ -186,6 +186,7 @@ public:
 				v = V;
 			}
 		} tex;
+		Float3Tex(float X, float Y, float Z) : Float3(X, Y, Z) {}
 	};
 
 	struct Float4 {
