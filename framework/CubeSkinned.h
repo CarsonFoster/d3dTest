@@ -4,13 +4,14 @@
 #include "Graphics.h"
 #include "Material.h"
 #include "ShapeConcepts.h"
+#include "WStringLiteral.h"
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <memory>
 
 namespace math = DirectX;
 
-template <VertexAndTexture Vtx>
+template <WStringLiteral file, VertexAndTexture Vtx>
 class CubeSkinned {
 public:
 	using Idx = uint16_t;
@@ -156,12 +157,13 @@ public:
 	}
 };
 
-template <VertexAndTexture Vtx>
-Material<Vtx, uint16_t> CubeSkinned<Vtx>::cube {
+template <WStringLiteral file, VertexAndTexture Vtx>
+Material<Vtx, uint16_t> CubeSkinned<file, Vtx>::cube {
 	[] {
 		Material<Vtx, uint16_t> m{ DXGI_FORMAT_R16_UINT };
 		m.setTopology(topology());
 		m.setInputLayout(defaultLayout(), defaultLayoutSize());
+		m.setTexture2D(Graphics::Texture2D{ file.value });
 
 		return m;
 	}()

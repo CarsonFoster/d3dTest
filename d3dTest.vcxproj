@@ -195,6 +195,7 @@
     <ClInclude Include="framework\Window.h" />
     <ClInclude Include="framework\WindowBuilder.h" />
     <ClInclude Include="framework\WindowClass.h" />
+    <ClInclude Include="framework\WStringLiteral.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="CubeTestPixelShader.hlsl">
