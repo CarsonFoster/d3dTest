@@ -52,7 +52,7 @@ void App::doFrame() {
 
 	gfx.clearBuffer(0, 0, 0);
 	cube.draw(gfx);
-	//otherCube.draw(gfx);
+	otherCube.draw(gfx);
 	gfx.endFrame();
 }
 
@@ -65,7 +65,7 @@ LRESULT WndProc(Window* pWindow, HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 	return DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
-App::App(HINSTANCE hInstance) : cube{ CubeSkinned<L"bitmap.DDS", Graphics::Float3Tex>::material()}, /*otherCube{cube},*/ cbuf{} {
+App::App(HINSTANCE hInstance) : cube{ CubeSkinned<L"bitmap.DDS", Graphics::Float3Tex>::material()}, otherCube{cube}, cbuf{} {
 	WindowClass wc{ hInstance, className };
 	wc.registerClass();
 
@@ -85,14 +85,14 @@ App::App(HINSTANCE hInstance) : cube{ CubeSkinned<L"bitmap.DDS", Graphics::Float
 	cube.setRenderTarget(w->gfx().getRenderTargetView(), w->gfx().getZBuffer());
 	cube.setViewport(0.0f, 0.0f, w->getClientWidth(), w->getClientHeight());
 	cube.addConstantBuffer(&cbuf, sizeof(cbuf), ShaderStage::VERTEX, false);
-	//Graphics::TConstBuffer otherConstantBuffer{ math::XMMatrixTranslation(-0.5, 0, 3.0f) * w->gfx().getProjection() };
-	//otherCube.addMesh(CubeSkinned<Graphics::Float3>::mesh());
-	//otherCube.copyConstantBuffer(&otherConstantBuffer, sizeof(otherConstantBuffer), ShaderStage::VERTEX, true, true);
+	Graphics::TConstBuffer otherConstantBuffer{ math::XMMatrixTranslation(-0.5, 0, 3.0f) * w->gfx().getProjection() };
+	otherCube.addMesh(TexturedCube::mesh());
+	otherCube.copyConstantBuffer(&otherConstantBuffer, sizeof(otherConstantBuffer), ShaderStage::VERTEX, true, true);
 }
 
 int App::run() {
 	cube.setupPipeline(w->gfx());
-	// otherCube.setupPipeline(w->gfx());
+	otherCube.setupPipeline(w->gfx());
 	w->showWindow();
 	std::optional<int> exitCode{};
 	while (true) {

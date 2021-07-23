@@ -21,7 +21,7 @@ private:
 	static constexpr const LPCWSTR windowName{ L"d3dTest Window" };
 	std::unique_ptr<Window> w;
 	Material<Graphics::Float3Tex, uint16_t>& cube;
-	//Submaterial<Graphics::Float3Tex, uint16_t> otherCube;
+	Submaterial<Graphics::Float3Tex, uint16_t> otherCube;
 	Graphics::TConstBuffer cbuf;
 public:
 	App(HINSTANCE hInstance);
