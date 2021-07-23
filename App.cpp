@@ -15,41 +15,41 @@
 void App::doFrame() {
 	static Graphics& gfx{ w->gfx() };
 	static constexpr float dTheta = 0.1f;
-	static float yAngle{};
-	static float xAngle{};
-	bool changed{ false };
+	static math::XMMATRIX orientation{ math::XMMatrixIdentity() };
+
 	/*w->gfx().clearBuffer(0.0f,
 		std::clamp(static_cast<float>(w->mouse.getX()) / static_cast<float>(w->getClientWidth()), 0.0f, 1.0f),
 		std::clamp(static_cast<float>(w->mouse.getY()) / static_cast<float>(w->getClientHeight()), 0.0f, 1.0f));
 	w->gfx().drawTestCube(w->kbd.isKeyPressed('A'), w->kbd.isKeyPressed('D'),
 		w->kbd.isKeyPressed('W'), w->kbd.isKeyPressed('S'));*/
-	if (w->kbd.isKeyPressed('A')) {
-		yAngle += dTheta;
-		changed = true;
-	}
-	if (w->kbd.isKeyPressed('D')) {
-		yAngle -= dTheta; 
-		changed = true;
-	}
-	if (w->kbd.isKeyPressed('W')) {
-		xAngle += dTheta;
-		changed = true;
-	}
-	if (w->kbd.isKeyPressed('S')) {
-		xAngle -= dTheta;
-		changed = true;
-	}
-	if (changed) {
+	
+	float dX{ 0.0f };
+	float dY{ 0.0f };
+
+	if (w->kbd.isKeyPressed('A'))
+		dY += dTheta;
+	if (w->kbd.isKeyPressed('D'))
+		dY -= dTheta; 
+	if (w->kbd.isKeyPressed('W'))
+		dX += dTheta;
+	if (w->kbd.isKeyPressed('S'))
+		dX -= dTheta;
+
+	if (dX != 0.0f || dY != 0.0f) {
+		if (dX != 0.0f)
+			orientation = math::XMMatrixMultiply(orientation, math::XMMatrixRotationX(dX));
+		if (dY != 0.0f)
+			orientation = math::XMMatrixMultiply(orientation, math::XMMatrixRotationY(dY));
 		cbuf = {
 			math::XMMatrixMultiply(
 				math::XMMatrixMultiply(
-					math::XMMatrixRotationRollPitchYaw(xAngle, yAngle, 0.0f),
-					math::XMMatrixTranslation(0, 0, 2.0f)), 
+					orientation,
+					math::XMMatrixTranslation(0, 0, 2.0f)),
 				gfx.getProjection())
 		};
 		cube.updateCopyConstantBuffer(0, gfx, &cbuf, sizeof(cbuf));
-		changed = false;
 	}
+
 	gfx.clearBuffer(0, 0, 0);
 	cube.draw(gfx);
 	//otherCube.draw(gfx);
