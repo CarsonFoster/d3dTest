@@ -186,7 +186,7 @@ public:
 				v = V;
 			}
 		} tex;
-		Float3Tex(float X, float Y, float Z) : Float3(X, Y, Z) {}
+		Float3Tex(float X, float Y, float Z) : Float3(X, Y, Z), tex{} {}
 	};
 
 	struct Float4 {
@@ -202,6 +202,16 @@ public:
 			pos.z = Z;
 			pos.w = W;
 		}
+		Float4(float X, float Y, float Z) : Float4(X, Y, Z, 1.0f) {}
+	};
+
+	struct Float4Tex : public Float4 {
+		struct {
+			float u;
+			float v;
+		} tex;
+		Float4Tex(float X, float Y, float Z, float W) : Float4(X, Y, Z, W), tex{} {}
+		Float4Tex(float X, float Y, float Z) : Float4(X, Y, Z), tex{} {}
 	};
 
 public:
@@ -210,7 +220,7 @@ public:
 	// no copy init/assign
 	Graphics(const Graphics& o) = delete;
 	Graphics& operator=(const Graphics& o) = delete;
-	// no heap allocation
+	// heap allocation only by _aligned_malloc
 	void* operator new(size_t size);
 	void* operator new[](size_t size);
 	void operator delete(void* p);
