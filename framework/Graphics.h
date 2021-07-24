@@ -237,7 +237,7 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> getZBuffer() const noexcept;
 	
 	void setProjection(float fov_deg, float nearZ, float farZ) noexcept;
-	math::XMMATRIX& getProjection() const noexcept;
+	const math::XMMATRIX& getProjection() const noexcept;
 };
 
 inline void throwIfFailed(const Graphics& gfx, HRESULT hr, const char* file, int line) {

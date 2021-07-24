@@ -5,6 +5,7 @@
 #include "framework/CwfException.h"
 #include "framework/Graphics.h"
 #include "framework/Material.h"
+#include "framework/Orientation.h"
 #include "framework/Window.h"
 #include "framework/WindowBuilder.h"
 #include "framework/WindowClass.h"
@@ -15,7 +16,7 @@
 void App::doFrame() {
 	static Graphics& gfx{ w->gfx() };
 	static constexpr float dTheta = 0.1f;
-	static math::XMMATRIX orientation{ math::XMMatrixIdentity() };
+	static Orientation o{};
 
 	/*w->gfx().clearBuffer(0.0f,
 		std::clamp(static_cast<float>(w->mouse.getX()) / static_cast<float>(w->getClientWidth()), 0.0f, 1.0f),
@@ -36,14 +37,11 @@ void App::doFrame() {
 		dX -= dTheta;
 
 	if (dX != 0.0f || dY != 0.0f) {
-		if (dX != 0.0f)
-			orientation = math::XMMatrixMultiply(orientation, math::XMMatrixRotationX(dX));
-		if (dY != 0.0f)
-			orientation = math::XMMatrixMultiply(orientation, math::XMMatrixRotationY(dY));
+		o.update(dX, dY, 0.0f);
 		cbuf = {
 			math::XMMatrixMultiply(
 				math::XMMatrixMultiply(
-					orientation,
+					o.get(),
 					math::XMMatrixTranslation(0, 0, 2.0f)),
 				gfx.getProjection())
 		};

@@ -311,6 +311,6 @@ void Graphics::setProjection(float fov_deg, float nearZ, float farZ) noexcept {
 	projection = math::XMMatrixPerspectiveFovLH(math::XMConvertToRadians(fov_deg), aspectRatio, nearZ, farZ);
 }
 
-math::XMMATRIX Graphics::getProjection() const noexcept {
+const math::XMMATRIX& Graphics::getProjection() const noexcept {
 	return projection;
 }

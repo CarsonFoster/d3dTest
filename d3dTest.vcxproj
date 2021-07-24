@@ -188,6 +188,7 @@
     <ClInclude Include="framework\lib\DirectXTK\PlatformHelpers.h" />
     <ClInclude Include="framework\lib\dxerr.h" />
     <ClInclude Include="framework\Material.h" />
+    <ClInclude Include="framework\Orientation.h" />
     <ClInclude Include="framework\Mouse.h" />
     <ClInclude Include="framework\ShaderStage.h" />
     <ClInclude Include="framework\ShapeConcepts.h" />
