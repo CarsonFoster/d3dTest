@@ -41,7 +41,7 @@ class Graphics {
 private:
 	int clientWidth;
 	int clientHeight;
-	math::XMMATRIX projection; // should be ok, heap allocation forbidden for this class
+	math::XMMATRIX projection;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
@@ -237,7 +237,7 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> getZBuffer() const noexcept;
 	
 	void setProjection(float fov_deg, float nearZ, float farZ) noexcept;
-	math::XMMATRIX getProjection() const noexcept;
+	math::XMMATRIX& getProjection() const noexcept;
 };
 
 inline void throwIfFailed(const Graphics& gfx, HRESULT hr, const char* file, int line) {
