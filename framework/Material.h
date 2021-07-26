@@ -194,8 +194,6 @@ public:
 		oTex2D = texture;
 	}
 
-	// TODO: copy version of setTexture2D
-
 	void setupPipeline(const Graphics& gfx) {
 		if (pCmdList) return; // do not re-generate resources
 
