@@ -11,7 +11,16 @@ if (!(test-path $fullname_in)) {
 	return
 }
 
-gci -recurse -file $in | % {
+# -file added to powershell in 3.0, as far as I can tell
+$version = (get-host).version | select -exp major
+if ($version -ge 3) {
+	$results = gci -recurse -file $in
+} else {
+	$results = gci -recurse $in | where {$_ -is [system.io.fileInfo]}
+}
+
+
+$results | % {
 	$fullname_file = $_.fullname
 	if (!$fullname_file.startsWith($fullname_in)) {
 		write "[-] Error for file $fullname_file."
