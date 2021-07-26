@@ -35,6 +35,14 @@ public:
 		);
 	}
 
+	void set(float xTheta, float yTheta, float zTheta) noexcept {
+		orientation = math::XMMatrixRotationRollPitchYaw(xTheta, yTheta, zTheta);
+	}
+
+	void reset() noexcept {
+		orientation = math::XMMatrixIdentity();
+	}
+
 	const math::XMMATRIX& get() const noexcept {
 		return orientation;
 	}

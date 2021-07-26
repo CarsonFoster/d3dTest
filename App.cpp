@@ -63,7 +63,7 @@ LRESULT WndProc(Window* pWindow, HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 	return DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
-App::App(HINSTANCE hInstance) : cube{ CubeSkinned<L"bitmap.DDS", Graphics::Float3Tex>::material()}, otherCube{cube}, cbuf{} {
+App::App(HINSTANCE hInstance) : cube{ CubeSkinned<L"bitmap.DDS", Graphics::Float3Tex>::material() }, otherCube{ cube }, cbuf{} {
 	WindowClass wc{ hInstance, className };
 	wc.registerClass();
 
