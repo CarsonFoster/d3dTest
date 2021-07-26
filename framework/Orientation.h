@@ -9,7 +9,9 @@ class Orientation {
 private:
 	math::XMMATRIX orientation;
 public:
-	Orientation() : orientation{ math::XMMatrixIdentity() } {}
+	Orientation() noexcept : orientation{ math::XMMatrixIdentity() } {}
+	Orientation(float xTheta, float yTheta, float zTheta) noexcept
+		: orientation{ math::XMMatrixRotationRollPitchYaw(xTheta, yTheta, zTheta) } {}
 
 	// aligned heap allocation only
 	void* operator new(size_t size) {
