@@ -28,14 +28,14 @@ public:
 		_aligned_free(p);
 	}
 
-	void update(float xTheta, float yTheta, float zTheta) {
+	void update(float xTheta, float yTheta, float zTheta) noexcept {
 		orientation = math::XMMatrixMultiply(
 			orientation,
 			math::XMMatrixRotationRollPitchYaw(xTheta, yTheta, zTheta)
 		);
 	}
 
-	math::XMMATRIX& get() {
+	const math::XMMATRIX& get() const noexcept {
 		return orientation;
 	}
 };

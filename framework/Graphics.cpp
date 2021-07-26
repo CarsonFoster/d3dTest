@@ -10,7 +10,9 @@
 
 namespace math = DirectX;
 
-Graphics::Graphics(HWND hWnd, int cWidth, int cHeight) : clientWidth{ cWidth }, clientHeight{ cHeight } {
+Graphics::Graphics(HWND hWnd, int cWidth, int cHeight) : clientWidth{ cWidth }, clientHeight{ cHeight },
+	projection{ math::XMMatrixIdentity() }, camera{ math::XMMatrixIdentity() } {
+	
 	DXGI_SWAP_CHAIN_DESC swapChainDescriptor{};
 	swapChainDescriptor.BufferDesc.Width = 0; // get width from output window
 	swapChainDescriptor.BufferDesc.Height = 0; // get height from output window
@@ -313,4 +315,24 @@ void Graphics::setProjection(float fov_deg, float nearZ, float farZ) noexcept {
 
 const math::XMMATRIX& Graphics::getProjection() const noexcept {
 	return projection;
+}
+
+void Graphics::setCamera(const math::XMFLOAT3& pos, float xAngle, float yAngle, float zAngle) noexcept {
+	camera = math::XMMatrixLookToLH(math::XMLoadFloat3(&pos),
+		math::XMVector3TransformNormal(
+			math::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f),
+			math::XMMatrixRotationRollPitchYaw(xAngle, yAngle, zAngle)),
+		math::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+}
+
+void Graphics::setCamera(const math::XMFLOAT3& pos, float xAngle, float yAngle, float zAngle, const math::XMFLOAT3& up) noexcept {
+	camera = math::XMMatrixLookToLH(math::XMLoadFloat3(&pos),
+		math::XMVector3TransformNormal(
+			math::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f),
+			math::XMMatrixRotationRollPitchYaw(xAngle, yAngle, zAngle)),
+		math::XMLoadFloat3(&up));
+}
+
+const math::XMMATRIX& Graphics::getCamera() const noexcept {
+	return camera;
 }
