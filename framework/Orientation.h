@@ -7,46 +7,42 @@ namespace math = DirectX;
 
 class Orientation {
 private:
-	math::XMMATRIX orientation;
+	math::XMFLOAT4X4 m_matrix;
 public:
-	Orientation() noexcept : orientation{ math::XMMatrixIdentity() } {}
-	Orientation(float xTheta, float yTheta, float zTheta) noexcept
-		: orientation{ math::XMMatrixRotationRollPitchYaw(xTheta, yTheta, zTheta) } {}
-
-	// aligned heap allocation only
-	void* operator new(size_t size) {
-		return _aligned_malloc(size, 16);
+	Orientation() noexcept : m_matrix{} {
+		math::XMStoreFloat4x4(&m_matrix,
+			math::XMMatrixIdentity()
+		);
 	}
-
-	void* operator new[](size_t size) {
-		return _aligned_malloc(size, 16);
-	}
-
-	void operator delete(void* p) {
-		_aligned_free(p);
-	}
-
-	void operator delete[](void* p) {
-		_aligned_free(p);
-	}
-
-	void update(float xTheta, float yTheta, float zTheta) noexcept {
-		orientation = math::XMMatrixMultiply(
-			orientation,
+	Orientation(float xTheta, float yTheta, float zTheta) noexcept : m_matrix{} {
+		math::XMStoreFloat4x4(&m_matrix,
 			math::XMMatrixRotationRollPitchYaw(xTheta, yTheta, zTheta)
 		);
 	}
 
+	void update(float xTheta, float yTheta, float zTheta) noexcept {
+		math::XMStoreFloat4x4(&m_matrix,
+			math::XMMatrixMultiply(
+				math::XMLoadFloat4x4(&m_matrix),
+				math::XMMatrixRotationRollPitchYaw(xTheta, yTheta, zTheta)
+			)
+		);
+	}
+
 	void set(float xTheta, float yTheta, float zTheta) noexcept {
-		orientation = math::XMMatrixRotationRollPitchYaw(xTheta, yTheta, zTheta);
+		math::XMStoreFloat4x4(&m_matrix,
+			math::XMMatrixRotationRollPitchYaw(xTheta, yTheta, zTheta)
+		);
 	}
 
 	void reset() noexcept {
-		orientation = math::XMMatrixIdentity();
+		math::XMStoreFloat4x4(&m_matrix,
+			math::XMMatrixIdentity()
+		);
 	}
 
-	const math::XMMATRIX& get() const noexcept {
-		return orientation;
+	math::XMMATRIX get() const noexcept {
+		return math::XMLoadFloat4x4(&m_matrix);
 	}
 };
 

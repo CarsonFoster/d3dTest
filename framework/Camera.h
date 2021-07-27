@@ -12,7 +12,6 @@ private:
 	math::XMFLOAT3 m_pos;
 	math::XMFLOAT3 m_up;
 	mutable math::XMFLOAT4X4 m_matrix;
-	// TODO: handle alignment when on stack but not dynamically allocated itself (i.e. as member object)
 	Orientation m_o;
 	mutable bool m_changed;
 public:
