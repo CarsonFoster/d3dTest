@@ -169,6 +169,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="framework\Camera.cpp" />
     <ClCompile Include="framework\CwfException.cpp" />
     <ClCompile Include="framework\DXDebugInfoManager.cpp" />
     <ClCompile Include="framework\Graphics.cpp" />
@@ -185,6 +186,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
+    <ClInclude Include="framework\Camera.h" />
     <ClInclude Include="framework\Cube.h" />
     <ClInclude Include="framework\CubeSkinned.h" />
     <ClInclude Include="framework\CwfException.h" />

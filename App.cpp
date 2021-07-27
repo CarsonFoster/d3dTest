@@ -14,7 +14,7 @@
 #include <memory>
 
 void App::doFrame() {
-	static Graphics& gfx{ w->gfx() };
+	static Graphics& gfx{ m_window->gfx() };
 	static constexpr float dTheta = 0.1f;
 	static Orientation o{};
 
@@ -27,30 +27,32 @@ void App::doFrame() {
 	float dX{ 0.0f };
 	float dY{ 0.0f };
 
-	if (w->kbd.isKeyPressed('A'))
+	if (m_window->kbd.isKeyPressed('A'))
 		dY += dTheta;
-	if (w->kbd.isKeyPressed('D'))
+	if (m_window->kbd.isKeyPressed('D'))
 		dY -= dTheta; 
-	if (w->kbd.isKeyPressed('W'))
+	if (m_window->kbd.isKeyPressed('W'))
 		dX += dTheta;
-	if (w->kbd.isKeyPressed('S'))
+	if (m_window->kbd.isKeyPressed('S'))
 		dX -= dTheta;
 
 	if (dX != 0.0f || dY != 0.0f) {
 		o.update(dX, dY, 0.0f);
-		cbuf = {
+		m_cbuf = {
 			math::XMMatrixMultiply(
 				math::XMMatrixMultiply(
 					o.get(),
-					math::XMMatrixTranslation(0, 0, 2.0f)),
-				gfx.getProjection())
+					math::XMMatrixTranslation(0, 0, 2.0f)
+				),
+				gfx.getProjection()
+			)
 		};
-		cube.updateCopyConstantBuffer(0, gfx, &cbuf, sizeof(cbuf));
+		m_cube.updateCopyConstantBuffer(0, gfx, &m_cbuf, sizeof(m_cbuf));
 	}
 
 	gfx.clearBuffer(0, 0, 0);
-	cube.draw(gfx);
-	otherCube.draw(gfx);
+	m_cube.draw(gfx);
+	m_otherCube.draw(gfx);
 	gfx.endFrame();
 }
 
@@ -63,52 +65,52 @@ LRESULT WndProc(Window* pWindow, HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 	return DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
-App::App(HINSTANCE hInstance) : cube{ CubeSkinned<L"bitmap.DDS", Graphics::Float3Tex>::material() }, otherCube{ cube }, cbuf{} {
-	WindowClass wc{ hInstance, className };
+App::App(HINSTANCE hInstance) : m_cube{ CubeSkinned<L"bitmap.DDS", Graphics::Float3Tex>::material() }, 
+	m_otherCube{ m_cube }, m_cbuf{} {
+
+	WindowClass wc{ hInstance, s_className };
 	wc.registerClass();
 
-	w = std::make_unique<Window>(WindowBuilder{ hInstance, className,
-												windowName, WndProc }
+	m_window = std::make_unique<Window>(WindowBuilder{ hInstance, s_className,
+												s_windowName, WndProc }
 		.addWindowStyle(WS_MINIMIZEBOX)
 		.setClientSize(1000, 1000)
 		.build());
-	w->gfx().setProjection(90.0f, 0.5f, 4.0f);
+	Graphics& gfx{ m_window->gfx() };
+	gfx.setProjection(90.0f, 0.5f, 4.0f);
 
-	cbuf = math::XMMatrixTranslation(0, 0, 2.0f) * w->gfx().getProjection();
+	m_cbuf = math::XMMatrixTranslation(0, 0, 2.0f) * gfx.getProjection();
 
 	using TexturedCube = CubeSkinned<L"bitmap.DDS", Graphics::Float3Tex>;
 	TexturedCube::addMesh();
-	cube.setVertexShader(g_pVertexShader, sizeof(g_pVertexShader));
-	cube.setPixelShader(g_pPixelShader, sizeof(g_pPixelShader));
-	cube.setRenderTarget(w->gfx().getRenderTargetView(), w->gfx().getZBuffer());
-	cube.setViewport(0.0f, 0.0f, w->getClientWidth(), w->getClientHeight());
-	cube.addConstantBuffer(&cbuf, sizeof(cbuf), ShaderStage::VERTEX, false);
-	Graphics::TConstBuffer otherConstantBuffer{ math::XMMatrixTranslation(-0.5, 0, 3.0f) * w->gfx().getProjection() };
-	otherCube.addMesh(TexturedCube::mesh());
-	otherCube.copyConstantBuffer(&otherConstantBuffer, sizeof(otherConstantBuffer), ShaderStage::VERTEX, true, true);
+	m_cube.setVertexShader(g_pVertexShader, sizeof(g_pVertexShader));
+	m_cube.setPixelShader(g_pPixelShader, sizeof(g_pPixelShader));
+	m_cube.setRenderTarget(gfx.getRenderTargetView(), gfx.getZBuffer());
+	m_cube.setViewport(0.0f, 0.0f, m_window->getClientWidth(), m_window->getClientHeight());
+	m_cube.addConstantBuffer(&m_cbuf, sizeof(m_cbuf), ShaderStage::VERTEX, false);
+	Graphics::TConstBuffer otherConstantBuffer{ math::XMMatrixTranslation(-0.5, 0, 3.0f) * gfx.getProjection() };
+	m_otherCube.addMesh(TexturedCube::mesh());
+	m_otherCube.copyConstantBuffer(&otherConstantBuffer, sizeof(otherConstantBuffer), ShaderStage::VERTEX, true, true);
 }
 
 int App::run() {
-	cube.setupPipeline(w->gfx());
-	otherCube.setupPipeline(w->gfx());
-	w->showWindow();
+	m_cube.setupPipeline(m_window->gfx());
+	m_otherCube.setupPipeline(m_window->gfx());
+	m_window->showWindow();
 	std::optional<int> exitCode{};
 	while (true) {
 		try {
-			exitCode = w->processMessagesOnQueue();
+			exitCode = m_window->processMessagesOnQueue();
 			if (exitCode) return *exitCode; // if the exitCode isn't empty, return its value
 			doFrame();
-		}
-		catch (const CwfException& e) {
-			w->createExceptionMessageBox(e);
+		} catch (const CwfException& e) {
+			m_window->createExceptionMessageBox(e);
 			break;
-		}
-		catch (const std::exception& e) {
-			w->createExceptionMessageBox(e);
+		} catch (const std::exception& e) {
+			m_window->createExceptionMessageBox(e);
 			break;
-		}
-		catch (...) {
-			w->createExceptionMessageBox(CWF_EXCEPTION(CwfException::Type::OTHER, L"Unknown exception occurred."));
+		} catch (...) {
+			m_window->createExceptionMessageBox(CWF_EXCEPTION(CwfException::Type::OTHER, L"Unknown exception occurred."));
 			break;
 		}
 	}

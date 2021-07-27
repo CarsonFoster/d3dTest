@@ -17,12 +17,12 @@ LRESULT WndProc(Window* pWindow, HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 
 class App {
 private:
-	static constexpr const LPCWSTR className{ L"d3dTest" };
-	static constexpr const LPCWSTR windowName{ L"d3dTest Window" };
-	std::unique_ptr<Window> w;
-	Material<Graphics::Float3Tex, uint16_t>& cube;
-	Submaterial<Graphics::Float3Tex, uint16_t> otherCube;
-	Graphics::TConstBuffer cbuf;
+	static constexpr const LPCWSTR s_className{ L"d3dTest" };
+	static constexpr const LPCWSTR s_windowName{ L"d3dTest Window" };
+	std::unique_ptr<Window> m_window;
+	Material<Graphics::Float3Tex, uint16_t>& m_cube;
+	Submaterial<Graphics::Float3Tex, uint16_t> m_otherCube;
+	Graphics::TConstBuffer m_cbuf;
 public:
 	App(HINSTANCE hInstance);
 	~App() = default;
