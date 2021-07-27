@@ -15,8 +15,8 @@ class Cube {
 public:
 	using Idx = uint16_t;
 private:
-	static Material<Vtx, Idx> cube;
-	static constexpr D3D11_INPUT_ELEMENT_DESC layout[]{
+	static Material<Vtx, Idx> s_cube;
+	static constexpr D3D11_INPUT_ELEMENT_DESC s_layout[]{
 		{"Position", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u}
 	};
 public:
@@ -79,11 +79,11 @@ public:
 			0,4,7,  3,0,7,
 			5,1,2,  6,5,2
 		};
-		cube.addMesh(finalVtx, indices);
+		s_cube.addMesh(finalVtx, indices);
 	}
 
 	static void addMesh() {
-		cube.addMesh(mesh());
+		s_cube.addMesh(mesh());
 	}
 
 	static constexpr D3D11_PRIMITIVE_TOPOLOGY topology() noexcept {
@@ -91,20 +91,20 @@ public:
 	}
 
 	static const D3D11_INPUT_ELEMENT_DESC* defaultLayout() noexcept {
-		return layout;
+		return s_layout;
 	}
 
 	static constexpr size_t defaultLayoutSize() noexcept {
-		return std::size(layout);
+		return std::size(s_layout);
 	}
 
 	static Material<Vtx, Idx>& material() noexcept {
-		return cube;
+		return s_cube;
 	}
 };
 
 template <Vertex Vtx>
-Material<Vtx, uint16_t> Cube<Vtx>::cube {
+Material<Vtx, uint16_t> Cube<Vtx>::s_cube {
 	[] {
 		Material<Vtx, uint16_t> m{ DXGI_FORMAT_R16_UINT };
 		m.setTopology(topology());
