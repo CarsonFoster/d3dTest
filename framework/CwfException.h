@@ -24,9 +24,9 @@ public:
 	public:
 		static const constexpr size_t BUFFER_SIZE = 512;
 	private:
-		const wchar_t* errorString;
-		std::unique_ptr<wchar_t[]> errorDescription;
-		bool isDeviceRemoved;
+		const wchar_t* m_errorString;
+		std::unique_ptr<wchar_t[]> m_errorDescription;
+		bool m_isDeviceRemoved;
 	public:
 		DirectXErrorString(HRESULT hr) noexcept;
 		~DirectXErrorString() = default;
@@ -39,10 +39,10 @@ public:
 		bool isDeviceRemovedError() const noexcept;
 	};
 private:
-	int line;
-	const char* file;
-	Type type;
-	std::variant<const wchar_t*, std::wstring> msg;
+	int m_line;
+	const char* m_file;
+	Type m_type;
+	std::variant<const wchar_t*, std::wstring> m_msg;
 public:
 
 	CwfException(Type t, const wchar_t* message, const char* filename, int lineNumber) noexcept;
