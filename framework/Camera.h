@@ -11,9 +11,10 @@ class Camera {
 private:
 	math::XMFLOAT3 m_pos;
 	math::XMFLOAT3 m_up;
-	math::XMFLOAT4X4 m_matrix;
+	mutable math::XMFLOAT4X4 m_matrix;
 	// TODO: handle alignment when on stack but not dynamically allocated itself (i.e. as member object)
 	Orientation m_o;
+	mutable bool m_changed;
 public:
 	Camera() noexcept;
 	Camera(const math::XMFLOAT3& pos) noexcept;
@@ -28,7 +29,7 @@ public:
 	void updateOrientation(float dxTheta, float dyTheta, float dzTheta) noexcept;
 	void updateUp(const math::XMFLOAT3& deltaUp) noexcept;
 
-	const math::XMMATRIX& get() const noexcept;
+	math::XMMATRIX get() const noexcept;
 };
 
 #endif
