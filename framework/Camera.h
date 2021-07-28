@@ -7,7 +7,6 @@
 namespace math = DirectX;
 
 class Camera {
-	// TODO: CODE STYLE REVIEW!!!!
 private:
 	math::XMFLOAT3 m_pos;
 	math::XMFLOAT3 m_up;

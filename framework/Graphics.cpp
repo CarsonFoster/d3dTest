@@ -1,4 +1,6 @@
 #define NOMINMAX
+
+#include "Camera.h"
 #include "CwfException.h"
 #include "Graphics.h"
 #include <array>
@@ -12,7 +14,7 @@ namespace math = DirectX;
 
 Graphics::Graphics(HWND hWnd, int clientWidth, int clientHeight)
 	: m_clientWidth{ clientWidth }, m_clientHeight{ clientHeight },
-	m_projection{ math::XMMatrixIdentity() }, m_camera{ math::XMMatrixIdentity() } {
+	m_projection{ math::XMMatrixIdentity() }, m_camera{} {
 	
 	DXGI_SWAP_CHAIN_DESC swapChainDescriptor{};
 	swapChainDescriptor.BufferDesc.Width = 0; // get width from output window
@@ -318,22 +320,10 @@ const math::XMMATRIX& Graphics::getProjection() const noexcept {
 	return m_projection;
 }
 
-void Graphics::setCamera(const math::XMFLOAT3& pos, float xAngle, float yAngle, float zAngle) noexcept {
-	m_camera = math::XMMatrixLookToLH(math::XMLoadFloat3(&pos),
-		math::XMVector3TransformNormal(
-			math::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f),
-			math::XMMatrixRotationRollPitchYaw(xAngle, yAngle, zAngle)),
-		math::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+const Camera& Graphics::camera() const noexcept {
+	return m_camera;
 }
 
-void Graphics::setCamera(const math::XMFLOAT3& pos, float xAngle, float yAngle, float zAngle, const math::XMFLOAT3& up) noexcept {
-	m_camera = math::XMMatrixLookToLH(math::XMLoadFloat3(&pos),
-		math::XMVector3TransformNormal(
-			math::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f),
-			math::XMMatrixRotationRollPitchYaw(xAngle, yAngle, zAngle)),
-		math::XMLoadFloat3(&up));
-}
-
-const math::XMMATRIX& Graphics::getCamera() const noexcept {
+Camera& Graphics::camera() noexcept {
 	return m_camera;
 }

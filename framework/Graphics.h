@@ -1,6 +1,7 @@
 #ifndef CWF_GRAPHICS_H
 #define CWF_GRAPHICS_H
 
+#include "Camera.h"
 #include "CwfException.h"
 
 #ifndef NDEBUG
@@ -42,7 +43,7 @@ private:
 	int m_clientWidth;
 	int m_clientHeight;
 	math::XMMATRIX m_projection;
-	math::XMMATRIX m_camera;
+	Camera m_camera;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> m_pSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11Device> m_pDevice;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pContext;
@@ -239,9 +240,8 @@ public:
 	
 	void setProjection(float fov_deg, float nearZ, float farZ) noexcept;
 	const math::XMMATRIX& getProjection() const noexcept;
-	void setCamera(const math::XMFLOAT3& pos, float xAngle, float yAngle, float zAngle) noexcept;
-	void setCamera(const math::XMFLOAT3& pos, float xAngle, float yAngle, float zAngle, const math::XMFLOAT3& up) noexcept;
-	const math::XMMATRIX& getCamera() const noexcept;
+	const Camera& camera() const noexcept;
+	Camera& camera() noexcept;
 };
 
 inline void throwIfFailed(const Graphics& gfx, HRESULT hr, const char* file, int line) {
