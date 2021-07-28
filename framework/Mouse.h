@@ -22,29 +22,29 @@ public:
 			LEFT, MIDDLE, RIGHT, OTHER
 		};
 	private:
-		Type t;
-		Button b;
-		int x;
-		int y;
+		Type m_type;
+		Button m_button;
+		int m_x;
+		int m_y;
 	public:
-		Event(Type type, Button btn, int aX, int aY) noexcept : t{ type }, b{ btn }, x{ aX }, y{ aY } {}
+		Event(Type type, Button button, int x, int y) noexcept : m_type{ type }, m_button{ button }, m_x{ x }, m_y{ y } {}
 		~Event() = default;
-		Type getType() const noexcept { return t; }
-		Button getButton() const noexcept { return b; }
-		int getX() const noexcept { return x; }
-		int getY() const noexcept { return y; }
-		std::pair<int, int> getPos() const { return std::make_pair(x, y); }
+		Type getType() const noexcept { return m_type; }
+		Button getButton() const noexcept { return m_button; }
+		int getX() const noexcept { return m_x; }
+		int getY() const noexcept { return m_y; }
+		std::pair<int, int> getPos() const { return std::make_pair(m_x, m_y); }
 	};
 private:
 	static constexpr unsigned int MAX_QUEUE_SIZE = 16u;
-	bool leftPressed;
-	bool middlePressed;
-	bool rightPressed;
-	bool inClientRegion;
-	int x;
-	int y;
-	int wheelDeltaAccumulator;
-	std::queue<Event> eventQueue;
+	bool m_leftPressed;
+	bool m_middlePressed;
+	bool m_rightPressed;
+	bool m_inClientRegion;
+	int m_x;
+	int m_y;
+	int m_wheelDeltaAccumulator;
+	std::queue<Event> m_eventQueue;
 public:
 	Mouse() noexcept;
 	~Mouse() = default;
@@ -69,11 +69,11 @@ public:
 
 private:
 	inline void manageQueueSize();
-	void buttonPressed(Event::Button b, int x, int y);
-	void buttonReleased(Event::Button b, int x, int y);
-	void buttonDoubleClicked(Event::Button b, int x, int y);
+	void buttonPressed(Event::Button button, int x, int y);
+	void buttonReleased(Event::Button button, int x, int y);
+	void buttonDoubleClicked(Event::Button button, int x, int y);
 	void scrolled(WPARAM packedDelta, int x, int y);
-	void moved(int aX, int aY);
+	void moved(int x, int y);
 	void entered(int x, int y);
 	void left(int x, int y);
 };
