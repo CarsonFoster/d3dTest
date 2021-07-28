@@ -1,29 +1,29 @@
 #ifndef CWF_WINDOWBUILDER_H
 #define CWF_WINDOWBUILDER_H
 
-#include <Windows.h>
 #include "Window.h"
+#include <Windows.h>
 
 class WindowBuilder {
 private:
-	HINSTANCE hInstance;
-	LPCWSTR className;
-	LPCWSTR windowName;
-	DWORD windowStyle{ WS_CAPTION | WS_SYSMENU };
-	DWORD extendedStyle{ 0 };
-	int x{ 0 };
-	int y{ 0 };
-	int clientWidth{ 640 };
-	int clientHeight{ 480 };
-	int windowWidth{};
-	int windowHeight{};
-	HWND hParent{};
-	HMENU hMenu{};
-	Window::ClientWindowProc clientWindowProc;
+	HINSTANCE m_hInstance;
+	LPCWSTR m_className;
+	LPCWSTR m_windowName;
+	DWORD m_windowStyle{ WS_CAPTION | WS_SYSMENU };
+	DWORD m_extendedStyle{ 0 };
+	int m_x{ 0 };
+	int m_y{ 0 };
+	int m_clientWidth{ 640 };
+	int m_clientHeight{ 480 };
+	int m_windowWidth{};
+	int m_windowHeight{};
+	HWND m_hParent{};
+	HMENU m_hMenu{};
+	Window::ClientWindowProc m_clientWindowProc;
 
 	void adjustRect();
 public:
-	WindowBuilder(HINSTANCE aHInstance, LPCWSTR aClassName, LPCWSTR aWindowName, Window::ClientWindowProc windowProc) noexcept;
+	WindowBuilder(HINSTANCE hInstance, LPCWSTR className, LPCWSTR windowName, Window::ClientWindowProc windowProc) noexcept;
 	~WindowBuilder() = default;
 
 	// no copy init/assign
@@ -34,8 +34,8 @@ public:
 	WindowBuilder& addExtendedWindowStyle(DWORD style) noexcept;
 	WindowBuilder& setWindowStyle(DWORD style) noexcept;
 	WindowBuilder& addWindowStyle(DWORD style) noexcept;
-	WindowBuilder& setClientSize(int aClientWidth, int aClientHeight) noexcept;
-	WindowBuilder& setPosition(int aX, int aY) noexcept;
+	WindowBuilder& setClientSize(int clientWidth, int clientHeight) noexcept;
+	WindowBuilder& setPosition(int x, int y) noexcept;
 	WindowBuilder& setParentHandle(HWND parent) noexcept;
 	WindowBuilder& setMenuHandle(HMENU menu) noexcept;
 
