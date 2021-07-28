@@ -18,8 +18,7 @@ class Window {
 public:
 	using ClientWindowProc = LRESULT(*)(Window*, HWND, UINT, WPARAM, LPARAM);
 private:
-	class WindowInitializationStruct {
-	public:
+	struct WindowInitializationStruct {
 		DWORD extendedStyle;
 		LPCWSTR className;
 		LPCWSTR windowName;
@@ -48,7 +47,7 @@ private:
 
 	class SmartHWND {
 	private:
-		HWND hWnd;
+		HWND m_hWnd;
 	public:
 		SmartHWND() noexcept;
 		SmartHWND(HWND h) noexcept;
@@ -63,12 +62,12 @@ private:
 		operator bool() const noexcept;
 	};
 
-	static constexpr const wchar_t* exceptionCaption = L"Exception in Program";
-	SmartHWND shWnd;
-	ClientWindowProc clientWindowProc;
-	int clientWidth;
-	int clientHeight;
-	std::unique_ptr<Graphics> graphics;
+	static constexpr const wchar_t* s_exceptionCaption = L"Exception in Program";
+	SmartHWND m_hWnd;
+	ClientWindowProc m_clientWindowProc;
+	int m_clientWidth;
+	int m_clientHeight;
+	std::unique_ptr<Graphics> m_graphics;
 public:
 	Keyboard kbd;
 	Mouse mouse;

@@ -9,32 +9,32 @@
 #include <windowsx.h>
 
 // Nested classes
-Window::SmartHWND::SmartHWND() noexcept : hWnd{ nullptr } {}
+Window::SmartHWND::SmartHWND() noexcept : m_hWnd{ nullptr } {}
 
-Window::SmartHWND::SmartHWND(HWND h) noexcept : hWnd{ h } {}
+Window::SmartHWND::SmartHWND(HWND h) noexcept : m_hWnd{ h } {}
 
-Window::SmartHWND::SmartHWND(SmartHWND&& o) noexcept : hWnd{ o.hWnd } {
-	o.hWnd = nullptr;
+Window::SmartHWND::SmartHWND(SmartHWND&& o) noexcept : m_hWnd{ o.m_hWnd } {
+	o.m_hWnd = nullptr;
 }
 
 Window::SmartHWND& Window::SmartHWND::operator=(SmartHWND&& o) noexcept {
 	if (&o == this) return *this;
-	hWnd = o.hWnd;
-	o.hWnd = nullptr;
+	m_hWnd = o.m_hWnd;
+	o.m_hWnd = nullptr;
 	return *this;
 }
 
 Window::SmartHWND::~SmartHWND() noexcept {
-	SetWindowLongPtrW(hWnd, GWLP_USERDATA, 0); // clear out old window pointer
-	DestroyWindow(hWnd);
+	SetWindowLongPtrW(m_hWnd, GWLP_USERDATA, 0); // clear out old window pointer
+	DestroyWindow(m_hWnd);
 }
 
 HWND Window::SmartHWND::get() const noexcept {
-	return hWnd;
+	return m_hWnd;
 }
 
 Window::SmartHWND::operator bool() const noexcept {
-	return (hWnd != nullptr);
+	return (m_hWnd != nullptr);
 }
 
 Window::WindowInitializationStruct::WindowInitializationStruct(DWORD eStyle, LPCWSTR aClassName, LPCWSTR aWindowName,
@@ -109,14 +109,14 @@ Window::WindowInitializationStruct& Window::WindowInitializationStruct::operator
 
 // Constructor and Destructor
 Window::Window(Window::WindowInitializationStruct wis)
-	: shWnd{}, clientWindowProc{ wis.windowProc }, 
-	clientWidth{ wis.clientWidth }, clientHeight{ wis.clientHeight }, kbd{}, mouse{} {
+	: m_hWnd{}, m_clientWindowProc{ wis.windowProc }, 
+	m_clientWidth{ wis.clientWidth }, m_clientHeight{ wis.clientHeight }, kbd{}, mouse{} {
 	
 	HWND hWnd = CreateWindowExW(wis.extendedStyle, wis.className, wis.windowName, wis.windowStyle, wis.x, wis.y,
 		wis.windowWidth, wis.windowHeight, wis.hParent, wis.hMenu, wis.hInstance, this);
 	if (hWnd == nullptr) throw CWF_LAST_EXCEPTION();
-	shWnd = hWnd;
-	graphics = std::make_unique<Graphics>(hWnd, clientWidth, clientHeight);
+	m_hWnd = hWnd;
+	m_graphics = std::make_unique<Graphics>(hWnd, m_clientWidth, m_clientHeight);
 }
 
 /*Window::Window(Window&& o) noexcept : hWnd{o.hWnd}, clientWindowProc{o.clientWindowProc} {
@@ -137,24 +137,24 @@ Window& Window::operator=(Window&& o) noexcept {
 
 // Member functions
 Graphics& Window::gfx() const {
-	if (!graphics) throw CWF_EXCEPTION(CwfException::Type::FRAMEWORK, L"No graphics object found.");
-	return *graphics;
+	if (!m_graphics) throw CWF_EXCEPTION(CwfException::Type::FRAMEWORK, L"No graphics object found.");
+	return *m_graphics;
 }
 
 int Window::getClientWidth() const noexcept {
-	return clientWidth;
+	return m_clientWidth;
 }
 
 int Window::getClientHeight() const noexcept {
-	return clientHeight;
+	return m_clientHeight;
 }
 
 Window::ClientWindowProc Window::getClientWindowProc() const noexcept {
-	return clientWindowProc;
+	return m_clientWindowProc;
 }
 
 void Window::showWindow(int showCommand) {
-	ShowWindow(shWnd.get(), showCommand);
+	ShowWindow(m_hWnd.get(), showCommand);
 }
 
 std::optional<int> Window::processMessagesOnQueue() {
@@ -221,10 +221,10 @@ std::optional<int> Window::processMessagesOnQueue() {
 		case WM_MOUSEMOVE:
 			int x = GET_X_LPARAM(msg.lParam);
 			int y = GET_Y_LPARAM(msg.lParam);
-			if (x >= 0 && x < clientWidth && y >= 0 && y < clientHeight) {
+			if (x >= 0 && x < m_clientWidth && y >= 0 && y < m_clientHeight) {
 				mouse.moved(x, y);
 				if (!mouse.isInClientRegion()) { // in client region now, but not previously -> enter message and capture
-					SetCapture(shWnd.get());
+					SetCapture(m_hWnd.get());
 					mouse.entered(x, y);
 				}
 			} else {
@@ -245,25 +245,25 @@ std::optional<int> Window::processMessagesOnQueue() {
 }
 
 void Window::createExceptionMessageBox(const CwfException& e) {
-	MessageBoxW(shWnd.get(), e.getExceptionString().c_str(), exceptionCaption, MB_ICONERROR);
+	MessageBoxW(m_hWnd.get(), e.getExceptionString().c_str(), s_exceptionCaption, MB_ICONERROR);
 }
 
 void Window::createExceptionMessageBox(const std::exception& e) {
-	MessageBoxW(shWnd.get(), CwfException::getStandardExceptionString(e).c_str(), exceptionCaption, MB_ICONERROR);
+	MessageBoxW(m_hWnd.get(), CwfException::getStandardExceptionString(e).c_str(), s_exceptionCaption, MB_ICONERROR);
 }
 
 HWND Window::getHWND() const noexcept {
-	return shWnd.get();
+	return m_hWnd.get();
 }
 
 bool Window::setTitle(LPCWSTR title) noexcept {
-	return SetWindowTextW(shWnd.get(), title);
+	return SetWindowTextW(m_hWnd.get(), title);
 }
 
 void Window::createExceptionMessageBoxStatic(const CwfException& e) {
-	MessageBoxW(nullptr, e.getExceptionString().c_str(), exceptionCaption, MB_ICONERROR);
+	MessageBoxW(nullptr, e.getExceptionString().c_str(), s_exceptionCaption, MB_ICONERROR);
 }
 
 void Window::createExceptionMessageBoxStatic(const std::exception& e) {
-	MessageBoxW(nullptr, CwfException::getStandardExceptionString(e).c_str(), exceptionCaption, MB_ICONERROR);
+	MessageBoxW(nullptr, CwfException::getStandardExceptionString(e).c_str(), s_exceptionCaption, MB_ICONERROR);
 }
