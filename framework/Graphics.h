@@ -39,15 +39,15 @@ namespace math = DirectX;
 
 class Graphics {
 private:
-	int clientWidth;
-	int clientHeight;
-	math::XMMATRIX projection;
-	math::XMMATRIX camera;
-	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
-	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pTarget;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> pZBuffer;
+	int m_clientWidth;
+	int m_clientHeight;
+	math::XMMATRIX m_projection;
+	math::XMMATRIX m_camera;
+	Microsoft::WRL::ComPtr<IDXGISwapChain> m_pSwapChain;
+	Microsoft::WRL::ComPtr<ID3D11Device> m_pDevice;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pContext;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_pTarget;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_pZBuffer;
 public:
 #ifndef NDEBUG
 	mutable DXDebugInfoManager info;
@@ -216,7 +216,7 @@ public:
 	};
 
 public:
-	Graphics(HWND hWnd, int cWidth, int cHeight);
+	Graphics(HWND hWnd, int clientWidth, int clientHeight);
 	~Graphics() = default;
 	// no copy init/assign
 	Graphics(const Graphics& o) = delete;

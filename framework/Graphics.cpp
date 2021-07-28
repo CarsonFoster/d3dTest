@@ -10,8 +10,9 @@
 
 namespace math = DirectX;
 
-Graphics::Graphics(HWND hWnd, int cWidth, int cHeight) : clientWidth{ cWidth }, clientHeight{ cHeight },
-	projection{ math::XMMatrixIdentity() }, camera{ math::XMMatrixIdentity() } {
+Graphics::Graphics(HWND hWnd, int clientWidth, int clientHeight)
+	: m_clientWidth{ clientWidth }, m_clientHeight{ clientHeight },
+	m_projection{ math::XMMatrixIdentity() }, m_camera{ math::XMMatrixIdentity() } {
 	
 	DXGI_SWAP_CHAIN_DESC swapChainDescriptor{};
 	swapChainDescriptor.BufferDesc.Width = 0; // get width from output window
@@ -45,20 +46,20 @@ Graphics::Graphics(HWND hWnd, int cWidth, int cHeight) : clientWidth{ cWidth }, 
 			0,
 			D3D11_SDK_VERSION,
 			&swapChainDescriptor,
-			&pSwapChain,
-			&pDevice,
+			&m_pSwapChain,
+			&m_pDevice,
 			nullptr,
-			&pContext
+			&m_pContext
 		)
 	);
 
 	Microsoft::WRL::ComPtr<ID3D11Resource> pBuffer;
 	THROW_IF_FAILED(*this,
-		pSwapChain->GetBuffer(0u, __uuidof(ID3D11Resource), &pBuffer)
+		m_pSwapChain->GetBuffer(0u, __uuidof(ID3D11Resource), &pBuffer)
 	);
 
 	THROW_IF_FAILED(*this,
-		pDevice->CreateRenderTargetView(pBuffer.Get(), nullptr, &pTarget)
+		m_pDevice->CreateRenderTargetView(pBuffer.Get(), nullptr, &m_pTarget)
 	);
 
 	// Z Buffer setup below
@@ -70,10 +71,10 @@ Graphics::Graphics(HWND hWnd, int cWidth, int cHeight) : clientWidth{ cWidth }, 
 
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> pState;
 	THROW_IF_FAILED(*this,
-		pDevice->CreateDepthStencilState(&zBufferDesc, &pState)
+		m_pDevice->CreateDepthStencilState(&zBufferDesc, &pState)
 	);
 
-	pContext->OMSetDepthStencilState(pState.Get(), 1u);
+	m_pContext->OMSetDepthStencilState(pState.Get(), 1u);
 
 	D3D11_TEXTURE2D_DESC zBufferTextureDesc{};
 	zBufferTextureDesc.Width = clientWidth;
@@ -90,7 +91,7 @@ Graphics::Graphics(HWND hWnd, int cWidth, int cHeight) : clientWidth{ cWidth }, 
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> pZBufferTexture;
 	THROW_IF_FAILED(*this,
-		pDevice->CreateTexture2D(&zBufferTextureDesc, nullptr, &pZBufferTexture)
+		m_pDevice->CreateTexture2D(&zBufferTextureDesc, nullptr, &pZBufferTexture)
 	);
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC zBufferViewDesc;
@@ -100,10 +101,10 @@ Graphics::Graphics(HWND hWnd, int cWidth, int cHeight) : clientWidth{ cWidth }, 
 	zBufferViewDesc.Texture2D.MipSlice = 0;
 
 	THROW_IF_FAILED(*this,
-		pDevice->CreateDepthStencilView(pZBufferTexture.Get(), &zBufferViewDesc, &pZBuffer)
+		m_pDevice->CreateDepthStencilView(pZBufferTexture.Get(), &zBufferViewDesc, &m_pZBuffer)
 	);
 
-	pContext->OMSetRenderTargets(1u, pTarget.GetAddressOf(), pZBuffer.Get());
+	m_pContext->OMSetRenderTargets(1u, m_pTarget.GetAddressOf(), m_pZBuffer.Get());
 }
 
 void* Graphics::operator new(size_t size) {
@@ -126,14 +127,14 @@ void Graphics::endFrame() {
 	// TODO: frame rate management
 	// Present( SyncInterval, Flags)
 	THROW_IF_FAILED(*this,
-		pSwapChain->Present(1u, 0u)
+		m_pSwapChain->Present(1u, 0u)
 	);
 }
 
 void Graphics::clearBuffer(float r, float g, float b) {
 	const float colorRGBA[] = { r, g, b, 1.0f };
-	pContext->ClearRenderTargetView(pTarget.Get(), colorRGBA); // does not return an HRESULT
-	pContext->ClearDepthStencilView(pZBuffer.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
+	m_pContext->ClearRenderTargetView(m_pTarget.Get(), colorRGBA); // does not return an HRESULT
+	m_pContext->ClearDepthStencilView(m_pZBuffer.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
 }
 
 void Graphics::drawTestCube(bool isLeftPressed, bool isRightPressed, bool isUpPressed, bool isDownPressed) {
@@ -169,11 +170,11 @@ void Graphics::drawTestCube(bool isLeftPressed, bool isRightPressed, bool isUpPr
 	data.pSysMem = &vertices;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer;
-	THROW_IF_FAILED(*this, pDevice->CreateBuffer(&bDesc, &data, &pBuffer));
+	THROW_IF_FAILED(*this, m_pDevice->CreateBuffer(&bDesc, &data, &pBuffer));
 
 	UINT stride{ sizeof(Vertex2D) };
 	UINT offset{ 0u };
-	pContext->IASetVertexBuffers(0u, 1u, pBuffer.GetAddressOf(), &stride, &offset);
+	m_pContext->IASetVertexBuffers(0u, 1u, pBuffer.GetAddressOf(), &stride, &offset);
 
 	const uint16_t indices[]{
 		1,0,3,  2,1,3, // front face
@@ -196,9 +197,9 @@ void Graphics::drawTestCube(bool isLeftPressed, bool isRightPressed, bool isUpPr
 	iData.pSysMem = &indices;
 	
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pIndexBuffer;
-	THROW_IF_FAILED(*this, pDevice->CreateBuffer(&ibDesc, &iData, &pIndexBuffer));
+	THROW_IF_FAILED(*this, m_pDevice->CreateBuffer(&ibDesc, &iData, &pIndexBuffer));
 
-	pContext->IASetIndexBuffer(pIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
+	m_pContext->IASetIndexBuffer(pIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
 
 	static float angleY{ 0.0f };
 	angleY += (isLeftPressed ? 0.1f : isRightPressed ? -0.1f : 0.0f);
@@ -224,9 +225,9 @@ void Graphics::drawTestCube(bool isLeftPressed, bool isRightPressed, bool isUpPr
 	cbData.pSysMem = &t;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pCBuffer;
-	THROW_IF_FAILED(*this, pDevice->CreateBuffer(&cbDesc, &cbData, &pCBuffer));
+	THROW_IF_FAILED(*this, m_pDevice->CreateBuffer(&cbDesc, &cbData, &pCBuffer));
 
-	pContext->VSSetConstantBuffers(0u, 1u, pCBuffer.GetAddressOf());
+	m_pContext->VSSetConstantBuffers(0u, 1u, pCBuffer.GetAddressOf());
 
 	struct CBufColors {
 		float colors[6][4];
@@ -250,75 +251,75 @@ void Graphics::drawTestCube(bool isLeftPressed, bool isRightPressed, bool isUpPr
 	cbDesc.StructureByteStride = 0u;
 	cbData.pSysMem = &cBuffer;
 
-	THROW_IF_FAILED(*this, pDevice->CreateBuffer(&cbDesc, &cbData, &pCBuffer));
+	THROW_IF_FAILED(*this, m_pDevice->CreateBuffer(&cbDesc, &cbData, &pCBuffer));
 
-	pContext->PSSetConstantBuffers(0u, 1u, pCBuffer.GetAddressOf());
+	m_pContext->PSSetConstantBuffers(0u, 1u, pCBuffer.GetAddressOf());
 
-	pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pBlob;
 	THROW_IF_FAILED(*this, D3DReadFileToBlob(L"TestTriangleVertexShader.cso", &pBlob));
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> pVertexShader;
-	THROW_IF_FAILED(*this, pDevice->CreateVertexShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pVertexShader));
-	pContext->VSSetShader(pVertexShader.Get(), nullptr, 0u);
+	THROW_IF_FAILED(*this, m_pDevice->CreateVertexShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pVertexShader));
+	m_pContext->VSSetShader(pVertexShader.Get(), nullptr, 0u);
 
 	const D3D11_INPUT_ELEMENT_DESC pDescs[] = {
 		{ "Position", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u },
 	};
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> pInputLayout;
 	THROW_IF_FAILED(*this,
-		pDevice->CreateInputLayout(pDescs, std::size(pDescs), pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pInputLayout));
-	pContext->IASetInputLayout(pInputLayout.Get());
+		m_pDevice->CreateInputLayout(pDescs, std::size(pDescs), pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pInputLayout));
+	m_pContext->IASetInputLayout(pInputLayout.Get());
 
 	THROW_IF_FAILED(*this, D3DReadFileToBlob(L"TestTrianglePixelShader.cso", &pBlob));
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pPixelShader;
-	THROW_IF_FAILED(*this, pDevice->CreatePixelShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pPixelShader));
-	pContext->PSSetShader(pPixelShader.Get(), nullptr, 0u);
+	THROW_IF_FAILED(*this, m_pDevice->CreatePixelShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pPixelShader));
+	m_pContext->PSSetShader(pPixelShader.Get(), nullptr, 0u);
 
 	D3D11_VIEWPORT viewport{};
 	viewport.TopLeftX = 0.0f;
 	viewport.TopLeftY = 0.0f;
-	viewport.Width = clientWidth;
-	viewport.Height = clientHeight;
+	viewport.Width = m_clientWidth;
+	viewport.Height = m_clientHeight;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	pContext->RSSetViewports(1u, &viewport);
+	m_pContext->RSSetViewports(1u, &viewport);
 
-	THROW_ON_INFO(*this, pContext->DrawIndexed(std::size(indices), 0u, 0));
+	THROW_ON_INFO(*this, m_pContext->DrawIndexed(std::size(indices), 0u, 0));
 }
 
 HRESULT Graphics::getDeviceRemovedReason() const noexcept {
-	if (pDevice) return pDevice->GetDeviceRemovedReason();
+	if (m_pDevice) return m_pDevice->GetDeviceRemovedReason();
 	return S_OK;
 }
 
 Microsoft::WRL::ComPtr<ID3D11Device> Graphics::getDevice() const noexcept {
-	return pDevice;
+	return m_pDevice;
 }
 
 Microsoft::WRL::ComPtr<ID3D11DeviceContext> Graphics::getImmediateContext() const noexcept {
-	return pContext;
+	return m_pContext;
 }
 
 Microsoft::WRL::ComPtr<ID3D11RenderTargetView> Graphics::getRenderTargetView() const noexcept {
-	return pTarget;
+	return m_pTarget;
 }
 
 Microsoft::WRL::ComPtr<ID3D11DepthStencilView> Graphics::getZBuffer() const noexcept {
-	return pZBuffer;
+	return m_pZBuffer;
 }
 
 void Graphics::setProjection(float fov_deg, float nearZ, float farZ) noexcept {
-	float aspectRatio = static_cast<float>(clientWidth) / static_cast<float>(clientHeight);
-	projection = math::XMMatrixPerspectiveFovLH(math::XMConvertToRadians(fov_deg), aspectRatio, nearZ, farZ);
+	float aspectRatio = static_cast<float>(m_clientWidth) / static_cast<float>(m_clientHeight);
+	m_projection = math::XMMatrixPerspectiveFovLH(math::XMConvertToRadians(fov_deg), aspectRatio, nearZ, farZ);
 }
 
 const math::XMMATRIX& Graphics::getProjection() const noexcept {
-	return projection;
+	return m_projection;
 }
 
 void Graphics::setCamera(const math::XMFLOAT3& pos, float xAngle, float yAngle, float zAngle) noexcept {
-	camera = math::XMMatrixLookToLH(math::XMLoadFloat3(&pos),
+	m_camera = math::XMMatrixLookToLH(math::XMLoadFloat3(&pos),
 		math::XMVector3TransformNormal(
 			math::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f),
 			math::XMMatrixRotationRollPitchYaw(xAngle, yAngle, zAngle)),
@@ -326,7 +327,7 @@ void Graphics::setCamera(const math::XMFLOAT3& pos, float xAngle, float yAngle, 
 }
 
 void Graphics::setCamera(const math::XMFLOAT3& pos, float xAngle, float yAngle, float zAngle, const math::XMFLOAT3& up) noexcept {
-	camera = math::XMMatrixLookToLH(math::XMLoadFloat3(&pos),
+	m_camera = math::XMMatrixLookToLH(math::XMLoadFloat3(&pos),
 		math::XMVector3TransformNormal(
 			math::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f),
 			math::XMMatrixRotationRollPitchYaw(xAngle, yAngle, zAngle)),
@@ -334,5 +335,5 @@ void Graphics::setCamera(const math::XMFLOAT3& pos, float xAngle, float yAngle, 
 }
 
 const math::XMMATRIX& Graphics::getCamera() const noexcept {
-	return camera;
+	return m_camera;
 }
