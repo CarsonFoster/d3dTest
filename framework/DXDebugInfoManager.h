@@ -9,8 +9,8 @@
 
 class DXDebugInfoManager { // courtesy of ChiliTomatoNoodle, great guy (explicit language warning tho)
 private:
-	Microsoft::WRL::ComPtr<IDXGIInfoQueue> pInfoQ;
-	UINT64 next;
+	Microsoft::WRL::ComPtr<IDXGIInfoQueue> m_pInfoQ;
+	UINT64 m_next;
 public:
 	DXDebugInfoManager();
 	~DXDebugInfoManager() = default;
