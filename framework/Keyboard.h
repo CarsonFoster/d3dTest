@@ -16,24 +16,24 @@ public:
 			PRESSED, RELEASED, UNKNOWN
 		};
 	private:
-		unsigned char key;
-		Type type;
+		unsigned char m_key;
+		Type m_type;
 	public:
 		Event(unsigned char keyCode, Type t = Type::UNKNOWN)
-			: key{ keyCode }, type{ t } {}
+			: m_key{ keyCode }, m_type{ t } {}
 		~Event() = default;
 
-		unsigned char getKey() const noexcept { return key; }
-		Type getType() const noexcept { return type; }
+		unsigned char getKey() const noexcept { return m_key; }
+		Type getType() const noexcept { return m_type; }
 	};
 private:
 	static constexpr unsigned int VIRTUAL_KEYS = 256u;
 	static constexpr unsigned int MAX_QUEUE_SIZE = 16u;
 	
-	std::bitset<VIRTUAL_KEYS> keyStates;
-	std::queue<Event> keyEvents;
-	std::queue<unsigned char> characterBuffer;
-	bool autorepeat;
+	std::bitset<VIRTUAL_KEYS> m_keyStates;
+	std::queue<Event> m_keyEvents;
+	std::queue<unsigned char> m_characterBuffer;
+	bool m_autorepeat;
 public:
 	Keyboard();
 	~Keyboard() = default;
