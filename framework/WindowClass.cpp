@@ -37,79 +37,79 @@ LRESULT CALLBACK WindowClass::SetupWindowProc(HWND hWnd, UINT msg, WPARAM wParam
 
 }
 
-WindowClass::WindowClass(HINSTANCE hInstance) noexcept : wc{}, registered{ false } {
-	wc.cbSize = sizeof(WNDCLASSEXW);
-	wc.style = CS_OWNDC;
-	wc.lpfnWndProc = SetupWindowProc;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hInstance = hInstance;
-	wc.hIcon = nullptr;
-	wc.hCursor = nullptr;
-	wc.hbrBackground = nullptr;
-	wc.lpszMenuName = nullptr;
-	wc.hIconSm = nullptr;
+WindowClass::WindowClass(HINSTANCE hInstance) noexcept : m_windowClass{}, m_registered{ false } {
+	m_windowClass.cbSize = sizeof(WNDCLASSEXW);
+	m_windowClass.style = CS_OWNDC;
+	m_windowClass.lpfnWndProc = SetupWindowProc;
+	m_windowClass.cbClsExtra = 0;
+	m_windowClass.cbWndExtra = 0;
+	m_windowClass.hInstance = hInstance;
+	m_windowClass.hIcon = nullptr;
+	m_windowClass.hCursor = nullptr;
+	m_windowClass.hbrBackground = nullptr;
+	m_windowClass.lpszMenuName = nullptr;
+	m_windowClass.hIconSm = nullptr;
 }
 
 WindowClass::WindowClass(HINSTANCE hInstance, LPCWSTR className) noexcept : WindowClass(hInstance) {
-	wc.lpszClassName = className;
+	m_windowClass.lpszClassName = className;
 }
 
 WindowClass::~WindowClass() {
-	UnregisterClassW(wc.lpszClassName, wc.hInstance);
+	UnregisterClassW(m_windowClass.lpszClassName, m_windowClass.hInstance);
 }
 
 void WindowClass::setStyle(UINT style) noexcept {
-	wc.style = style;
+	m_windowClass.style = style;
 }
 
 void WindowClass::addStyle(UINT style) noexcept {
-	wc.style |= style;
+	m_windowClass.style |= style;
 }
 
 void WindowClass::setExtraClassBytes(int bytes) noexcept {
-	wc.cbClsExtra = bytes;
+	m_windowClass.cbClsExtra = bytes;
 }
 
 void WindowClass::setExtraWindowBytes(int bytes) noexcept {
-	wc.cbWndExtra = bytes;
+	m_windowClass.cbWndExtra = bytes;
 }
 
 void WindowClass::setIcon(HICON icon) noexcept {
-	wc.hIcon = icon;
+	m_windowClass.hIcon = icon;
 }
 
 void WindowClass::setCursor(HCURSOR cursor) noexcept {
-	wc.hCursor = cursor;
+	m_windowClass.hCursor = cursor;
 }
 
 void WindowClass::setBackgroundBrush(HBRUSH brush) noexcept {
-	wc.hbrBackground = brush;
+	m_windowClass.hbrBackground = brush;
 }
 
 void WindowClass::setMenuName(LPCWSTR menu) noexcept {
-	wc.lpszMenuName = menu;
+	m_windowClass.lpszMenuName = menu;
 }
 
 void WindowClass::setIconSmall(HICON icon) noexcept {
-	wc.hIconSm = icon;
+	m_windowClass.hIconSm = icon;
 }
 
 bool WindowClass::isRegistered() const noexcept {
-	return registered;
+	return m_registered;
 }
 
 LPCWSTR WindowClass::getClassName() const noexcept {
-	return wc.lpszClassName;
+	return m_windowClass.lpszClassName;
 }
 
 LPCWSTR WindowClass::getMenuName() const noexcept {
-	return wc.lpszMenuName;
+	return m_windowClass.lpszMenuName;
 }
 
 bool WindowClass::registerClass() {
-	if (registered) return false;
-	RegisterClassExW(&wc);
-	registered = true;
+	if (m_registered) return false;
+	RegisterClassExW(&m_windowClass);
+	m_registered = true;
 	return true;
 }

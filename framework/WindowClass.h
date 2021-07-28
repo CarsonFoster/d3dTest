@@ -1,13 +1,13 @@
 #ifndef CWF_WINDOWCLASS_H
 #define CWF_WINDOWCLASS_H
 
-#include <Windows.h>
 #include "Window.h"
+#include <Windows.h>
 
 class WindowClass {
 private:
-	WNDCLASSEXW wc;
-	bool registered;
+	WNDCLASSEXW m_windowClass;
+	bool m_registered;
 	LRESULT (*clientWindowProc)(Window*, HWND, UINT, WPARAM, LPARAM);
 	WindowClass(HINSTANCE hInstance) noexcept;
 	static LRESULT CALLBACK SetupWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
