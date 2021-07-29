@@ -17,6 +17,7 @@ void App::doFrame() {
 	static Graphics& gfx{ m_window->gfx() };
 	static constexpr float dTheta = 0.1f;
 	static Orientation o{};
+	static bool pressed{ false };
 
 	/*w->gfx().clearBuffer(0.0f,
 		std::clamp(static_cast<float>(w->mouse.getX()) / static_cast<float>(w->getClientWidth()), 0.0f, 1.0f),
@@ -27,14 +28,28 @@ void App::doFrame() {
 	float dX{ 0.0f };
 	float dY{ 0.0f };
 
-	if (m_window->kbd.isKeyPressed('A'))
+	/*if (m_window->kbd.isKeyPressed('A'))
 		dY += dTheta;
 	if (m_window->kbd.isKeyPressed('D'))
 		dY -= dTheta; 
 	if (m_window->kbd.isKeyPressed('W'))
 		dX += dTheta;
 	if (m_window->kbd.isKeyPressed('S'))
-		dX -= dTheta;
+		dX -= dTheta;*/
+
+	if (m_window->mouse.isLeftPressed()) {
+		if (!pressed) // newly pressed
+			m_window->mouse.clearRawQueue();
+		pressed = true;
+		if (!m_window->mouse.isRawQueueEmpty()) {
+			Mouse::PositionDelta dP{ *(m_window->mouse.pollRawQueue()) };
+			dY -= dP.x * dTheta;
+			dX -= dP.y * dTheta;
+			// OutputDebugStringA((std::to_string(dP.x) + " " + std::to_string(dP.y) + "\n").c_str());
+		}
+	} else {
+		pressed = false;
+	}
 
 	if (dX != 0.0f || dY != 0.0f) {
 		o.update(dX, dY, 0.0f);
@@ -94,6 +109,7 @@ App::App(HINSTANCE hInstance) : m_cube{ CubeSkinned<L"bitmap.DDS", Graphics::Flo
 }
 
 int App::run() {
+	m_window->mouse.enableRawInput();
 	m_cube.setupPipeline(m_window->gfx());
 	m_otherCube.setupPipeline(m_window->gfx());
 	m_window->showWindow();
