@@ -260,7 +260,7 @@ std::optional<int> Window::processMessagesOnQueue() {
 			RAWINPUT* raw{ reinterpret_cast<RAWINPUT*>(data.get()) };
 			if (raw->header.dwType == RIM_TYPEMOUSE
 				// there must be some movement
-				&& raw->data.mouse.lLastX != 0 && raw->data.mouse.lLastY != 0
+				&& (raw->data.mouse.lLastX != 0 || raw->data.mouse.lLastY != 0)
 				// if these are absolute (not a delta), ditch the data
 				&& !(raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE)) {
 
