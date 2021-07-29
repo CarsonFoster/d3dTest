@@ -16,8 +16,8 @@
 void App::doFrame() {
 	static Graphics& gfx{ m_window->gfx() };
 	static constexpr float dTheta = 0.1f;
-	static Orientation o{};
-	static bool pressed{ false };
+	static constexpr float dThetaMouse = 0.01f;
+	// static Orientation o{};
 
 	/*w->gfx().clearBuffer(0.0f,
 		std::clamp(static_cast<float>(w->mouse.getX()) / static_cast<float>(w->getClientWidth()), 0.0f, 1.0f),
@@ -37,28 +37,18 @@ void App::doFrame() {
 	if (m_window->kbd.isKeyPressed('S'))
 		dX -= dTheta;*/
 
-	if (m_window->mouse.isLeftPressed()) {
-		if (!pressed) // newly pressed
-			m_window->mouse.clearRawQueue();
-		pressed = true;
-		if (!m_window->mouse.isRawQueueEmpty()) {
-			Mouse::PositionDelta dP{ *(m_window->mouse.pollRawQueue()) };
-			dY -= dP.x * dTheta;
-			dX -= dP.y * dTheta;
-			// OutputDebugStringA((std::to_string(dP.x) + " " + std::to_string(dP.y) + "\n").c_str());
-		}
-	} else {
-		pressed = false;
+	if (!m_window->mouse.isRawQueueEmpty()) {
+		Mouse::PositionDelta dP{ *(m_window->mouse.pollRawQueue()) };
+		dY += dP.x * dThetaMouse;
+		dX += dP.y * dThetaMouse;
 	}
 
 	if (dX != 0.0f || dY != 0.0f) {
-		o.update(dX, dY, 0.0f);
+		// o.update(dX, dY, 0.0f);
+		gfx.camera().updateOrientation(dX, dY, 0.0f);
 		m_cbuf = {
 			math::XMMatrixMultiply(
-				math::XMMatrixMultiply(
-					o.get(),
-					math::XMMatrixTranslation(0, 0, 2.0f)
-				),
+				gfx.camera().get(),
 				gfx.getProjection()
 			)
 		};
@@ -67,7 +57,7 @@ void App::doFrame() {
 
 	gfx.clearBuffer(0, 0, 0);
 	m_cube.draw(gfx);
-	m_otherCube.draw(gfx);
+	// m_otherCube.draw(gfx);
 	gfx.endFrame();
 }
 
@@ -93,8 +83,9 @@ App::App(HINSTANCE hInstance) : m_cube{ CubeSkinned<L"bitmap.DDS", Graphics::Flo
 		.build());
 	Graphics& gfx{ m_window->gfx() };
 	gfx.setProjection(90.0f, 0.5f, 4.0f);
+	gfx.camera().setPosition({ 0.0f, 0.0f, -2.0f });
 
-	m_cbuf = math::XMMatrixTranslation(0, 0, 2.0f) * gfx.getProjection();
+	m_cbuf = gfx.camera().get() * gfx.getProjection();
 
 	using TexturedCube = CubeSkinned<L"bitmap.DDS", Graphics::Float3Tex>;
 	TexturedCube::addMesh();
