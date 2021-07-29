@@ -39,8 +39,8 @@ void Camera::reset() noexcept {
 	m_changed = true;
 }
 
-void Camera::setPosition(const math::XMFLOAT3& newPos) noexcept {
-	m_pos = newPos;
+void Camera::setPosition(float x, float y, float z) noexcept {
+	m_pos = {x, y, z};
 	m_changed = true;
 }
 
@@ -49,15 +49,15 @@ void Camera::setOrientation(float xTheta, float yTheta, float zTheta) noexcept {
 	m_changed = true;
 }
 
-void Camera::setUp(const math::XMFLOAT3& newUp) noexcept {
-	m_up = newUp;
+void Camera::setUp(float x, float y, float z) noexcept {
+	m_up = {x, y, z};
 	m_changed = true;
 }
 
-void Camera::updatePosition(const math::XMFLOAT3& deltaPos) noexcept {
-	m_pos.x += deltaPos.x;
-	m_pos.y += deltaPos.y;
-	m_pos.z += deltaPos.z;
+void Camera::updatePosition(float x, float y, float z) noexcept {
+	m_pos.x += x;
+	m_pos.y += y;
+	m_pos.z += z;
 	m_changed = true;
 }
 
@@ -66,10 +66,10 @@ void Camera::updateOrientation(float dxTheta, float dyTheta, float dzTheta) noex
 	m_changed = true;
 }
 
-void Camera::updateUp(const math::XMFLOAT3& deltaUp) noexcept {
-	m_up.x += deltaUp.x;
-	m_up.y += deltaUp.y;
-	m_up.z += deltaUp.z;
+void Camera::updateUp(float x, float y, float z) noexcept {
+	m_up.x += x;
+	m_up.y += y;
+	m_up.z += z;
 	m_changed = true;
 }
 

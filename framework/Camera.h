@@ -20,12 +20,12 @@ public:
 	Camera(const math::XMFLOAT3& pos, float xTheta, float yTheta, float zTheta) noexcept;
 
 	void reset() noexcept;
-	void setPosition(const math::XMFLOAT3& newPos) noexcept;
+	void setPosition(float x, float y, float z) noexcept;
 	void setOrientation(float xTheta, float yTheta, float zTheta) noexcept;
-	void setUp(const math::XMFLOAT3& newUp) noexcept;
-	void updatePosition(const math::XMFLOAT3& deltaPos) noexcept;
+	void setUp(float x, float y, float z) noexcept;
+	void updatePosition(float x, float y, float z) noexcept;
 	void updateOrientation(float dxTheta, float dyTheta, float dzTheta) noexcept;
-	void updateUp(const math::XMFLOAT3& deltaUp) noexcept;
+	void updateUp(float x, float y, float z) noexcept;
 
 	math::XMMATRIX get() const noexcept;
 };
