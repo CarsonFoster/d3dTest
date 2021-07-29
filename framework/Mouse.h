@@ -35,16 +35,23 @@ public:
 		int getY() const noexcept { return m_y; }
 		std::pair<int, int> getPos() const { return std::make_pair(m_x, m_y); }
 	};
+
+	struct PositionDelta {
+		long x;
+		long y;
+	};
 private:
 	static constexpr unsigned int MAX_QUEUE_SIZE = 16u;
 	bool m_leftPressed;
 	bool m_middlePressed;
 	bool m_rightPressed;
 	bool m_inClientRegion;
+	bool m_rawInputEnabled;
 	int m_x;
 	int m_y;
 	int m_wheelDeltaAccumulator;
 	std::queue<Event> m_eventQueue;
+	std::queue<PositionDelta> m_rawQueue;
 public:
 	Mouse() noexcept;
 	~Mouse() = default;
@@ -65,10 +72,18 @@ public:
 	bool isEventQueueEmpty() const noexcept;
 	void clearEventQueue();
 
+	bool enableRawInput();
+	bool disableRawInput();
+	bool isRawInputEnabled() const noexcept;
+	std::optional<PositionDelta> pollRawQueue();
+	bool isRawQueueEmpty() const noexcept;
+	void clearRawQueue();
+
 	void clearButtonStates() noexcept;
 
 private:
 	inline void manageQueueSize();
+	inline void manageRawQueueSize();
 	void buttonPressed(Event::Button button, int x, int y);
 	void buttonReleased(Event::Button button, int x, int y);
 	void buttonDoubleClicked(Event::Button button, int x, int y);
@@ -76,6 +91,7 @@ private:
 	void moved(int x, int y);
 	void entered(int x, int y);
 	void left(int x, int y);
+	void raw(long dx, long dy);
 };
 
 #endif

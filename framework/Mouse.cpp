@@ -6,8 +6,8 @@
 #include <Windows.h>
 
 Mouse::Mouse() noexcept : m_leftPressed{ false }, m_middlePressed{ false }, 
-	m_rightPressed{ false }, m_inClientRegion{ false }, m_x{ 0 }, m_y{ 0 },
-	m_wheelDeltaAccumulator{ 0 }, m_eventQueue{} {}
+	m_rightPressed{ false }, m_inClientRegion{ false }, m_rawInputEnabled{ false },
+	m_x{ 0 }, m_y{ 0 }, m_wheelDeltaAccumulator{ 0 }, m_eventQueue{}, m_rawQueue{} {}
 
 int Mouse::getX() const noexcept {
 	return m_x;
@@ -56,6 +56,47 @@ void Mouse::clearEventQueue() {
 	m_eventQueue = std::queue<Event>{};
 }
 
+bool Mouse::enableRawInput() {
+	if (m_rawInputEnabled) return true;
+	RAWINPUTDEVICE mouse{};
+	mouse.usUsagePage = 0x01; // Generic Desktop Controls usage page
+	mouse.usUsage = 0x02; // generic mouse usage id
+	mouse.dwFlags = 0;
+	mouse.hwndTarget = nullptr; // follows keyboard focus
+	return RegisterRawInputDevices(&mouse, 1u, sizeof(mouse));
+}
+
+bool Mouse::disableRawInput() {
+	if (!m_rawInputEnabled) return true;
+	RAWINPUTDEVICE mouse{};
+	mouse.usUsagePage = 0x01; // Generic Desktop Controls usage page
+	mouse.usUsage = 0x02; // generic mouse usage id
+	mouse.dwFlags = RIDEV_REMOVE; // do not read further raw input from this device
+	mouse.hwndTarget = nullptr;
+	return RegisterRawInputDevices(&mouse, 1u, sizeof(mouse));
+}
+
+bool Mouse::isRawInputEnabled() const noexcept {
+	return m_rawInputEnabled;
+}
+
+std::optional<Mouse::PositionDelta> Mouse::pollRawQueue() {
+	if (!m_rawQueue.empty()) {
+		PositionDelta dP{ m_rawQueue.front() };
+		m_rawQueue.pop();
+		return dP;
+	}
+	return {};
+}
+
+bool Mouse::isRawQueueEmpty() const noexcept {
+	return m_rawQueue.empty();
+}
+
+void Mouse::clearRawQueue() {
+	m_rawQueue = std::queue<PositionDelta>{};
+}
+
 void Mouse::clearButtonStates() noexcept {
 	m_leftPressed = false;
 	m_rightPressed = false;
@@ -68,6 +109,13 @@ inline void Mouse::manageQueueSize() {
 	// so only need to check once
 	if (m_eventQueue.size() == MAX_QUEUE_SIZE)
 		m_eventQueue.pop();
+}
+
+inline void Mouse::manageRawQueueSize() {
+	// called before any position delta is inserted into queue,
+	// so only need to check once
+	if (m_rawQueue.size() == MAX_QUEUE_SIZE)
+		m_rawQueue.pop();
 }
 
 void Mouse::buttonPressed(Mouse::Event::Button button, int x, int y) {
@@ -157,4 +205,9 @@ void Mouse::left(int x, int y) {
 	manageQueueSize();
 	m_eventQueue.emplace(Event::Type::LEAVE_CLIENT,
 		Event::Button::OTHER, x, y);
+}
+
+void Mouse::raw(long dx, long dy) {
+	manageRawQueueSize();
+	m_rawQueue.emplace(dx, dy);
 }

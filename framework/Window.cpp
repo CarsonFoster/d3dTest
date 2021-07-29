@@ -1,6 +1,7 @@
 #include "CwfException.h"
 #include "Graphics.h"
 #include "Window.h"
+#include <cstddef>
 #include <exception>
 #include <memory>
 #include <optional>
@@ -219,6 +220,7 @@ std::optional<int> Window::processMessagesOnQueue() {
 			mouse.scrolled(msg.wParam, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
 			break;
 		case WM_MOUSEMOVE:
+		{
 			int x = GET_X_LPARAM(msg.lParam);
 			int y = GET_Y_LPARAM(msg.lParam);
 			if (x >= 0 && x < m_clientWidth && y >= 0 && y < m_clientHeight) {
@@ -227,15 +229,44 @@ std::optional<int> Window::processMessagesOnQueue() {
 					SetCapture(m_hWnd.get());
 					mouse.entered(x, y);
 				}
-			} else {
+			}
+			else {
 				if (mouse.isLeftPressed() || mouse.isMiddlePressed() || mouse.isRightPressed()) {
 					// if any button is pressed, we're still capturing the mouse
 					mouse.moved(x, y);
-				} else { // no button pressed, release capture and leave
+				}
+				else { // no button pressed, release capture and leave
 					ReleaseCapture();
 					mouse.left(x, y);
 				}
 			}
+			break;
+		}
+
+		// raw input
+		case WM_INPUT:
+			HRAWINPUT hRawInput{ reinterpret_cast<HRAWINPUT>(msg.lParam) };
+			UINT size;
+			
+			// read size of data and allocate buffer
+			GetRawInputData(hRawInput, RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER));
+			if (size == 0) break;
+			std::unique_ptr<std::byte[]> data{ std::make_unique<std::byte[]>(size) };
+
+			// get data
+			if (GetRawInputData(hRawInput, RID_INPUT, data.get(), &size, sizeof(RAWINPUTHEADER)) != size)
+				break; // bail if read wrong amount of info
+
+			RAWINPUT* raw{ reinterpret_cast<RAWINPUT*>(data.get()) };
+			if (raw->header.dwType == RIM_TYPEMOUSE
+				// there must be some movement
+				&& raw->data.mouse.lLastX != 0 && raw->data.mouse.lLastY != 0
+				// if these are absolute (not a delta), ditch the data
+				&& !(raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE)) {
+
+				mouse.raw(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+			}
+
 			break;
 		}
 		TranslateMessage(&msg);
