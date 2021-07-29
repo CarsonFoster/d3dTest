@@ -37,7 +37,7 @@ void App::doFrame() {
 	if (m_window->kbd.isKeyPressed('S'))
 		dX -= dTheta;*/
 
-	if (!m_window->mouse.isRawQueueEmpty()) {
+	while (!m_window->mouse.isRawQueueEmpty()) {
 		Mouse::PositionDelta dP{ *(m_window->mouse.pollRawQueue()) };
 		dY += dP.x * dThetaMouse;
 		dX += dP.y * dThetaMouse;
@@ -83,7 +83,7 @@ App::App(HINSTANCE hInstance) : m_cube{ CubeSkinned<L"bitmap.DDS", Graphics::Flo
 		.build());
 	Graphics& gfx{ m_window->gfx() };
 	gfx.setProjection(90.0f, 0.5f, 4.0f);
-	gfx.camera().setPosition({ 0.0f, 0.0f, -2.0f });
+	gfx.camera().setPosition( 0.0f, 0.0f, -2.0f );
 
 	m_cbuf = gfx.camera().get() * gfx.getProjection();
 
