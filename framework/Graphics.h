@@ -66,31 +66,16 @@ public:
 	};
 
 	struct TConstBuffer {
-		math::XMMATRIX transform; // must be 16-byte aligned
+		math::XMFLOAT4X4 transform;
 
-		TConstBuffer(math::CXMMATRIX t) : transform{ math::XMMatrixTranspose(t) } {}
+		TConstBuffer(math::CXMMATRIX t) : transform{} {
+			math::XMStoreFloat4x4(&transform, math::XMMatrixTranspose(t));
+		}
+
 		TConstBuffer() : transform{} {}
 		TConstBuffer& XM_CALLCONV operator=(math::FXMMATRIX t) {
-			transform = math::XMMatrixTranspose(t);
+			math::XMStoreFloat4x4(&transform, math::XMMatrixTranspose(t));
 			return *this;
-		}
-
-		void* operator new(size_t size) {
-			void* p{ _aligned_malloc(size, 16) };
-			return p;
-		}
-
-		void* operator new[](size_t size) {
-			void* p{ _aligned_malloc(size, 16) };
-			return p;
-		}
-
-		void operator delete(void* p) {
-			_aligned_free(p);
-		}
-
-		void operator delete[](void* p) {
-			_aligned_free(p);
 		}
 	};
 
