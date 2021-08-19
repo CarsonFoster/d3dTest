@@ -85,22 +85,6 @@ public:
 		}
 	};
 
-	template <class U, size_t A = 16>
-	class AlignedObject {
-	private:
-		std::unique_ptr<U, AlignedDeleter> pObj;
-	public:
-		template <class... Args>
-		AlignedObject(Args&&... args) : pObj{} {
-			void* raw{ _aligned_malloc(sizeof(U), A) }; // allocate A-byte aligned memory (by default, 16)
-			pObj = std::unique_ptr<U, AlignedDeleter>(new(raw) U{ std::forward<Args>(args)... }); // new(raw) U{} constructs a new U at the raw memory location
-		}
-
-		U& get() {
-			return *pObj;
-		}
-	};
-
 	struct Texture2D {
 		struct RawData {
 			UINT width;
