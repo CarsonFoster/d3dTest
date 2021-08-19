@@ -13,6 +13,15 @@
 #include <d3d11.h>
 #include <memory>
 
+/*
+* TODO LIST (WHILE I REMEMBER)
+*	move from using aligned XMMATRIX to using XMFLOAT4X4 or whatever and loading/saving as necessary
+*	updatable general class
+*	add constant buffer that automatically applies select transformations (e.g. camera and perspective)
+*	move out vertex classes into their own file
+*	move out constant buffer(s) into their own file
+*/
+
 void App::doFrame() {
 	static Graphics& gfx{ m_window->gfx() };
 	static constexpr float dTheta = 0.1f;
