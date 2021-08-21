@@ -204,6 +204,7 @@ public:
 	
 	void setProjection(float fov_deg, float nearZ, float farZ) noexcept;
 	const math::XMMATRIX& getProjection() const noexcept;
+	// TODO:	const math::XMMATRIX& getProjection() noexcept;
 	const Camera& camera() const noexcept;
 	Camera& camera() noexcept;
 };
