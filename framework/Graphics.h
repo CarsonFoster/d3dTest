@@ -42,7 +42,7 @@ class Graphics {
 private:
 	int m_clientWidth;
 	int m_clientHeight;
-	math::XMFLOAT4X4 m_projection;
+	math::XMMATRIX m_projection;
 	Camera m_camera;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> m_pSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11Device> m_pDevice;
@@ -191,6 +191,11 @@ public:
 	// no copy init/assign
 	Graphics(const Graphics& o) = delete;
 	Graphics& operator=(const Graphics& o) = delete;
+	// heap allocation only by _aligned_malloc
+	void* operator new(size_t size);
+	void* operator new[](size_t size);
+	void operator delete(void* p);
+	void operator delete[](void* p);
 
 	void endFrame();
 	void clearBuffer(float r, float g, float b);
