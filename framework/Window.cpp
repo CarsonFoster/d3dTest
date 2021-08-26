@@ -117,6 +117,14 @@ Window::Window(Window::WindowInitializationStruct wis)
 		wis.windowWidth, wis.windowHeight, wis.hParent, wis.hMenu, wis.hInstance, this);
 	if (hWnd == nullptr) throw CWF_LAST_EXCEPTION();
 	m_hWnd = hWnd;
+	OutputDebugStringA((std::to_string(wis.windowWidth) + " " + std::to_string(wis.windowHeight) + "\n").c_str());
+	RECT rect{};
+	if (GetWindowRect(hWnd, &rect)) {
+		OutputDebugStringA((std::to_string(rect.right - rect.left) + " " + std::to_string(rect.bottom - rect.top) + "\n").c_str());
+	}
+	if (GetClientRect(hWnd, &rect)) {
+		OutputDebugStringA((std::to_string(rect.right - rect.left) + " " + std::to_string(rect.bottom - rect.top) + "\n").c_str());
+	}
 	m_graphics = std::make_unique<Graphics>(hWnd, m_clientWidth, m_clientHeight);
 }
 
