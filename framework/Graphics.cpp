@@ -14,9 +14,9 @@ namespace math = DirectX;
 
 Graphics::Graphics(HWND hWnd, int clientWidth, int clientHeight)
 	: m_clientWidth{ clientWidth }, m_clientHeight{ clientHeight },
-	m_projection{}, m_camera{} {
+	/*m_projection{},*/ m_camera{} {
 
-	math::XMStoreFloat4x4(&m_projection, math::XMMatrixIdentity());
+	// math::XMStoreFloat4x4(&m_projection, math::XMMatrixIdentity());
 	
 	DXGI_SWAP_CHAIN_DESC swapChainDescriptor{};
 	swapChainDescriptor.BufferDesc.Width = 0; // get width from output window
@@ -306,14 +306,14 @@ Microsoft::WRL::ComPtr<ID3D11DepthStencilView> Graphics::getZBuffer() const noex
 	return m_pZBuffer;
 }
 
-void Graphics::setProjection(float fov_deg, float nearZ, float farZ) noexcept {
+/*void Graphics::setProjection(float fov_deg, float nearZ, float farZ) noexcept {
 	float aspectRatio = static_cast<float>(m_clientWidth) / static_cast<float>(m_clientHeight);
 	math::XMStoreFloat4x4(&m_projection, math::XMMatrixPerspectiveFovLH(math::XMConvertToRadians(fov_deg), aspectRatio, nearZ, farZ));
 }
 
 const math::XMMATRIX& Graphics::getProjection() const noexcept {
 	return math::XMLoadFloat4x4(&m_projection);
-}
+}*/
 
 const Camera& Graphics::camera() const noexcept {
 	return m_camera;

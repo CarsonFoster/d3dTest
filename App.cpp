@@ -26,6 +26,8 @@ void App::doFrame() {
 	static Graphics& gfx{ m_window->gfx() };
 	static constexpr float dTheta = 0.1f;
 	static constexpr float dThetaMouse = 0.01f;
+	static float aspectRatio = static_cast<float>(m_window->getClientWidth()) / static_cast<float>(m_window->getClientHeight());
+	static math::XMMATRIX projection = math::XMMatrixPerspectiveFovLH(math::XMConvertToRadians(90.0f), aspectRatio, 0.5f, 0.4f);
 	// static Orientation o{};
 
 	/*w->gfx().clearBuffer(0.0f,
@@ -58,7 +60,7 @@ void App::doFrame() {
 		m_cbuf = {
 			math::XMMatrixMultiply(
 				gfx.camera().get(),
-				gfx.getProjection()
+				projection // gfx.getProjection()
 			)
 		};
 		m_cube.updateCopyConstantBuffer(0, gfx, &m_cbuf, sizeof(m_cbuf));
@@ -91,10 +93,14 @@ App::App(HINSTANCE hInstance) : m_cube{ CubeSkinned<L"bitmap.DDS", Graphics::Flo
 		.setClientSize(1000, 1000)
 		.build());
 	Graphics& gfx{ m_window->gfx() };
-	gfx.setProjection(90.0f, 0.5f, 4.0f);
+	
+	// gfx.setProjection(90.0f, 0.5f, 4.0f);
+	float aspectRatio = static_cast<float>(m_window->getClientWidth()) / static_cast<float>(m_window->getClientHeight());
+	math::XMMATRIX projection = math::XMMatrixPerspectiveFovLH(math::XMConvertToRadians(90.0f), aspectRatio, 0.5f, 0.4f);
+
 	gfx.camera().setPosition( 0.0f, 0.0f, -2.0f );
 
-	m_cbuf = gfx.camera().get() * gfx.getProjection();
+	m_cbuf = gfx.camera().get() * projection; // gfx.getProjection();
 
 	using TexturedCube = CubeSkinned<L"bitmap.DDS", Graphics::Float3Tex>;
 	TexturedCube::addMesh();
@@ -103,7 +109,7 @@ App::App(HINSTANCE hInstance) : m_cube{ CubeSkinned<L"bitmap.DDS", Graphics::Flo
 	m_cube.setRenderTarget(gfx.getRenderTargetView(), gfx.getZBuffer());
 	m_cube.setViewport(0.0f, 0.0f, m_window->getClientWidth(), m_window->getClientHeight());
 	m_cube.addConstantBuffer(&m_cbuf, sizeof(m_cbuf), ShaderStage::VERTEX, false);
-	Graphics::TConstBuffer otherConstantBuffer{ math::XMMatrixTranslation(-0.5, 0, 3.0f) * gfx.getProjection() };
+	Graphics::TConstBuffer otherConstantBuffer{ math::XMMatrixTranslation(-0.5, 0, 3.0f) * projection }; // gfx.getProjection() };
 	m_otherCube.addMesh(TexturedCube::mesh());
 	m_otherCube.copyConstantBuffer(&otherConstantBuffer, sizeof(otherConstantBuffer), ShaderStage::VERTEX, true, true);
 }
