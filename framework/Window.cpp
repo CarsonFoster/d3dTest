@@ -5,6 +5,7 @@
 #include <exception>
 #include <memory>
 #include <optional>
+#include <ShellScalingApi.h>
 #include <string>
 #include <Windows.h>
 #include <windowsx.h>
@@ -113,6 +114,8 @@ Window::Window(Window::WindowInitializationStruct wis)
 	: m_hWnd{}, m_clientWindowProc{ wis.windowProc }, 
 	m_clientWidth{ wis.clientWidth }, m_clientHeight{ wis.clientHeight }, kbd{}, mouse{} {
 	
+	SetProcessDpiAwareness(PROCESS_DPI_AWARENESS::PROCESS_SYSTEM_DPI_AWARE);
+
 	HWND hWnd = CreateWindowExW(wis.extendedStyle, wis.className, wis.windowName, wis.windowStyle, wis.x, wis.y,
 		wis.windowWidth, wis.windowHeight, wis.hParent, wis.hMenu, wis.hInstance, this);
 	if (hWnd == nullptr) throw CWF_LAST_EXCEPTION();
