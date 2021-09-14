@@ -57,14 +57,8 @@ Graphics::Graphics(HWND hWnd, int clientWidth, int clientHeight)
 		)
 	);
 
-	RECT rect{};
-	if (GetClientRect(hWnd, &rect)) {
-		OutputDebugStringA((std::to_string(rect.right - rect.left) + " " + std::to_string(rect.bottom - rect.top) + "\n").c_str());
-	}
-
 	DXGI_SWAP_CHAIN_DESC tmp{};
 	m_pSwapChain->GetDesc(&tmp);
-	OutputDebugStringA((std::to_string(tmp.BufferDesc.Width) + " " + std::to_string(tmp.BufferDesc.Height) + "\n").c_str());
 
 	Microsoft::WRL::ComPtr<ID3D11Resource> pBuffer;
 	THROW_IF_FAILED(*this,
