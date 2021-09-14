@@ -42,7 +42,7 @@ class Graphics {
 private:
 	int m_clientWidth;
 	int m_clientHeight;
-	// math::XMFLOAT4X4 m_projection;
+	math::XMFLOAT4X4 m_projection;
 	Camera m_camera;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> m_pSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11Device> m_pDevice;
@@ -202,8 +202,8 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> getRenderTargetView() const noexcept;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> getZBuffer() const noexcept;
 	
-	// void setProjection(float fov_deg, float nearZ, float farZ) noexcept;
-	// const math::XMMATRIX& getProjection() const noexcept;
+	void setProjection(float fov_deg, float nearZ, float farZ) noexcept;
+	const math::XMMATRIX& getProjection() const noexcept;
 	// TODO:	const math::XMMATRIX& getProjection() noexcept;
 	const Camera& camera() const noexcept;
 	Camera& camera() noexcept;
