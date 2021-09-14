@@ -65,20 +65,6 @@ public:
 		size_t length;
 	};
 
-	struct TConstBuffer {
-		math::XMFLOAT4X4 transform;
-
-		TConstBuffer(math::CXMMATRIX t) : transform{} {
-			math::XMStoreFloat4x4(&transform, math::XMMatrixTranspose(t));
-		}
-
-		TConstBuffer() : transform{} {}
-		TConstBuffer& XM_CALLCONV operator=(math::FXMMATRIX t) {
-			math::XMStoreFloat4x4(&transform, math::XMMatrixTranspose(t));
-			return *this;
-		}
-	};
-
 	struct AlignedDeleter {
 		void operator()(void* p) noexcept {
 			_aligned_free(p); // frees memory allocated with _aligned_malloc

@@ -1,6 +1,7 @@
 #ifndef CWF_APP_H
 #define CWF_APP_H
 
+#include "framework/ConstantBuffers.h"
 #include "framework/Material.h"
 #include "framework/Submaterial.h"
 #include "framework/Vertices.h"
@@ -23,7 +24,7 @@ private:
 	std::unique_ptr<Window> m_window;
 	Material<Vertices::Float3Tex, uint16_t>& m_cube;
 	Submaterial<Vertices::Float3Tex, uint16_t> m_otherCube;
-	Graphics::TConstBuffer m_cbuf;
+	ConstantBuffers::TConstBuffer m_cbuf;
 public:
 	App(HINSTANCE hInstance);
 	~App() = default;

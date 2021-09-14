@@ -2,6 +2,7 @@
 #include "CubeTestVertexShader.h"
 #include "CubeTestPixelShader.h"
 #include "framework/CubeSkinned.h"
+#include "framework/ConstantBuffers.h"
 #include "framework/CwfException.h"
 #include "framework/Graphics.h"
 #include "framework/Material.h"
@@ -19,8 +20,8 @@
 +	move from using aligned XMMATRIX to using XMFLOAT4X4 or whatever and loading/saving as necessary
 *	updatable general class
 *	add constant buffer that automatically applies select transformations (e.g. camera and perspective)
-*	move out vertex classes into their own file
-*	move out constant buffer(s) into their own file
++	move out vertex classes into their own file
++	move out constant buffer(s) into their own file
 */
 
 void App::doFrame() {
@@ -106,7 +107,7 @@ App::App(HINSTANCE hInstance) : m_cube{ CubeSkinned<L"bitmap.DDS", Vertices::Flo
 	m_cube.setRenderTarget(gfx.getRenderTargetView(), gfx.getZBuffer());
 	m_cube.setViewport(0.0f, 0.0f, m_window->getClientWidth(), m_window->getClientHeight());
 	m_cube.addConstantBuffer(&m_cbuf, sizeof(m_cbuf), ShaderStage::VERTEX, false);
-	Graphics::TConstBuffer otherConstantBuffer{ math::XMMatrixTranslation(-0.5, 0, 3.0f) * gfx.getProjection() };
+	ConstantBuffers::TConstBuffer otherConstantBuffer{ math::XMMatrixTranslation(-0.5, 0, 3.0f) * gfx.getProjection() };
 	m_otherCube.addMesh(TexturedCube::mesh());
 	m_otherCube.copyConstantBuffer(&otherConstantBuffer, sizeof(otherConstantBuffer), ShaderStage::VERTEX, true, true);
 }
