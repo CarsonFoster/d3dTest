@@ -152,6 +152,9 @@
     <ClInclude Include="framework\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="framework\Vertices.h">
+      <Filter>Header Files\Shapes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="framework\shaders\TestTrianglePixelShader.hlsl">

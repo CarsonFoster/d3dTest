@@ -6,6 +6,7 @@
 #include "framework/Graphics.h"
 #include "framework/Material.h"
 #include "framework/Orientation.h"
+#include "framework/Vertices.h"
 #include "framework/Window.h"
 #include "framework/WindowBuilder.h"
 #include "framework/WindowClass.h"
@@ -15,7 +16,7 @@
 
 /*
 * TODO LIST (WHILE I REMEMBER)
-*	move from using aligned XMMATRIX to using XMFLOAT4X4 or whatever and loading/saving as necessary
++	move from using aligned XMMATRIX to using XMFLOAT4X4 or whatever and loading/saving as necessary
 *	updatable general class
 *	add constant buffer that automatically applies select transformations (e.g. camera and perspective)
 *	move out vertex classes into their own file
@@ -79,7 +80,7 @@ LRESULT WndProc(Window* pWindow, HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 	return DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
-App::App(HINSTANCE hInstance) : m_cube{ CubeSkinned<L"bitmap.DDS", Graphics::Float3Tex>::material() }, 
+App::App(HINSTANCE hInstance) : m_cube{ CubeSkinned<L"bitmap.DDS", Vertices::Float3Tex>::material() }, 
 	m_otherCube{ m_cube }, m_cbuf{} {
 
 	WindowClass wc{ hInstance, s_className };
@@ -98,7 +99,7 @@ App::App(HINSTANCE hInstance) : m_cube{ CubeSkinned<L"bitmap.DDS", Graphics::Flo
 
 	m_cbuf = gfx.camera().get() * gfx.getProjection();
 
-	using TexturedCube = CubeSkinned<L"bitmap.DDS", Graphics::Float3Tex>;
+	using TexturedCube = CubeSkinned<L"bitmap.DDS", Vertices::Float3Tex>;
 	TexturedCube::addMesh();
 	m_cube.setVertexShader(g_pVertexShader, sizeof(g_pVertexShader));
 	m_cube.setPixelShader(g_pPixelShader, sizeof(g_pPixelShader));

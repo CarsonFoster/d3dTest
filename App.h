@@ -3,6 +3,7 @@
 
 #include "framework/Material.h"
 #include "framework/Submaterial.h"
+#include "framework/Vertices.h"
 #include "framework/Window.h"
 #include <cstdint>
 #include <DirectXMath.h>
@@ -20,8 +21,8 @@ private:
 	static constexpr const LPCWSTR s_className{ L"d3dTest" };
 	static constexpr const LPCWSTR s_windowName{ L"d3dTest Window" };
 	std::unique_ptr<Window> m_window;
-	Material<Graphics::Float3Tex, uint16_t>& m_cube;
-	Submaterial<Graphics::Float3Tex, uint16_t> m_otherCube;
+	Material<Vertices::Float3Tex, uint16_t>& m_cube;
+	Submaterial<Vertices::Float3Tex, uint16_t> m_otherCube;
 	Graphics::TConstBuffer m_cbuf;
 public:
 	App(HINSTANCE hInstance);
