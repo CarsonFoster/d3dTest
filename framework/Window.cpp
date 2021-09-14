@@ -115,7 +115,7 @@ Window::Window(Window::WindowInitializationStruct wis)
 	m_clientWidth{ wis.clientWidth }, m_clientHeight{ wis.clientHeight }, kbd{}, mouse{} {
 	
 	// SetProcessDpiAwareness(PROCESS_DPI_AWARENESS::PROCESS_SYSTEM_DPI_AWARE);
-	SetProcessDPIAware();
+	// SetProcessDPIAware();
 
 	HWND hWnd = CreateWindowExW(wis.extendedStyle, wis.className, wis.windowName, wis.windowStyle, wis.x, wis.y,
 		wis.windowWidth, wis.windowHeight, wis.hParent, wis.hMenu, wis.hInstance, this);
