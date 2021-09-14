@@ -208,6 +208,7 @@
     <ClInclude Include="framework\ShaderStage.h" />
     <ClInclude Include="framework\ShapeConcepts.h" />
     <ClInclude Include="framework\Submaterial.h" />
+    <ClInclude Include="framework\Updatable.h" />
     <ClInclude Include="framework\Vertices.h" />
     <ClInclude Include="framework\Window.h" />
     <ClInclude Include="framework\WindowBuilder.h" />

@@ -158,6 +158,9 @@
     <ClInclude Include="framework\ConstantBuffers.h">
       <Filter>Header Files\Shapes</Filter>
     </ClInclude>
+    <ClInclude Include="framework\Updatable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="framework\shaders\TestTrianglePixelShader.hlsl">
