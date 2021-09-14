@@ -14,9 +14,9 @@ namespace math = DirectX;
 
 Graphics::Graphics(HWND hWnd, int clientWidth, int clientHeight)
 	: m_clientWidth{ clientWidth }, m_clientHeight{ clientHeight },
-	/*m_projection{},*/ m_camera{} {
+	m_projection{}, m_camera{} {
 
-	// math::XMStoreFloat4x4(&m_projection, math::XMMatrixIdentity());
+	math::XMStoreFloat4x4(&m_projection, math::XMMatrixIdentity());
 	
 	DXGI_SWAP_CHAIN_DESC swapChainDescriptor{};
 	swapChainDescriptor.BufferDesc.Width = 0; // get width from output window
