@@ -24,7 +24,7 @@ private:
 	std::unique_ptr<Window> m_window;
 	Material<Vertices::Float3Tex, uint16_t>& m_cube;
 	Submaterial<Vertices::Float3Tex, uint16_t> m_otherCube;
-	ConstantBuffers::TConstBuffer m_cbuf;
+	std::unique_ptr<ConstantBuffers::VPTConstBuffer> mp_cbuf;
 public:
 	App(HINSTANCE hInstance);
 	~App() = default;

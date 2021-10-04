@@ -57,13 +57,10 @@ void App::doFrame() {
 	if (dX != 0.0f || dY != 0.0f) {
 		// o.update(dX, dY, 0.0f);
 		gfx.camera().updateOrientation(dX, dY, 0.0f);
-		m_cbuf = {
-			math::XMMatrixMultiply(
-				gfx.camera().get(),
-				gfx.getProjection()
-			)
+		*mp_cbuf = {
+			math::XMMatrixIdentity()
 		};
-		m_cube.updateCopyConstantBuffer(0, gfx, &m_cbuf, sizeof(m_cbuf));
+		m_cube.updateCopyConstantBuffer(0, gfx, mp_cbuf.get(), mp_cbuf->getBufferSize());
 	}
 
 	gfx.clearBuffer(0, 0, 0);
@@ -82,7 +79,7 @@ LRESULT WndProc(Window* pWindow, HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 }
 
 App::App(HINSTANCE hInstance) : m_cube{ CubeSkinned<L"bitmap.DDS", Vertices::Float3Tex>::material() }, 
-	m_otherCube{ m_cube }, m_cbuf{} {
+	m_otherCube{ m_cube }, mp_cbuf{} {
 
 	WindowClass wc{ hInstance, s_className };
 	wc.registerClass();
@@ -98,7 +95,7 @@ App::App(HINSTANCE hInstance) : m_cube{ CubeSkinned<L"bitmap.DDS", Vertices::Flo
 
 	gfx.camera().setPosition( 0.0f, 0.0f, -2.0f );
 
-	m_cbuf = gfx.camera().get() * gfx.getProjection();
+	mp_cbuf = std::make_unique<ConstantBuffers::VPTConstBuffer>(gfx);
 
 	using TexturedCube = CubeSkinned<L"bitmap.DDS", Vertices::Float3Tex>;
 	TexturedCube::addMesh();
@@ -106,7 +103,7 @@ App::App(HINSTANCE hInstance) : m_cube{ CubeSkinned<L"bitmap.DDS", Vertices::Flo
 	m_cube.setPixelShader(g_pPixelShader, sizeof(g_pPixelShader));
 	m_cube.setRenderTarget(gfx.getRenderTargetView(), gfx.getZBuffer());
 	m_cube.setViewport(0.0f, 0.0f, m_window->getClientWidth(), m_window->getClientHeight());
-	m_cube.addConstantBuffer(&m_cbuf, sizeof(m_cbuf), ShaderStage::VERTEX, false);
+	m_cube.addConstantBuffer(mp_cbuf.get(), mp_cbuf->getBufferSize(), ShaderStage::VERTEX, false);
 	ConstantBuffers::TConstBuffer otherConstantBuffer{ math::XMMatrixTranslation(-0.5, 0, 3.0f) * gfx.getProjection() };
 	m_otherCube.addMesh(TexturedCube::mesh());
 	m_otherCube.copyConstantBuffer(&otherConstantBuffer, sizeof(otherConstantBuffer), ShaderStage::VERTEX, true, true);
