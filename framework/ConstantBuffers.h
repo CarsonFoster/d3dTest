@@ -37,8 +37,8 @@ namespace ConstantBuffers {
 	};
 
 	struct VPTConstBuffer {
-		const Graphics& m_gfx;
 		math::XMFLOAT4X4 m_transform;
+		const Graphics& m_gfx;
 
 		VPTConstBuffer(const Graphics& gfx, math::CXMMATRIX t) : m_gfx{ gfx }, m_transform{} {
 			math::XMStoreFloat4x4(&m_transform,
@@ -68,6 +68,11 @@ namespace ConstantBuffers {
 					)
 				)
 			);
+			return *this;
+		}
+
+		constexpr size_t getBufferSize() const {
+			return sizeof(m_transform);
 		}
 	};
 }
