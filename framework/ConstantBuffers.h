@@ -20,6 +20,10 @@ namespace ConstantBuffers {
 			math::XMStoreFloat4x4(&m_transform, t);
 			return *this;
 		}
+
+		constexpr size_t getBufferSize() const {
+			return sizeof(m_transform);
+		}
 	};
 
 	struct TConstBuffer {
@@ -33,6 +37,10 @@ namespace ConstantBuffers {
 		TConstBuffer& XM_CALLCONV operator=(math::FXMMATRIX t) {
 			math::XMStoreFloat4x4(&m_transform, math::XMMatrixTranspose(t));
 			return *this;
+		}
+
+		constexpr size_t getBufferSize() const {
+			return sizeof(m_transform);
 		}
 	};
 
